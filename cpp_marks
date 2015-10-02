@@ -1,0 +1,36 @@
+dynamic lib- load to memory one time?
+static - load to memory every time
+
+const and typedef - internal link
+inline must be defined in each translation unit when it declared
+external C/{} - link C compatible code, have no influence on call's semantics, but have on type safe, etc.
+compiler need .h, linker libs
+preprocessor make macroreplace and insert from include sorces
+compiler check declaration rule
+linker check other rule and multiple different translation unit
+each declaration (can be separate) must have only one definiton
+
+ODR: two def mean one if:
+-located in another transl unit
+-identical by lexeme
+-has same mean(typedef) in each transl unit
+
+exit() call only static var destr
+abort() ignore all
+
+С++ no virtual constructor
+
+defenition constant in header file cause effective compilator code
+
+<const_cast>/mutable(const mod member) - guess for what)
+
+s=q or s(q) call member-by-member copy of all bit from one to another
+
+s==q? maybe some bit compare?
+
+extern "C" - only linker rule. Why? because diiferent lang (comp) have diff way of location memory,
+ procc stack,  etc.. So you say link "it" in C rule (for compatibility) - NOT use for diff.
+ C++ compilers!!!
+
+nonlocal static var call constr in def order in bound of translation unit to guaranted out use static flag (kkeep state) - first flag use strategy or ...static int x = 0;... - init first time control flow cross defenition, after call main(...) counter, nonlocal init before, in all case destructor call after main(..) except some abnormal program complete
+temporary object can't link with non-const reference? (maybe because this type object can't be lvalue?, and const ref is not obliged to check this condition)
