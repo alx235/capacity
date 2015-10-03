@@ -44,3 +44,4 @@ Overload operatos: =,[],(),-> only non-static member;
 friend mod => function get access only in hide scope of class (don't understand nothing...)
 
 IMPLICIT CONVERSION NOT ALLOWED WITH NON_CONST REF FUNC ARGS
+POSTFIX OVERLOAD operator have signature with int arg, it's value has no mean..., it's only signature and all.
