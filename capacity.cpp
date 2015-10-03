@@ -3,15 +3,32 @@
 /*#include <thread>*/
 using namespace std;
 
+struct A {
+  int a;
+};
+
+//OVERLOAD OPERATOR
 class Example {
+  int x;
+  A *a;
   static const int ex1=1;//static const POD(!) member can be init in declaration
   //int &a;
   //const int b;
+  public:
+  Example (A *a_) {
+    a = a_;
+  };
+    
+  //DEREF OVERLOAD, can return any type, ofthen use in smart pointer class
+  A* operator-> () {
+    return a;
+  };
+
   /*Example(int b_,int a_):a(a_),b(b_) {//const and ref MUST be init in init-list of constructor
     }*/
-private://private access for defenited copy and assignment operations block this operation...
-  Example(const Example &ex) {
-    //init raw memory
+  private://private access for defenited copy and assignment operations block this operation...
+  explicit Example(const Example &ex) {
+    //init raw memory, NO cast type
   }
   Example& operator=(const Example &ex) {
     if(this!=&ex) {//check equal himself(adress in memory)
@@ -19,6 +36,15 @@ private://private access for defenited copy and assignment operations block this
     }
     return *this;
   }
+  Example* operator&(); //prefix (NO ARG ACCEPT) unar oper (ONE OPERAND)
+  Example operator&(Example X); //binar AND required 1 arg, at least
+  const Example& operator[](int i);//any POD type arg, const args mod block mod element!!!
+
+  ///FUNCTIONAL CALL
+  void operator() (Example &ex) {
+    ex.x = 1;
+  };
+
 };
 
 /*
@@ -224,7 +250,15 @@ int main (int argc, char * argv[]) {
     */
 
   /*
-  ambiguous overloaded
+  //ambiguous overloaded
   f1(2);*/
-  
+
+  /*
+  //operator -> overload
+  A a;
+
+  Example ex(&a);
+
+  ex->a;
+  */
 }

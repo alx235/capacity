@@ -34,3 +34,13 @@ extern "C" - only linker rule. Why? because diiferent lang (comp) have diff way 
 
 nonlocal static var call constr in def order in bound of translation unit to guaranted out use static flag (kkeep state) - first flag use strategy or ...static int x = 0;... - init first time control flow cross defenition, after call main(...) counter, nonlocal init before, in all case destructor call after main(..) except some abnormal program complete
 temporary object can't link with non-const reference? (maybe because this type object can't be lvalue?, and const ref is not obliged to check this condition)
+
+FORBIDDEN overload: ::, ., .*, ?;, sizeof, typeid.
+
+Unar/binar oper can be overloaded with non-static member(no,1 argc) or global funct (1, 2 argc), local have no precedent this case, unar firs arg CAN'T be POD type
+
+Overload operatos: =,[],(),-> only non-static member;
+
+friend mod => function get access only in hide scope of class (don't understand nothing...)
+
+IMPLICIT CONVERSION NOT ALLOWED WITH NON_CONST REF FUNC ARGS
