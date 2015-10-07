@@ -1,11 +1,47 @@
 //g++ capacity.cpp -o capacity -Wall -pthread -std=c++0x
 #include <iostream>
 /*#include <thread>*/
+#include <ctime>
 using namespace std;
 
+void ab(int &a) {
+}
+
+void hoarasort(int* a, int first, int last) {   
+  int first_ = first, last_ = last;int tmp, mid = a[(first + last) / 2];
+  std::cout<<"first:"<<a[first]<<"\n";
+  std::cout<<"last:"<<a[last]<<"\n";
+  do {
+    while (a[first_] < mid)
+      first_++;
+    while (a[last_] > mid)
+      last_--;
+    if (first_ <= last_) {
+      if (first_ < last_) {
+        tmp=a[first_];
+        a[first_]=a[last_];
+        a[last_]=tmp;
+      }
+      first_++;
+      last_--;
+    }
+ }
+ while (first_ <= last_);
+
+ if (first_ < last) hoarasort(a, first_, last);
+ if (first < last_) hoarasort(a, first,last_);
+}
+
+/*
 struct A {
   int a;
 };
+
+//new except handler
+void bad_mem_() {
+	std:: cerr << "bad alloc" << "\n";
+	throw std::bad_alloc();
+}
 
 //OVERLOAD OPERATOR
 class Example {
@@ -25,7 +61,7 @@ class Example {
   };
 
   /*Example(int b_,int a_):a(a_),b(b_) {//const and ref MUST be init in init-list of constructor
-    }*/
+  }*//*
   private://private access for defenited copy and assignment operations block this operation...
   explicit Example(const Example &ex) {
     //init raw memory, NO cast type
@@ -260,5 +296,84 @@ int main (int argc, char * argv[]) {
   Example ex(&a);
 
   ex->a;
+  */
+
+  /*
+  //some ex
+
+  std::stringstream input = std::stringstream(argv[0]);
+  std::string path(input.str());
+  std::cout << "path:" << path << "\n";
+  char ch;
+  /*
+  //IGNORE END INPUT:enter code
+  while (std::cin>>/*std::noskipws>>*//*ch) {
+				      //CHECK UNICODE
+				      if ((ch < 0) || (ch >= 255)) {
+				      std::cerr << "error\n";
+				      continue;
+				      }
+				      if (isdigit(ch))
+				      std::cout << "num\n";
+				      else 
+				      if (isalpha(ch))
+				      std::cout << "alpha\n";
+				      else
+				      if (isspace(ch)) {
+				      std::cout << "space\n";
+					
+				      }
+				      }*/
+
+  /*
+  //SUBexpression no order, and new except handler
+  int a, b;
+  //left operand ( is the object of a mathematical operation) compute first!
+  a = (b = 2, b + 1);
+  std::cout << "a:"<<a << "\n";
+  std::cin>>ch;
+  //computing order of subexpression is undefined!
+  //v[i] = i++; - NEVER!!!
+
+  */
+
+  /*
+    std::set_new_handler(bad_mem_);
+    //std::cout << "size:" << sizeof(long long) << "\n";
+    while(1)
+    new long [1000 * 256 * 2];
+    std::cin >> ch;
+    //long ar[1000*256*2];
+    */
+
+  /*
+  //-2!!!
+  int a = 0xfffffffe;
+  std::cout << "a:" <<a << "\n";
+  std::cin >> ch;
+  return 0;
+  */
+  /*
+  srand(time(0)); // AUTO RANDOMIZE HOAR ALGORITM CALL
+  int count = 10;
+  int * const mas = new int[count];
+  int *ar = mas;
+  std::cout<<"unsort array:\n";
+  for (int i=0;i<count;i++) {
+    *ar++ = rand() % 10;
+  }
+  for (int i=0;i<count;i++) {
+    std::cout<<i<<":"<<mas[i]<<"\n";
+  }
+  hoarasort(mas, 0, count-1);
+  std::cout<<"sort array:\n";
+  for (int i=0;i<count;i++) {
+    std::cout<<mas[i]<<"\n";
+  }
+  delete[] mas;
+  double a = 1;
+  // REF must be lvalue and strong type!
+  ab(a);
+  return 0;
   */
 }
