@@ -1,3 +1,5 @@
+
+
 dynamic lib- load to memory one time?
 static - load to memory every time
 
@@ -44,4 +46,17 @@ Overload operatos: =,[],(),-> only non-static member;
 friend mod => function get access only in hide scope of class (don't understand nothing...)
 
 IMPLICIT CONVERSION NOT ALLOWED WITH NON_CONST REF FUNC ARGS
+
 POSTFIX OVERLOAD operator have signature with int arg, it's value has no mean..., it's only signature and all.
+
+Exception in destructor call terminate() which call abort()
+
+Fucntion Signature Throw (specif. excep.) call std::unexpected if throw except that not belong to list of except below, which cal terminate().
+
+CATCH Derived except cancel CATCH of BASE except (in def order).
+
+When a THROW expression is evaluated, an exception object is initialized
+ from the value of the expression.
+ The exception object which is thrown gets its type from the static type
+ of the throw expression ignoring any const and volatile qualifiers.
+ For class types this means that copy-initialization is performed
