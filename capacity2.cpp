@@ -244,10 +244,10 @@ namespace User {
         }
 
         template <typename C1>
-        friend std::ostream& operator<<(std::ostream& os, const C1& x);
+        friend std::ostream& operator<<(std::ostream& os, const User::String<C1>& x);
 
         template <typename C1>
-        friend std::istream& operator>>(std::istream& is, C1& x);
+        friend std::istream& operator>>(std::istream& is, User::String<C1>& x);
 
         Cref operator[] (int i) {
             check(i);
@@ -264,16 +264,53 @@ namespace User {
         }
     };
 
-    template <typename C>
-    std::ostream& operator<<(std::ostream& os, const C& x) {
+    template <typename C1>
+    std::ostream& operator<<(std::ostream& os, const User::String<C1>& x) {
         os.write(x.rep->s,x.rep->sz);
         return os;
     }
 
-    template <typename C>
-    std::istream& operator>>(std::istream& is, C& x) {
+    static const int def_size = 100;
+
+    template <typename C1>
+    std::istream& operator>>(std::istream& is, User::String<C1>& x) {
         int size = x.rep->sz;
-        is.getline(x.rep->s,size);
+        int size_ = 0;
+        char *s_ = x.rep->s;
+        char *tmp;
+
+        int i = 0;
+        bool is_over = 0;//flag overflow s
+        bool zero_size = (size==0);
+        bool read_next = 1;
+
+        while(read_next) {
+            if ((size_>size)||zero_size) {//overflow case:
+                size_ += def_size;
+                try {
+                    tmp = new char[size_+1];
+                    strcpy(tmp, s_);
+                }
+                catch(...) {
+                    delete[] tmp;
+                    throw;//bad allocation
+                }
+                delete[] s_;
+                s_ = tmp;
+                is_over =1;
+            }
+
+            if(!(is>>s_[i]))//write and increment
+                read_next = 0;
+            ++size_;
+            ++i;
+        }
+        if (!(x.rep->n==1))
+           x.rep->n--;
+        if (is_over) {//if overflow we must update rep
+            x.rep->s = s_;
+            x.rep->sz = size_;
+        }
         return is;
     }
 }
@@ -286,8 +323,7 @@ int main (int argc, char * argv[]) {
     char c = str[4];
 */
     User::String<char> buf;
-    std::vector< User::String<char> > v;
-    while(std::cin>>buf)
-        v.push_back(buf);
-    std::cout<<v[0]<<"\n";
+
+    std::cin>>buf;
+    std::cout<<buf<<"\n";
 }
