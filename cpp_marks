@@ -60,3 +60,8 @@ When a THROW expression is evaluated, an exception object is initialized
  The exception object which is thrown gets its type from the static type
  of the throw expression ignoring any const and volatile qualifiers.
  For class types this means that copy-initialization is performed
+
+FABRIC METHOD: definite abstract class with virtual T_BASE* function=0,
+return T_SOME_DERIVED* in override - just interface returning base class pointer.
+it is more efficient to do ++iterator than iterator++ since it avoids an 
+unnecessary copy when incrementing
