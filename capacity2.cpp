@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <algorithm>
 
 
 namespace User {
@@ -168,7 +169,7 @@ namespace User {
         Srep& operator=(const Srep&);
     };
 
-    template<class C> class String {
+    template<class C> class String {//CLASS C=CHAR => WE CAN OMIT PARAM TYPE IN INSTANTIATION
 
         //ref to String, work with s[i]
         //As for me, we can use only char* c and save memory))
@@ -313,8 +314,27 @@ namespace User {
         }
         return is;
     }
-}
+    /*
+    //NEED EXAMPLE
+    template<class T> void sort(std::vector<T>& x) {//COMPILER CAN DETERMINE PARAM TYPE by ARG TYPE RESPECTIVILY
+        std::sort(x.begin(),x.end());
+    }
 
+    //PARTIAL SPECIALIZATION MUST!!! BE ABOVE COMPLETE=>
+    //ORDER IMPORTANT!!!
+    template<class T> class Vector {//COMMON PATTERN
+        T* v;
+    };
+    template<> class Vector<void*> {//COMPLETE SPECIALIZATION
+        void** p;
+    };
+    //FOR ALL ARG POINTER TYPE!
+    template<class T> class Vector<T*> : private Vector<void*> {//PARTIAL SPECIALIZATION
+
+    };
+    */
+
+}
 
 int main (int argc, char * argv[]) {
 
@@ -322,8 +342,39 @@ int main (int argc, char * argv[]) {
     User::String str = "abc";
     char c = str[4];
 */
-    User::String<char> buf;
+
+/*OUT_IN OVERLOAD OPERATOR
+
+
+    User::String<char> buf;//INSTANTIATION POINT TEMPLATE - FIRST DEFENITE PARAM TYPE
 
     std::cin>>buf;
     std::cout<<buf<<"\n";
+
+*/    
+
+/*template fuction
+    std::vector<int> v;
+
+    v.push_back(1);
+    v.push_back(0);
+    User::sort(v);
+*/
+
+/*MULTI-LVL POINTER
+    char *names[4] = {
+                   "Zara Ali",
+                   "Hina Ali",
+                   "Nuha Ali",
+                   "Sara Ali",
+    };
+
+    char **b = names;
+
+    std::cout<<b[3]<<"\n";
+
+*/
+
+User::Vector<void*> vpv;//NEED EXAMPLE
+
 }
