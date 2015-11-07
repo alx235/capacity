@@ -90,4 +90,18 @@ DECLARE USING INSIDE CLASS USE FOR OVERLOAD BASE OR DERIVED MEMBERS.
 FOR BASE CLASS CASE USE EXPLICIT CLOSE DERIVED DEFINITON OR
 USE VIRTUAL BASE CLASS (:VIRTUAL _base_).
 
-2 REPLACEMENT FUNCTIONS USING IN MULTIPLE INHERITANCE LEAD TO AMBIGUITY.  
+2 REPLACEMENT FUNCTIONS USING IN MULTIPLE INHERITANCE LEAD TO AMBIGUITY.
+
+
+dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymorthic type D, if fail =0
+for & => bad_cast exception
+for virtual base (multiple inheritance) can be ambiguity (what object???)
+dynamic_cast<void*>(D*) give adress of object beginning (pol. type)
+static_cast - for void* to T* cast
+const_cast full save only in case when object declare as non-const(volatile)
+typeid: return pointer to type info (std type), bad_type if for zero pol type pointer or ref, compil-time value for non-pol type
+
+
+pointer to member need to get it from one adress space to another with condition of equal object location
+
+
