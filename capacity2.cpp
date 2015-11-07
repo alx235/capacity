@@ -375,6 +375,15 @@ int main (int argc, char * argv[]) {
 
 */
 
-User::Vector<void*> vpv;//NEED EXAMPLE
+/*User::Vector<void*> vpv*/;//NEED EXAMPLE
+
+/**/
+// ABORT/EXIT LEAVE STACK...MAYBE GOTO...
+//std::cout<<"start\n";
+
+/*abort;*/ /*exit(1);*/
+
+//std::cout<<"end\n";
+/**/
 
 }
