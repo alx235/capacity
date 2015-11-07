@@ -336,6 +336,32 @@ namespace User {
 
 }
 
+/* SET_TERMINATE SET_UNEXPECTED
+#include <except>
+#include <iostream>
+
+void my_terminate() {
+    std::cerr << "my terminate handler";
+    std::exit(0);
+}
+
+void my_unexpected() {
+    std::cerr << "my unexpected handler";
+    std::exit(EXIT_FAILURE);
+}
+
+#pragma argsused
+int main(int argc, char* argv[])
+{
+    std::set_terminate(my_terminate);
+    std::set_unexpected(my_unexpected);
+    try {
+        throw std::exception();
+    } catch (const std::logic_error&) {
+    }
+    return 0;
+}*/
+
 int main (int argc, char * argv[]) {
 
 /*COPY ON_WRITE AND REPRESENTATION VIEW
@@ -375,7 +401,7 @@ int main (int argc, char * argv[]) {
 
 */
 
-/*User::Vector<void*> vpv*/;//NEED EXAMPLE
+/*User::Vector<void*> vpv*;//NEED EXAMPLE
 
 /**/
 // ABORT/EXIT LEAVE STACK...MAYBE GOTO...
