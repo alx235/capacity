@@ -102,6 +102,15 @@ const_cast full save only in case when object declare as non-const(volatile)
 typeid: return pointer to type info (std type), bad_type if for zero pol type pointer or ref, compil-time value for non-pol type
 
 
-pointer to member need to get it from one adress space to another with condition of equal object location
+pointer to VIRTUAL member need to get it from one adress space to another with condition of equal same type location,
+because of pointer of virtual member like offset in array
+
+predicat - just function return bool
+
+for_each - cycle alternative
+
+copy + push_back - protected from out_range
+
+STD::ALGORITMS - NEED (IF NEED...because of standart case implementation) EXAMPLE
 
 
