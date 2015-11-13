@@ -117,6 +117,6 @@ STD::ALGORITMS - NEED (IF NEED...because of standart case implementation) EXAMPL
 iterator - just pointer to array wrapper, which has const time operation (not sure about [] for random access).
 
 
-Memory allocator is complex and non-trivial topic, need test, experience..so i can't say that it'll done near future.
+Memory allocator (+d.3.5) is complex and non-trivial topic, need test, experience..so i can't say that it'll done near future.
 
 bit field (int:1(2), bool name:1), or union for save memory do not give guarantee of portability.
