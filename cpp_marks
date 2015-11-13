@@ -113,4 +113,5 @@ copy + push_back - protected from out_range
 
 STD::ALGORITMS - NEED (IF NEED...because of standart case implementation) EXAMPLE
 
+iterator - just pointer to array wrapper, which has const time operation (not sure about [] for random access).
 
