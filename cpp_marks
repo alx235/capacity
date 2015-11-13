@@ -121,4 +121,12 @@ Memory allocator (+d.3.5) is complex and non-trivial topic, need test, experienc
 
 bit field (int:1(2), bool name:1), or union for save memory do not give guarantee of portability.
 
-Widget w3 = w2; // call copy constructor! 
+Widget w3 = w2; // call copy constructor!
+
+local static order init in diff. transl unit = undefined
+
+forbid copy constr and operator assignment = inherit from class with private copy constr and operator assignment
+
+never call virt function in constructor and destructor - when creating derived object object type is base...so undefined beh
+can exist...
+
