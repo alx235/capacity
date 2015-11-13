@@ -130,3 +130,5 @@ forbid copy constr and operator assignment = inherit from class with private cop
 never call virt function in constructor and destructor - when creating derived object object type is base...so undefined beh
 can exist...
 
+use special smart pointer to dynamic array
+
