@@ -149,4 +149,6 @@ PARTIAL SPECIALIZATION for template function is FORBID
 
 Use init cur val instead of def constr and init.
 
-private inheritance forbid cast from derived to base 
+private inheritance forbid cast from derived to base
+
+VIRTUAL INHERITANCE is very expensive and low!
