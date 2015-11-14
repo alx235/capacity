@@ -147,3 +147,4 @@ Use non-member fuction for case when need cast all params.
 
 PARTIAL SPECIALIZATION for template function is FORBID
 
+Use init cur val instead of def constr and init.
