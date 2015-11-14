@@ -132,3 +132,18 @@ can exist...
 
 use special smart pointer to dynamic array
 
+RAII - Resource Acquision is Initialization - forbid copy operations or ref counter
+
+Place dynamic object into separate location to avoid memory leaks
+
+To avoid duplicate code in const/non-const member use const_cast
+
+return object not ref because of lost ref problem => Mayers said that compiler will resolve this problem (don't think thid
+always happen, but be carefull!)
+
+Always use const if can for save...
+
+Use non-member fuction for case when need cast all params.
+
+PARTIAL SPECIALIZATION for template function is FORBID
+
