@@ -102,6 +102,7 @@ dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymo
  for virtual base (multiple inheritance) can be ambiguity (what object???)
  dynamic_cast<void*>(D*) give adress of object beginning (pol. type)
  static_cast - for void* to T* cast
+  void* pointer can be used for any standart pointer operation only static_cast
  const_cast full save only in case when object declare as non-const(volatile)
 typeid: return pointer to type info (std type), bad_type if for zero pol type pointer or ref, compil-time value for non-pol type
 
@@ -122,7 +123,7 @@ iterator - just pointer to array wrapper, which has const time operation (not su
 
 Memory allocator (+d.3.5) is complex and non-trivial topic, need test, experience..so i can't say that it'll done near future.
 
-bit field (int:1(2), bool name:1), or union for save memory do not give guarantee of portability.
+bit field (int:1(2), bool name:1), or union for save memory do not give guarantee of portability,  but save memory.
 
 Widget w3 = w2; // call copy constructor! (first init)
 
@@ -135,25 +136,30 @@ can exist...
 
 use special smart pointer to dynamic array
 
-RAII - Resource Acquision is Initialization - forbid copy operations or ref counter
+//получения доступа к ресурсу в конструкторе, а освобождения — в деструкторе соответствующего класса
++RAII - Resource Acquision is Initialization - forbid copy operations or ref counter//
 
-Place dynamic object into separate location to avoid memory leaks
+pointer def value is NOT ALWAYS NULL.
 
-To avoid duplicate code in const/non-const member use const_cast
+deref NULL pointer take no effect.
 
-return object not ref because of lost ref problem => Mayers said that compiler will resolve this problem (don't think this
+Place dynamic object into separate location to avoid memory leaks (just not forget free resource)
+
+?To avoid duplicate code in const/non-const member use const_cast
+
++return object not ref because of lost ref problem => Mayers said that compiler will resolve this problem (don't think this
 always happen, but be carefull!)
 
-Always use const if can, for save...
++Always use const if can, for save...
 
-Use non-member fuction for case when need cast all params.
++Use non-member fuction for case when need cast all params.
 
 PARTIAL SPECIALIZATION for template function is FORBID
 
-Use init cur val instead of def constr and init...(free processor time)
++Use init cur val instead of def constr and init...(free processor time)
 
 private inheritance forbid cast from derived to base
 
-VIRTUAL INHERITANCE is very expensive and low!
++VIRTUAL INHERITANCE is very expensive and low!
 
-CLASS AND TYPENAME ARE EQUAL KEYWORD!
++CLASS AND TYPENAME ARE EQUAL KEYWORD!
