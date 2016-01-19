@@ -8,6 +8,8 @@ const and typedef - internal link (C compatibility)
 inline must be defined in each translation unit when it declared
 external C/{} - link C compatible code (binar), have no influence on call's semantics, but have on type safe, memory/stack loc. etc.
  compiler need .h, linker libs
+ - NOT use for diff.
+      C++ compilers!!!
 preprocessor make macroreplace and insert from include sorces...and check path of sources
 compiler check declaration rule
 linker check other rule and multiple different translation unit
@@ -17,8 +19,6 @@ linker check other rule and multiple different translation unit
    -located in another transl unit
    -identical by lexeme
    -has same mean(typedef) in each transl unit
-   - NOT use for diff.
-      C++ compilers!!!
 process of destroying local objects and calling destructors is called stack unwinding
 if throw() list of funct except has another type except it cause unexpected() => terminate => abort,
  if exception spec list is empty => no except
