@@ -1,54 +1,57 @@
 
 
-dynamic lib- load to memory one time?
-static - load to memory every time
+dynamic lib - load to memory while it not full and has no new(allocation) request. It's binar code (dll,so,etc), run-time
+static - compile time binar code, application binar grow, ref undef before compile.
+Why? not write&compile every time same code...some time init lib is expensive. 
 
-const and typedef - internal link
+const and typedef - internal link (C compatibility)
 inline must be defined in each translation unit when it declared
-external C/{} - link C compatible code, have no influence on call's semantics, but have on type safe, etc.
-compiler need .h, linker libs
-preprocessor make macroreplace and insert from include sorces
+external C/{} - link C compatible code (binar), have no influence on call's semantics, but have on type safe, memory/stack loc. etc.
+ compiler need .h, linker libs
+preprocessor make macroreplace and insert from include sorces...and check path of sources
 compiler check declaration rule
 linker check other rule and multiple different translation unit
-each declaration (can be separate) must have only one definiton
-
-ODR: two def mean one if:
--located in another transl unit
--identical by lexeme
--has same mean(typedef) in each transl unit
-
+ each declaration (can be separate) must have only one definiton
+  BUT:
+  ODR: two def mean one if:
+   -located in another transl unit
+   -identical by lexeme
+   -has same mean(typedef) in each transl unit
+   - NOT use for diff.
+      C++ compilers!!!
 process of destroying local objects and calling destructors is called stack unwinding
 if throw() list of funct except has another type except it cause unexpected() => terminate => abort,
-if exception spec list is empty => no except
-exit() call only static var destr
-abort() ignore all
+ if exception spec list is empty => no except
+  exit() call only static var destr
+  abort() ignore all
 ABORT/EXIT LEAVE STACK...MAYBE GOTO...
 replacement funct MUST have more sprecialization list of exception
 
-С++ no virtual constructor
+С++ no virtual constructor (ONLY VIRTUAL FABRIC METHOD) 
 
 defenition constant in header file cause effective compilator code
 
-<const_cast>/mutable(const mod member) - guess for what)
+<const_cast>/mutable(const modification member) - guess for what)
 
 s=q or s(q) call member-by-member copy of all bit from one to another
 
 s==q? maybe some bit compare?
 
-extern "C" - only linker rule. Why? because diiferent lang (comp) have diff way of location memory,
- procc stack,  etc.. So you say link "it" in C rule (for compatibility) - NOT use for diff.
- C++ compilers!!!
-
-nonlocal static var call constr in def order in bound of translation unit to guaranted out use static flag (kkeep state) - first flag use strategy or ...static int x = 0;... - init first time control flow cross defenition, after call main(...) counter, nonlocal init before, in all case destructor call after main(..) except some abnormal program complete
-temporary object can't link with non-const reference? (maybe because this type object can't be lvalue?, and const ref is not obliged to check this condition)
+nonlocal static var call constr in def order in bound of translation unit to guaranted out use static flag (keep state)
+- first flag use strategy or ...static int x = 0;...
+- init first time (control flow) cross defenition, after call main(...) counter, nonlocal init before,
+in all case destructor call after main(..) except some abnormal program complete
+temporary object can't link with non-const reference? (maybe because this type object can't be lvalue?,
+ and const ref is not obliged to check this condition)
 
 FORBIDDEN overload: ::, ., .*, ?;, sizeof, typeid.
 
-Unar/binar oper can be overloaded with non-static member(no,1 argc) or global funct (1, 2 argc), local have no precedent this case, unar firs arg CAN'T be POD type
+Unar/binar oper can be overloaded with non-static member(0,1 argc) or global funct (1, 2 argc),
+ local have no precedent this case, unar firs arg CAN'T be POD type
 
 Overload operatos: =,[],(),-> only non-static member;
 
-friend mod => function get access only in hide scope of class (don't understand nothing...)
+friend mod => function get access only in hide scope of class (example in MYstring)
 
 IMPLICIT CONVERSION NOT ALLOWED WITH NON_CONST REF FUNC ARGS
 
@@ -56,7 +59,8 @@ POSTFIX OVERLOAD operator have signature with int arg, it's value has no mean...
 
 Exception in destructor call terminate() which call abort()
 
-Fucntion Signature Throw (specif. excep.) call std::unexpected if throw except that not belong to list of except below, which cal terminate().
+Fucntion Signature Throw (specif. excep.) call std::unexpected if throw except that not belong to list of except below,
+which cal terminate().
 
 CATCH Derived except cancel CATCH of BASE except (in def order).
 
@@ -74,12 +78,11 @@ unnecessary copy when incrementing
 COMPILER CAN DETERMINE PARAM TYPE by ARG TYPE RESPECTIVILY
 
 INSTANTIATION POINT TEMPLATE - FIRST DEFENITE PARAM TYPE
-
-CLASS C=CHAR => WE CAN OMIT PARAM TYPE IN INSTANTIATION
+ CLASS C=CHAR => WE CAN OMIT PARAM TYPE IN INSTANTIATION
 
 MORE SPECIAL TEMPLATE VERSION HAS PRIOR FOR DECLAR OBJ, POINTER
-AND OVERLOAD RESOLUTION, PARTIAL SPECIALIZATION MUST!!! BE ABOVE COMPLETE=>
-ORDER IMPORTANT!!!
+ AND OVERLOAD RESOLUTION, PARTIAL SPECIALIZATION MUST!!! BE ABOVE COMPLETE=>
+ ORDER IMPORTANT!!!
 
 COMPILE-TIME(PARAMETRIC) POLYMORPHISM - TEMPLATE AND INHERITANCE
 RUN-TIME POLYMORPHISM - VIRTUAL FUNCTION AND OBJECT INHERITANCE
@@ -89,17 +92,17 @@ IN GENERAL, GENERIC FROM ONE TEMPLATE 2 TYPES HAVE NO REFERENCE.
 DECLARE USING INSIDE CLASS USE FOR OVERLOAD BASE OR DERIVED MEMBERS.
 
 FOR BASE CLASS CASE USE EXPLICIT CLOSE DERIVED DEFINITON OR
-USE VIRTUAL BASE CLASS (:VIRTUAL _base_).
+USE VIRTUAL BASE CLASS (:VIRTUAL _base_)...for cast
 
 2 REPLACEMENT FUNCTIONS USING IN MULTIPLE INHERITANCE LEAD TO AMBIGUITY.
 
 
 dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymorthic type D, if fail =0
-for & => bad_cast exception
-for virtual base (multiple inheritance) can be ambiguity (what object???)
-dynamic_cast<void*>(D*) give adress of object beginning (pol. type)
-static_cast - for void* to T* cast
-const_cast full save only in case when object declare as non-const(volatile)
+ for & => bad_cast exception
+ for virtual base (multiple inheritance) can be ambiguity (what object???)
+ dynamic_cast<void*>(D*) give adress of object beginning (pol. type)
+ static_cast - for void* to T* cast
+ const_cast full save only in case when object declare as non-const(volatile)
 typeid: return pointer to type info (std type), bad_type if for zero pol type pointer or ref, compil-time value for non-pol type
 
 
@@ -121,7 +124,7 @@ Memory allocator (+d.3.5) is complex and non-trivial topic, need test, experienc
 
 bit field (int:1(2), bool name:1), or union for save memory do not give guarantee of portability.
 
-Widget w3 = w2; // call copy constructor!
+Widget w3 = w2; // call copy constructor! (first init)
 
 local static order init in diff. transl unit = undefined
 
@@ -138,16 +141,16 @@ Place dynamic object into separate location to avoid memory leaks
 
 To avoid duplicate code in const/non-const member use const_cast
 
-return object not ref because of lost ref problem => Mayers said that compiler will resolve this problem (don't think thid
+return object not ref because of lost ref problem => Mayers said that compiler will resolve this problem (don't think this
 always happen, but be carefull!)
 
-Always use const if can for save...
+Always use const if can, for save...
 
 Use non-member fuction for case when need cast all params.
 
 PARTIAL SPECIALIZATION for template function is FORBID
 
-Use init cur val instead of def constr and init.
+Use init cur val instead of def constr and init...(free processor time)
 
 private inheritance forbid cast from derived to base
 
