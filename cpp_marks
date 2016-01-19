@@ -24,10 +24,10 @@ if throw() list of funct except has another type except it cause unexpected() =>
  if exception spec list is empty => no except
   exit() call only static var destr
   abort() ignore all
-ABORT/EXIT LEAVE STACK...MAYBE GOTO...
-replacement funct MUST have more sprecialization list of exception
+?ABORT/EXIT LEAVE STACK...MAYBE GOTO...
+?replacement funct MUST have more specialization list of exception
 
-С++ no virtual constructor (ONLY VIRTUAL FABRIC METHOD) 
+С++ no virtual constructor (ONLY VIRTUAL FABRIC METHOD,ex below) 
 
 defenition constant in header file cause effective compilator code
 
@@ -39,7 +39,7 @@ s==q? maybe some bit compare?
 
 nonlocal static var call constr in def order in bound of translation unit to guaranted out use static flag (keep state)
 - first flag use strategy or ...static int x = 0;...
-- init first time (control flow) cross defenition, after call main(...) counter, nonlocal init before,
+- local static var. init first time (control flow) cross defenition, after call main(...) counter, nonlocal init before,
 in all case destructor call after main(..) except some abnormal program complete
 temporary object can't link with non-const reference? (maybe because this type object can't be lvalue?,
  and const ref is not obliged to check this condition)
@@ -50,6 +50,8 @@ Unar/binar oper can be overloaded with non-static member(0,1 argc) or global fun
  local have no precedent this case, unar firs arg CAN'T be POD type
 
 Overload operatos: =,[],(),-> only non-static member;
+ () - functional object
+ ->defer pointer or iterator
 
 friend mod => function get access only in hide scope of class (example in MYstring)
 
@@ -57,7 +59,11 @@ IMPLICIT CONVERSION NOT ALLOWED WITH NON_CONST REF FUNC ARGS
 
 POSTFIX OVERLOAD operator have signature with int arg, it's value has no mean..., it's only signature and all.
 
-Exception in destructor call terminate() which call abort()
+Exception in destructor call terminate() which call abort() - so it bad, because memory will not free.
+ alloc memory, constr.
+ destr., dealloc memory
+
+Function() = 0 - pure virtual => abstract class (can't create object)
 
 Fucntion Signature Throw (specif. excep.) call std::unexpected if throw except that not belong to list of except below,
 which cal terminate().
@@ -96,7 +102,6 @@ USE VIRTUAL BASE CLASS (:VIRTUAL _base_)...for cast
 
 2 REPLACEMENT FUNCTIONS USING IN MULTIPLE INHERITANCE LEAD TO AMBIGUITY.
 
-
 dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymorthic type D, if fail =0
  for & => bad_cast exception
  for virtual base (multiple inheritance) can be ambiguity (what object???)
@@ -114,12 +119,11 @@ predicat - just function return bool
 
 for_each - cycle alternative
 
-copy + push_back - protected from out_range
+copy? + push_back - protected from out_range
 
 STD::ALGORITMS - NEED (IF NEED...because of standart case implementation) EXAMPLE
 
 iterator - just pointer to array wrapper, which has const time operation (not sure about [] for random access).
-
 
 Memory allocator (+d.3.5) is complex and non-trivial topic, need test, experience..so i can't say that it'll done near future.
 
@@ -145,9 +149,9 @@ deref NULL pointer take no effect.
 
 Place dynamic object into separate location to avoid memory leaks (just not forget free resource)
 
-?To avoid duplicate code in const/non-const member use const_cast
++To avoid duplicate code in const/non-const member use const_cast
 
-+return object not ref because of lost ref problem => Mayers said that compiler will resolve this problem (don't think this
++/- return object not ref because of lost ref problem => Mayers said that compiler will resolve this problem (don't think this
 always happen, but be carefull!)
 
 +Always use const if can, for save...
@@ -163,3 +167,5 @@ private inheritance forbid cast from derived to base
 +VIRTUAL INHERITANCE is very expensive and low!
 
 +CLASS AND TYPENAME ARE EQUAL KEYWORD!
+
+User type POD type not use constructor
