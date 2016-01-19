@@ -1,4 +1,11 @@
+destruction:
 
+~derived
+~member derived
+~base
+~member base
+
+constructor have reverse order.
 
 dynamic lib - load to memory while it not full and has no new(allocation) request. It's binar code (dll,so,etc), run-time
 static - compile time binar code, application binar grow, ref undef before compile.
