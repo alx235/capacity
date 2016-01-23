@@ -1,3 +1,5 @@
+All objects originally non-const.
+
 Invoking delete on a pointer not allocated dynamically using new is something called Undefined Behavior
 
 destruction:
