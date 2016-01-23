@@ -1,3 +1,5 @@
+Defaults params are early binding ( at compile time ) , and virtual functions - later, important for def virt fucnt. params,
+
 (?)compiler forbid const ref ref to temporary object
 
 All objects originally non-const.
