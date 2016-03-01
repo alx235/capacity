@@ -1,3 +1,8 @@
+ref<->pointer:
+	int* a = new int(1);
+	int& a1 = *a;
+	int* b = &a1;
+
 Pol. run-time: truncation if base b = d (derived); 
 
     object types with virtual functions are usually implemented in C++ with a per-object pointer
