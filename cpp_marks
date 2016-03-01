@@ -1,3 +1,5 @@
+itearator template wrapper of array Type T.
+
 ref<->pointer:
 	int* a = new int(1);
 	int& a1 = *a;
