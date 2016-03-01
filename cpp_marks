@@ -184,3 +184,5 @@ private inheritance forbid cast from derived to base
 +CLASS AND TYPENAME ARE EQUAL KEYWORD!
 
 User type POD type not use constructor
+
+ref(&a) link with lvalue;
