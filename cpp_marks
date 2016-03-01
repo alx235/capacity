@@ -1,3 +1,25 @@
+explicit: (Meyers): use explicit any time when have no reason don't use it.
+problem: cost for temporary object, unpredictable complicated implisit cast; including implicit POD type.
+/*
+class String {
+public:
+    String(int n); // allocate n bytes to the String object
+    String(const char *p); // initializes object with char *p
+};
+Now if you try
+
+String mystring = 'x';
+the char 'x' will be implicitly converted to int and then will call the String(int) constructor. 
+
+  !!!But this is not what the user might have intended. So to prevent such conditions, 
+  we shall define the constructor as explicit:
+
+class String {
+public:
+    explicit String (int n); //allocate n bytes
+    String(const char *p); // initialize sobject with string p
+};*/
+
 Defaults params are early binding ( at compile time ) , and virtual functions - later, important for def virt fucnt. params.
 
 compiler forbid const ref ref to temporary object
