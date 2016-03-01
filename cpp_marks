@@ -1,3 +1,9 @@
+Pol. run-time: truncation if base b = d (derived); 
+
+    object types with virtual functions are usually implemented in C++ with a per-object pointer
+    to a table of virtual functions which is unique to each type
+    So, that's why we use ref and pointer.
+
 explicit: (Meyers): use explicit any time when have no reason don't use it.
 problem: cost for temporary object, unpredictable complicated implisit cast; including implicit POD type.
 /*
