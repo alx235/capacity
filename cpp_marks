@@ -3,6 +3,8 @@ Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-conta
 - An element must be assignable by the assignment operator
 - An element must be destroyable by a destructor
 
+Copying values means that the STL containers provide value semantics
+
 itearator template wrapper of array Type T.
 
 ref<->pointer:
