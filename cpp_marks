@@ -143,8 +143,31 @@ When a THROW expression is evaluated, an exception object is initialized
 
 FABRIC METHOD: definite abstract class with virtual T_BASE* function=0,
 return T_SOME_DERIVED* in override - just interface returning base class pointer.
+
+!!!
 it is more efficient to do ++iterator than iterator++ since it avoids an 
 unnecessary copy when incrementing
+{
+ That (post++) function has to create a temporary object for its 
+ return value and the implementation above also creates an explicit temporary object that
+ has to be constructed and destructed
+}
+// prefix
+CSample& operator++()
+{
+  // implement increment logic on this instance, return reference to it.
+  return *this;
+}
+
+// postfix
+// create,copy,destroy (since local stack) temporary object
+// seems expensive...yes?
+CSample operator++(int)
+{
+  CSample tmp(*this); 
+  operator++(); // prefix-increment this instance
+  return tmp;   // return value before increment
+}
 
 COMPILER CAN DETERMINE PARAM TYPE by ARG TYPE RESPECTIVILY
 
