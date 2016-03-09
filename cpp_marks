@@ -9,7 +9,9 @@ private inh.:
 Base members that were protected, public, became private in Derived.
 protected inh.:
 Base members that were protected, public, became protected in Derived.
-public...no commenta
+public...no comment
+
+Enum - http://stackoverflow.com/questions/9630744/should-you-declare-enums-inside-or-outside-a-class.
 
 Copying values means that the STL containers provide value semantics
 
