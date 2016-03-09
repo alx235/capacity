@@ -363,6 +363,11 @@ int main(int argc, char* argv[])
 }*/
 
 int main (int argc, char * argv[]) {
+    
+    /*std::string tmp = "\nxyzzz\n";
+	std::string tmp2;
+	std::copy ( tmp.rbegin(), tmp.rend(), back_inserter(tmp2));
+	std::cout<<tmp2;*/
 
 /*COPY ON_WRITE AND REPRESENTATION VIEW
     User::String str = "abc";
