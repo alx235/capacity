@@ -1,6 +1,58 @@
+Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
+- An element must be copyable by a copy constructor
+- An element must be assignable by the assignment operator
+- An element must be destroyable by a destructor
+
+Inheritance visible case:
+
+private inh.:
+Base members that were protected, public, became private in Derived.
+protected inh.:
+Base members that were protected, public, became protected in Derived.
+public...no comment
+
+Enum - http://stackoverflow.com/questions/9630744/should-you-declare-enums-inside-or-outside-a-class.
+
+Copying values means that the STL containers provide value semantics
+
+itearator template wrapper of array Type T.
+
+ref<->pointer:
+	int* a = new int(1);
+	int& a1 = *a;
+	int* b = &a1;
+
+Pol. run-time: truncation if base b = d (derived); 
+
+    object types with virtual functions are usually implemented in C++ with a per-object pointer
+    to a table of virtual functions which is unique to each type
+    So, that's why we use ref and pointer.
+
+explicit: (Meyers): use explicit any time when have no reason don't use it.
+problem: cost for temporary object, unpredictable complicated implisit cast; including implicit POD type.
+/*
+class String {
+public:
+    String(int n); // allocate n bytes to the String object
+    String(const char *p); // initializes object with char *p
+};
+Now if you try
+
+String mystring = 'x';
+the char 'x' will be implicitly converted to int and then will call the String(int) constructor. 
+
+  !!!But this is not what the user might have intended. So to prevent such conditions, 
+  we shall define the constructor as explicit:
+
+class String {
+public:
+    explicit String (int n); //allocate n bytes
+    String(const char *p); // initialize sobject with string p
+};*/
+
 Defaults params are early binding ( at compile time ) , and virtual functions - later, important for def virt fucnt. params.
 
-(?)compiler forbid const ref ref to temporary object
+compiler forbid const ref ref to temporary object
 
 All objects originally non-const.
 
@@ -93,8 +145,31 @@ When a THROW expression is evaluated, an exception object is initialized
 
 FABRIC METHOD: definite abstract class with virtual T_BASE* function=0,
 return T_SOME_DERIVED* in override - just interface returning base class pointer.
+
+!!!
 it is more efficient to do ++iterator than iterator++ since it avoids an 
 unnecessary copy when incrementing
+{
+ That (post++) function has to create a temporary object for its 
+ return value and the implementation above also creates an explicit temporary object that
+ has to be constructed and destructed
+}
+// prefix
+CSample& operator++()
+{
+  // implement increment logic on this instance, return reference to it.
+  return *this;
+}
+
+// postfix
+// create,copy,destroy (since local stack) temporary object
+// seems expensive...yes?
+CSample operator++(int)
+{
+  CSample tmp(*this); 
+  operator++(); // prefix-increment this instance
+  return tmp;   // return value before increment
+}
 
 COMPILER CAN DETERMINE PARAM TYPE by ARG TYPE RESPECTIVILY
 
@@ -184,3 +259,5 @@ private inheritance forbid cast from derived to base
 +CLASS AND TYPENAME ARE EQUAL KEYWORD!
 
 User type POD type not use constructor
+
+ref(&a) link with lvalue;
