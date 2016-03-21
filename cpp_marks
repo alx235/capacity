@@ -201,6 +201,7 @@ dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymo
  for & => bad_cast exception
  for virtual base (multiple inheritance) can be ambiguity (what object???)
  dynamic_cast<void*>(D*) give adress of object beginning (pol. type)
+ dynamic_cast move at hierarchy to tail, to head
  static_cast - for void* to T* cast
   void* pointer can be used for any standart pointer operation only static_cast
  const_cast full save only in case when object declare as non-const(volatile)
