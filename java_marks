@@ -121,3 +121,12 @@ corev1: 5.2*(equal*,hashcode,toString override),
 		! Linked Hash Sets and Maps keep inserted order, 
 			As entries are inserted into the table, they are joined in a doubly linked list
 		! IdentityHashMap Object.hashCode uses to compute a hash code from the object’s memory address
+		!Checked Views help with debugging (with simple type only like ArrayList<String>)
+			Collections.checkedList(strings, String.class);//The advantage is that the error is reported at the correct location
+		public static <T extends Comparable> T max(Collection<T> c)//use collection type wit iterator
+		Converting between Collections and Arrays:
+			HashSet<String> staff = new HashSet<>(Arrays.asList(values));
+		! Collections.sort use diff kind of merge sort, it is stable (try keep order), create temp array
+		! Collections.binarySearch require random access, and sorted sequence, if not it give wrong result, 
+			if random access is not allowed then it reverts to linear search.
+		! Stack class extends the Vector class
