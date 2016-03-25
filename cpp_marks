@@ -3,6 +3,14 @@ Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-conta
 - An element must be assignable by the assignment operator
 - An element must be destroyable by a destructor
 
+auto_ptr:
+	The C++ Standard says that an STL element must be "copy-constructible" and "assignable."
+	In other words, an element must be able to be assigned or copied and the two elements are logically independent
+	
+	Specifically, copying one auto_ptr to another does not create
+	two equal objects since one has lost its ownership of the pointer.
+		std::auto_ptr<X> pX = vecX[0];  // vecX[0] is assigned NULL.
+
 MTS!
 You would only get a problem with thread safety if you were to pass this pointer to another thread
 that would then concurrently modify this memory at the same time as your original (or another) thread.
