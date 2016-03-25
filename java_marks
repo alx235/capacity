@@ -1,0 +1,123 @@
+corev1: 5.2*(equal*,hashcode,toString override),
+	invoke(reflection) - don't use if can
+	this - ref to cur. obj.
+	static bind - constr, private, static - type known
+	dynamic bind - another, type unknown
+	! java override f.is default
+	! final method (class) lock override, and CAN make inline f.
+	upcast can call bad cast exception, use instanceof and check null before
+	! instanceof:
+		At run time, the result of the instanceof operator is true if the value
+		of the RelationalExpression is not null and the reference could be cast to the ReferenceType without raising
+		ClassCastException.
+		Otherwise the result is false.
+	! def.init - http://docs.oracle.com/javase/specs/jls/se7/html/jls-4.html#jls-4.12.5:
+		A local variable must be explicitly given a value before it is used
+		Each class variable, instance variable, or array component is initialized with a default value when it is created
+		sclass constr. - super(arg) in subclass constr, before any statement
+	primitive wrapper class need for Collection
+	StringBuilder - not immutable, not thread safe
+	StringBuffer - -//-, thread safe
+	ArrayList trimToSize - tream memory, add move block
+	! Vector less efficient then ArrayList
+	! All methods of an interface are automatically public
+	! Interface can't have object, have only method signature,constant and other impemention requirement
+	! Clone, if object consist of objects that all immutable ,it is safe, if not, you must redefine to make
+		sure you make deep copy of ref
+	An Inner class is a class that is defined inside another class. Why would you want to do that?
+		Inner class methods can access the data from the scope in which they are defined—including the 	data that would otherwise be 			private.
+		Inner classes can be hidden from other classes in the same package.
+	!An inner class method gets to access both its own data fields and those of the outer object creating it
+	!Inner classes that are declared inside an interface are automatically static and public
+	!Use a static inner class whenever the inner class does not need to access an outer class object
+	!If you override a method from a superclass, the checked exceptions that the subclass method declares cannot be more general than 		those of the superclass method
+	!finally return isn't safe
+	assert: performed if compile with -assert flag
+	proxy???
+	exceptions - http://www.quizful.net/post/java-exceptions
+	!  check checked exception performed in compile-time, compile failed if not:
+		Checked exception must handle with catch or declare in signature:
+			Throwable (custom) inherited + Exception inherited
+		Unchecked:Runtime,Error and other except above
+	generic method can be in ordinary class too, ex:
+		public static <T> T getMiddle
+	Bounds for Type Variables:
+		T extends Comparable
+		super U
+	! There is no generic in JVM, only ordinated class with cast, if required for return and etc, bind to super not allowed here
+		The raw type replaces type variables with the first bound, or Object if no bounds are given:
+			public class Interval<T extends Comparable & Serializable> implements Serializable
+			=> public class Interval implements Serializable
+			all T replaced to Object
+			public static <T extends Comparable> T min(T[] a) => public static Comparable min(Comparable[] a)
+		Genereic polymorhic problem:
+			The problem is that the type erasure interferes with polymorphism. To fix this problem, the compiler generates a
+			Bridge method in the DateInterval class:
+			class DateInterval extends Pair<Date>
+			{
+			 public void setSecond(Date second)
+			 {
+			 if (second.compareTo(getFirst()) >= 0)
+			 super.setSecond(second);
+			 }
+			 . . .
+			}
+			class DateInterval extends Pair // after erasure
+			{
+			 public void setSecond(Date second) { . . . }
+			 . . .
+			}
+			public void setSecond(Object second) { setSecond((Date) second); }//Bridge
+		!Runtime Type Inquiry Only Works with Raw Types
+			if (a instanceof Pair<String>) // ERROR, need T
+		!You Cannot Create Arrays of Parameterized Types
+		!You Cannot Instantiate Type Variables
+		!Type Variables Are Not Valid in Static Contexts of Generic Classes
+		!You Cannot Throw or Catch Instances of a Generic Class:
+			extends Exception { /* . . . */ } // ERROR--can't extend Throwable
+			catch (T e) // ERROR--can't catch type variable
+		!To support translation by erasure, we impose the restriction that a class or type variable may not at the same time be a 				subtype of two interface types which are different parameterizations of the same interface:
+			class Calendar implements Comparable<Calendar> { . . . }
+			class GregorianCalendar extends Calendar implements Comparable<GregorianCalendar>
+ 				{ . . . } // ERROR
+		!In general, there is no relationship between Pair<S> and Pair<T>
+	!Wildcard Types:
+		? extend U
+			? extends Employee getFirst()
+			You can only return
+		? super Manager
+			You can supply parameters to methods, but you can’t use the return values (opposite above)
+		? (Unbounded) - ONLY return Object!!!
+	Collection:
+		add return true if it make changed
+		to avoid NoSuchElementException use hasnext
+		use can't add and remove twice with one iterator, use next or:
+			for (String element : c)//compiler substitutes iterator
+			{
+			 do something with element
+			}
+		!The Collection and Iterator interfaces are generic, which means you can write utility methods that operate on any kind of 			collection:
+			public static <E> boolean contains(Collection<E> c, Object obj)
+			{
+			 for (E element : c)
+			 if (element.equals(obj))
+			 return true;
+			 return false;
+			}
+		! ArrayList: automatic grows and shrinks
+		! LinkedList: if structure changed than iterator can be invalid and throw ConcurrentModificationException (except set,use
+				mutable count)
+		! In Java, Hash tables are implemented as arrays of linked lists
+		! TreeSet implementation uses a red-black tree, it's element must implement:
+			public interface Comparable<T>
+				{
+				 int compareTo(T other);
+				}
+				a.compareTo(b) must return 0 if a and b are equal, a negative integer if a comes before b in the sort order, 					and a positive integer if a comes after b
+		! Priority Queue:
+				A priority queue retrieves elements in sorted order after they were inserted in arbitrary order (heap?, sort 					only for root).
+		!HashMap and TreeMap just <K,V>, As long as the map object is live, all buckets in it are live and won’t be reclaimed
+			use WeakHashMap for delete unused pair
+		! Linked Hash Sets and Maps keep inserted order, 
+			As entries are inserted into the table, they are joined in a doubly linked list
+		! IdentityHashMap Object.hashCode uses to compute a hash code from the object’s memory address
