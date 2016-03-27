@@ -1,3 +1,12 @@
+java default value: primitive(0)/object(null):
+	member variable (default OK)
+	static variable (default OK)
+	final member variable (not initialized, must set on constructor)
+	final static variable (not initialized, must set on a static block {})
+	local variable (not initialized)
+	arrays are Objects in Java, even if they store primitives.
+	when you initialize an array, all of its items are set to default, independently of being a member or a local array.
+
 corev1: 5.2*(equal*,hashcode,toString override),
 	invoke(reflection) - don't use if can
 	this - ref to cur. obj.
