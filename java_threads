@@ -1,0 +1,61 @@
+When the interrupt method is called on a thread, the interrupted status of the thread is set
+  To find out whether the interrupted status was set, first call the static Thread.currentThread
+  However, if a thread is blocked, it cannot check the interrupted status. This is where the InterruptedException comes in.
+  ! When the interrupt method
+    is called on a thread that blocks on a call such as sleep or wait, the blocking call
+    is terminated by an InterruptedException
+  !  There are blocking I/O calls that cannot be interrupted
+  ! There is no language requirement that a thread which is interrupted should terminate,
+    so you must catch exception
+  ! If you call the sleep method when the interrupted status is set, it doesn’t sleep.
+    Instead, it clears the status (!) and throws an InterruptedException
+  ! The interrupted method is a static method that checks whether the current thread has been interrupted.
+    Furthermore, calling the interrupted method clears the interrupted status of the thread
+  Threads can be in one of six states:
+  • New• Runnable• Blocked• Waiting• Timed waiting• Terminated
+    When you create a thread with the new operator—for example, new Thread(r)—the thread is not yet running.
+      This means that it is in the new state
+    Once you invoke the start method, the thread is in the runnable state.
+      A runnable thread may or may not actually be running
+    !! Once a thread is running, it doesn’t necessarily keep running. In fact, it is desirable
+        that running threads occasionally pause so that other threads have a chance to run
+        The details of thread scheduling depend on the services that the operating system provides. 
+          Preemptive scheduling systems give each runnable thread a slice of time to perform its task. 
+          When that slice of time is exhausted, the operating system preempts the thread
+          and gives another thread an opportunity to work
+          When selecting the next thread, the operating system takes into account the thread priorities
+        
+  !!! thread priorities are highly system-dependent
+  
+  !!! When only daemon threads remain, the virtual machine exits
+  
+  !!! When a thread is Blocked or Waiting, it is temporarily inactive.
+      It doesn’t execute any code and consumes minimal resources (not SURE)
+      It is up to the thread scheduler to reactivate it.
+      
+      When the thread tries to acquire an intrinsic object lock
+        (but not a Lock in the java.util.concurrent library) that is currently held by another thread,
+        it becomes Blocked
+        
+      The thread becomes UNBlocked when all other threads have relinquished the lock and
+        the thread scheduler has allowed this thread to hold it
+        
+      When the thread waits for another thread to notify the scheduler of a condition,
+        it enters the Waiting state
+        This happens by calling the:
+          Object.wait or
+          Thread.join method, or
+          by waiting for a Lock or
+          Condition in the java.util.concurrent library
+          
+      Several methods have a timeout parameter.
+        Calling them causes the thread to enter the timed waiting state:
+          This state persists either until the timeout expires or the appropriate notification has been received.
+        Methods with timeout include Thread.sleep and the timed versions of:
+          Object.wait,
+          Thread.join,
+          Lock.tryLock,
+          and Condition.await.
+        
+      
+      
