@@ -2,7 +2,7 @@
 ***Read Java Concurrence in Practise
 
 When the interrupt() thread, the interrupted status of the thread is set
-  if a thread is blocked by sleep or wait (only??) (definiton above), it throw InterruptedException,
+  if a thread is blocked by sleep or wait (and below), it throw InterruptedException,
   the opposite is true.
   !  There are blocking I/O calls that cannot be interrupted (Core Java Vol 2)
   ! There is no language requirement that a thread which is interrupted should terminate,
@@ -15,7 +15,6 @@ When the interrupt() thread, the interrupted status of the thread is set
   • New• Runnable• Blocked• Waiting• Timed waiting• Terminated
   
     1) When you create a thread with the new operator—for example, new Thread(r)—the thread is not yet running.
-    
       
     2) Once you invoke the start method, the thread is in the runnable state.
       A runnable thread may or may not actually be Running
@@ -40,9 +39,9 @@ When the interrupt() thread, the interrupted status of the thread is set
             by waiting for a Lock or
             Condition in the java.util.concurrent library
             
-          Calling methods above to enter the Timed Waiting state:
-            This state persists either until the timeout expires or the appropriate notification has been received.
-          Methods with timeout include Thread.sleep and the timed versions of:
+          Calling methods below enter the Timed Waiting state:
+          (This state persists either until the timeout expires or the appropriate notification has been received)
+            Methods with timeout include Thread.sleep and the timed versions of:
             Object.wait,
             Thread.join,
             Lock.tryLock,
