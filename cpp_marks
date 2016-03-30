@@ -1,4 +1,4 @@
-() default value explicit init for dynamic array
+() {} default value explicit init for dynamic/stack array
 
 Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
 - An element must be copyable by a copy constructor
