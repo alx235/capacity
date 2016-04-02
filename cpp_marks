@@ -1,5 +1,7 @@
 () {} default value explicit init for dynamic/stack array
 
+!std::swap(const& T a,const& T b){ tmp(a),a=b,b=tmp} it is not always (maybe never) effective!
+
 Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
 - An element must be copyable by a copy constructor
 - An element must be assignable by the assignment operator
