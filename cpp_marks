@@ -1,7 +1,24 @@
+() {} default value explicit init for dynamic/stack array
+
+!std::swap(const& T a,const& T b){ tmp(a),a=b,b=tmp} it is not always (maybe never) effective!
+
 Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
 - An element must be copyable by a copy constructor
 - An element must be assignable by the assignment operator
 - An element must be destroyable by a destructor
+
+auto_ptr:
+	The C++ Standard says that an STL element must be "copy-constructible" and "assignable."
+	In other words, an element must be able to be assigned or copied and the two elements are logically independent
+	
+	Specifically, copying one auto_ptr to another does not create
+	two equal objects since one has lost its ownership of the pointer.
+		std::auto_ptr<X> pX = vecX[0];  // vecX[0] is assigned NULL.
+
+MTS!
+You would only get a problem with thread safety if you were to pass this pointer to another thread
+that would then concurrently modify this memory at the same time as your original (or another) thread.
+!MTS
 
 Inheritance visible case:
 
@@ -196,10 +213,14 @@ dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymo
  for & => bad_cast exception
  for virtual base (multiple inheritance) can be ambiguity (what object???)
  dynamic_cast<void*>(D*) give adress of object beginning (pol. type)
- static_cast - for void* to T* cast
+ dynamic_cast move at hierarchy to tail, to head
+ static_cast - for void* to T* cast/POD type cast
   void* pointer can be used for any standart pointer operation only static_cast
  const_cast full save only in case when object declare as non-const(volatile)
 typeid: return pointer to type info (std type), bad_type if for zero pol type pointer or ref, compil-time value for non-pol type
+!!! NEVER use C-style cast !!!
+
+reinterpret_cast for void** and any cast without check guarantee
 
 
 pointer to VIRTUAL member need to get it from one adress space to another with condition of equal same type location,
