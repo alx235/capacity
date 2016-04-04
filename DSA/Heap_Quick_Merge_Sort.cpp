@@ -1,5 +1,4 @@
 // C++ program for implementation of Heap/Quick/Merge Sort from http://geeksquiz.com/heap-sort/
-// and http://www.algolist.net/Algorithms/Sorting/Quicksort
 // and https://en.wikibooks.org/wiki/Algorithm_Implementation/Sorting/Merge_sort#C.2B.2B
 #include <iostream>
 using namespace std;
@@ -64,21 +63,21 @@ void merge_sort( int a[], const int low, const int high )		// Recursive sort ...
 	}
 }
 
-void quickSort(int arr[], int left, int right) {
+void quickSort(int *arr, int left, int right) {
       int i = left, j = right;
       int tmp;
-      int pivot = arr[(left + right) / 2];
+      int mid = *arr[(left + right) / 2];
  
       /* partition */
       while (i <= j) {
-            while (arr[i] < pivot)
+            while (*arr[i] < mid)
                   i++;
-            while (arr[j] > pivot)
+            while (*arr[j] > mid)
                   j--;
             if (i <= j) {
                   tmp = arr[i];
-                  arr[i] = arr[j];
-                  arr[j] = tmp;
+                  *arr[i] = *arr[j];
+                  *arr[j] = tmp;
                   i++;
                   j--;
             }
