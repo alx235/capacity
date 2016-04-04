@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <time.h>
+#include <memory>
 
 struct strct_prms
 {
@@ -9,10 +11,10 @@ struct strct_prms
       int right;
 };
 
-void quickSort(int *arr, int left, int right)
+void quickSort(int *arr, int left, int right)//iterative QSort
 {
       int sort_count = 1;
-      strct_prms *stack_prms = new strct_prms[right-left];
+      std::unique_ptr<strct_prms[]> stack_prms (new strct_prms[right-left]);
 
       stack_prms[0].left = left;
       stack_prms[0].right = right;
@@ -45,14 +47,14 @@ void quickSort(int *arr, int left, int right)
 	      /* recursion */
 	      if (left < j)
 	      {
-			std::cout<<"left\n";
+			//std::cout<<"left\n";
 			stack_prms[sort_count].right = j;
 			stack_prms[sort_count++].left = left;
 			ignore = true;
 	      }
 	      if (i < right)
 	      {
-			std::cout<<"right\n";
+			//std::cout<<"right\n";
 			if (ignore)//must keep order
 			{
 				stack_prms[sort_count+1] = stack_prms[sort_count];//shift left to next
@@ -67,9 +69,8 @@ void quickSort(int *arr, int left, int right)
 				stack_prms[sort_count++].right = right;
 			}
 	      }
-		std::cout<<"end\n";
+		//std::cout<<"end\n";
       }
-      delete[] stack_prms;
 }
  
 // Radix sort comparator for 32-bit two's complement integers
@@ -102,19 +103,30 @@ void msd_radix_sort(int *first, int *last, int msb = 31)
  
 // test radix_sort
 int main()
-{
-    int data[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+{	
+	const int size = 10000;
+	srand((unsigned)time(NULL));
+	int *data2 = new int[size];
+	for (int i=0;i<size;++i)
+		data2[i] = rand() / (i+1);
+	
+    //int data[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
 
-	int data2[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
-	std::copy(data2, data2 + 9, std::ostream_iterator<int>(std::cout, " "));
-	quickSort(data2,0,9);
+	//int data2[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+	//std::copy(data2, data2 + 100, std::ostream_iterator<int>(std::cout, " "));
+	quickSort(data2,0,size);
  
     /*msd_radix_sort(data, data + 9);
  
     std::copy(data, data + 9, std::ostream_iterator<int>(std::cout, " "));*/
+	//just output
     std::cout<<"\n";
-    std::copy(data2, data2 + 9, std::ostream_iterator<int>(std::cout, " "));
-
+    std::copy(data2, data2 + 10, std::ostream_iterator<int>(std::cout, " "));
+	std::cout<<"\n";
+	for (int i=0;i<size;++i)//check correct
+		for (int j=i;j<size;++j)	
+			if (data2[i]>data2[j])
+				std::cout<<"--";
 	/*int a = 1;int a2 = 2;
 	int const &a_r = a;
 	const int a3;*/
