@@ -46,8 +46,8 @@ class SpinLock
 /*
 //pthread_mutex_trylock() usefull to prevent DEADLOCK, lock if can, return false if already locked
 //use lock/unlock in same order to avoid DEADLOCK
-//if 2 threads lock depend each other they must use same mutex to avoid case when one release and another
-//start to wait infinitely 
+//if 2 threads have dependency on lock use same mutex to avoid case when one release and another
+//start to wait infinitely
 void *function1()
 {
    ...
@@ -151,12 +151,13 @@ class Timoutlck {
 			if (!is_clear.test_and_set())
 			{
 				pthread_cond_destroy(&cond);
+				pthread_mutex_destroy(&mutex);	
 			}
 		}
 
 		void lock()
 		{
-			pthread_mutex_lock(mutex);//guarantee satisfy wait req of mutex lock
+			pthread_mutex_lock(&mutex);//guarantee satisfy wait req of mutex lock
 			struct timespec timeToWait;
 			clock_gettime(CLOCK_REALTIME, &timeToWait);
 			timeToWait.tv_sec += timeout;
@@ -173,18 +174,18 @@ class Timoutlck {
 			#ifdef debug_Timoutlck
 			std::cout<<"ret:"<<ret<<"\n";
 			#endif
-			pthread_mutex_unlock(mutex);
+			pthread_mutex_unlock(&mutex);
 		}
 
 		void unlock()
 		{	
-			//use same mutex to avoid parallel lock and unlock, because they lock depend each other
+			//use same mutex to avoid parallel lock and unlock, because there is a dependency on lock 
 			//in wait/signal it can probability that signal be earlier than wait, and wait thread can be wait
 			//infinitely
-			pthread_mutex_lock(mutex);
+			pthread_mutex_lock(&mutex);
 			locked.cleared(std::memory_order_released);//set locked to false
 			pthread_cond_signal(&cond);
-			pthread_mutex_unlock(mutex);
+			pthread_mutex_unlock(&mutex);
 		}
 		
 		~Timoutlck()
