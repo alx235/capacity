@@ -45,8 +45,7 @@ class SpinLock
 /*
 //pthread_mutex_trylock() usefull to prevent DEADLOCK, lock if can, return false if already locked
 //use lock/unlock in same order to avoid DEADLOCK
-//if 2 threads lock depend each other they must use same mutex to avoid case when one release and another
-//start to wait infinitely 
+//if 2 threads lock depend each other they must use 
 void *function1()
 {
    ...
