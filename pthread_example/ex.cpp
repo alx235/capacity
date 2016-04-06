@@ -6,6 +6,7 @@
 #include <time.h>
 #include <memory>
 #include <pthread.h>
+#include <time.h>
 
 #define cpu_relax_flag
 #ifdef cpu_relax_flag
@@ -167,6 +168,8 @@ class Timoutlck {
 				//atomic: release mutex when calling wait and lock cond
 				//after succesfull (rc=0) return wait, released thread lock mutex, inside wait
 				ret = pthread_cond_timedwait(&cond, &mutex, &timeToWait);
+			if ((ret<0) && (ret!=ETIMEDOUT))
+				cerr << "lock failied err:"<<ret<<" \n";
 			#ifdef debug_Timoutlck
 			std::cout<<"ret:"<<ret<<"\n";
 			#endif
