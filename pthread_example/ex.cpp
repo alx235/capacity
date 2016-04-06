@@ -168,7 +168,7 @@ class Timoutlck {
 				//after succesfull (rc=0) return wait, released thread lock mutex, inside wait
 				ret = pthread_cond_timedwait(&cond, &mutex, &timeToWait);
 			#ifdef debug_Timoutlck
-				std::cout<<"ret:"<<ret<<"\n";
+			std::cout<<"ret:"<<ret<<"\n";
 			#endif
 			pthread_mutex_unlock(mutex);
 		}
@@ -186,7 +186,7 @@ class Timoutlck {
 		
 		~Timoutlck()
 		{
-
+			clear_res();
 		}
 };
 
