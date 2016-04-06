@@ -169,7 +169,7 @@ class Timoutlck {
 				//after succesfull (rc=0) return wait, released thread lock mutex, inside wait
 				ret = pthread_cond_timedwait(&cond, &mutex, &timeToWait);
 			if ((ret<0) && (ret!=ETIMEDOUT))
-				cerr << "lock failied err:"<<ret<<" \n";
+				std::cout<<"lock failled err:"<<ret<<" \n";
 			#ifdef debug_Timoutlck
 			std::cout<<"ret:"<<ret<<"\n";
 			#endif
