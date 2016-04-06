@@ -127,16 +127,30 @@ class Singleton_ex {
 class Timoutlck {
 	pthread_mutex_t  mutex;
 	pthread_cond_t cond;
-	std::atomic_flag locked;
+	std::atomic_flag locked,is_clear;
 	int timeout;
 	public:
 		Timoutlck(int timeout_)
 		{
+			is_clear = ATOMIC_FLAG_INIT;
 			mutex = PTHREAD_MUTEX_INITIALIZER;
 			cond = PTHREAD_COND_INITIALIZER;
 			locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
 			if (!timeout_)
 				timeout+=2;//set default timeout, otherwise wait return immediately
+		}
+		
+		//omit memory order because this 2 call rare and possibly from one thread
+		void set_not_clear()
+		{
+			is_clear.cleared();
+		}
+		void clear_res()
+		{
+			if (!is_clear.test_and_set())
+			{
+				pthread_cond_destroy(&cond);
+			}
 		}
 
 		void lock()
@@ -166,9 +180,14 @@ class Timoutlck {
 			//infinitely
 			pthread_mutex_lock(mutex);
 			locked.cleared(std::memory_order_released);//set locked to false
-			pthread_cond_signal(cond);
+			pthread_cond_signal(&cond);
 			pthread_mutex_unlock(mutex);
-		}	
+		}
+		
+		~Timoutlck()
+		{
+
+		}
 };
 
 
