@@ -120,7 +120,7 @@ class Singleton_ex {
 //not found any "not study" example of semaphore...
 //"waiting" implemented (in POSIX) by futex with WAIT flag and null timeout (futex is syscall) - thread "sleep"
 //until futex with WAKE flag call.
-//advantage is use timeout if access to share resourse can lock accessed thread(s) or share must have timeout
+//advantage is use timeout(or just unlock without it) if access to share resourse can lock accessed thread(s) or 		sharing must have timeout
 //efficiency of pthread_cond_wait lesser mutex (POSIX)
 //Performance highly depend on platform/CPU instruction
 
