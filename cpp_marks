@@ -1,7 +1,3 @@
-!atomic:
-	If the relaxed atomic load reads the value written by the relaxed atomic store,
-	the C++11 standard says that the fences synchronize-with
-
 The following operations are always O(1) (depends on impl.) when they exist:
 	begin(), end()
 	empty()
