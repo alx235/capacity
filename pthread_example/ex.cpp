@@ -16,12 +16,12 @@
 //SPINLOCK MUTEX
 //busy waiting + cpu_relax() for reduce CPU consumption
 //use for short-time wait
-//OR just use pthread library:
+//OR just use pthread library spinlock:
 // pthread_spin_init(&spinlock, 0); pthread_spin_lock(&spinlock);
 // pthread_spin_unlock(&spinlock); pthread_spin_destroy(&spinlock) - additionly release lock;
 class SpinLock
 {
-		std::atomic_flag locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
+	std::atomic_flag locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
 	public:
 		//one thread set lock, obtain value (maybe false), release itself, lock next threads
 		//std::atomic_flag - gurantee lock-free (in most case), clear/test_and_set - atomic operation,
@@ -124,6 +124,7 @@ class Singleton_ex {
 //advantage is use timeout(or just unlock without it) if access to share resourse can lock accessed thread(s) or 		sharing must have timeout
 //efficiency of pthread_cond_wait lesser mutex (POSIX)
 //Performance highly depend on platform/CPU instruction
+//...OR just use C++11 timed_mutex)
 
 class Timoutlck {
 	pthread_mutex_t  mutex;
@@ -194,6 +195,25 @@ class Timoutlck {
 		}
 };
 
+//PTHREAD_MUTEX_ERRORCHECK: double lock form one thread cause error
+//PTHREAD_MUTEX_RECURSIVE: ...not cause, counter++, release if counter=0, has counter limit
+//...pthread_mutex_trylock() counter++, return true, false if reach limit
+//PTHREAD_MUTEX_DEFAULT: ...cause UB
+//PTHREAD_MUTEX_NORMAL: ...cause deadlock
+
+//pthread_mutex_unlock() fail if thread doesn't own mutex
+//pthread_mutex_lock() fail if thread has lower priority
+
+
+//std::thread is just class-wrapper, but comfortable)
+//...but pthread more flexiable and fast
+//pthread create with default joinable attr(can be joined only one, by only thread without multiple join if not - UB
+//failed to join joinable thread produce Zombie, detached attr - for daemon, joinable thread release resources after
+//join return control to thread call join, detached - immediately, returning value (void*) return to second join arg,
+//joinable thread MUST be join to avoid resource leak
+//threads need it's own try/catch
+//to cancel tread just use return(always, never return local var address)
+//if main thread exit() - UB
 
 int main()
 {	
