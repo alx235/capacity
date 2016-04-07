@@ -94,11 +94,12 @@ class Singleton_ex {
 		//std::atomic_thread_fence(std::memory_order_release);
 		//m_instance.store(tmp, std::memory_order_relaxed);
 		//...but it compile equal code (for now!)
+		//!SYNC_WITH work in acquire calling after release
 		Singleton_ex* get_DCLP()
 		{	// prevent memory reordering next line -> tmp non-atomic
 			//non-atomic pointer is faster, see value before release
 			//next conditions true until init finish
-			Sigleton_ex* tmp = instance.load(std::memory_order_acquire);
+			Sigleton_ex* tmp = instance.load(std::memory_order_acquire);//(1) sync-with by acquire-release
 			if (tmp = nullptr) //better init before with nullptr
 			{
 				std::lock_guard<std::mutex> lock(m_lock);
@@ -107,7 +108,7 @@ class Singleton_ex {
 				if (tmp = nullptr)//check again, we can just compare instance to nullprt (not lvalue)
 				{
 					tmp = new Singleton_ex();
-					instance.store(tmp,std::memory_order_release);
+					instance.store(tmp,std::memory_order_release);//(2) sync-with by acquire-release
 				}
 			return tmp;
 		}		
