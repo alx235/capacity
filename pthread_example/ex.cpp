@@ -122,12 +122,12 @@ void *function2()
 //not found any "not study" example of semaphore...
 //"waiting" implemented (in POSIX) by futex with WAIT flag and null timeout (futex is syscall) - thread "sleep"
 //until futex with WAKE flag call.
-//advantage is use timeout(or just unlock without it) if access to share resourse can lock accessed thread(s) or 		sharing must have timeout
+//advantage is use unlock from not owned thread!
 //efficiency of pthread_cond_wait lesser mutex (POSIX)
 //Performance highly depend on platform/CPU instruction
 //...OR just use C++11 timed_mutex)
 
-class Timoutlck {
+class Timoutlck {//or pthread_mutex_timedlock but without "illegal" unlock
 	pthread_mutex_t  mutex;
 	pthread_cond_t cond;
 	std::atomic_flag locked,is_clear;
@@ -196,13 +196,13 @@ class Timoutlck {
 		}
 };
 
-//PTHREAD_MUTEX_ERRORCHECK: double lock form one thread cause error
+//PTHREAD_MUTEX_ERRORCHECK: recursive lock form one thread cause error
 //PTHREAD_MUTEX_RECURSIVE: ...not cause, counter++, release if counter=0, has counter limit
 //...pthread_mutex_trylock() counter++, return true, false if reach limit or ...
 //PTHREAD_MUTEX_DEFAULT: ...cause UB
 //PTHREAD_MUTEX_NORMAL: ...cause deadlock
 
-//pthread_mutex_unlock() fail if thread doesn't own mutex
+//pthread_mutex_unlock() fail if thread doesn't own mutex, UB - for DEFAULT and NORMAL
 //pthread_mutex_lock() fail if thread has lower priority
 
 
@@ -226,7 +226,7 @@ class Timoutlck {
 //c++11: thread that has finished is still active thread of execution and joinable
 
 //std::recursive_mutex use try-lock to avoid system error (max counter overflow)
-//std::mutex double lock from owned thread - UB
+//std::mutex recursive lock from owned thread - UB
 //...std::unlock from not-owned thread - UB, not throw,
 //......prior to lock SYNC_WITH
 //...std::try_lock, no-throw
