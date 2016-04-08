@@ -1,12 +1,12 @@
-
+//g++ ex.cpp -pthread -std=c++11
 //#include <algorithm>
-//#include <atomic>
+#include <atomic>
 #include <iostream>
 #include <iterator>
 #include <time.h>
 #include <memory>
 #include <thread>
-//#include <pthread.h>
+#include <pthread.h>
 #include <time.h>
 #include <future>
 
@@ -21,7 +21,7 @@
 //OR just use pthread library spinlock:
 // pthread_spin_init(&spinlock, 0); pthread_spin_lock(&spinlock);
 // pthread_spin_unlock(&spinlock); pthread_spin_destroy(&spinlock) - additionly release lock;
-/*class SpinLock
+class SpinLock
 {
 	std::atomic_flag locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
 	public:
@@ -40,9 +40,9 @@
 		}
 		void unlock()
 		{
-			lock.cleared(std::memory_order_released);
+			locked.clear(std::memory_order_release);
 		}
-};*/
+};
 
 //DEADLOCK EXAMPLE
 /*
@@ -128,19 +128,19 @@ void *function2()
 //efficiency of pthread_cond_wait lesser mutex (POSIX)
 //Performance highly depend on platform/CPU instruction
 //...OR just use C++11 timed_mutex)
-/*
+
 class Timoutlck {
 	pthread_mutex_t  mutex;
 	pthread_cond_t cond;
 	std::atomic_flag locked,is_clear;
 	int timeout;
 	public:
-		Timoutlck(int timeout_)
+		Timoutlck(int timeout_):locked(ATOMIC_FLAG_INIT),is_clear(ATOMIC_FLAG_INIT)
 		{
-			is_clear = ATOMIC_FLAG_INIT;
+			//is_clear = ATOMIC_FLAG_INIT;
 			mutex = PTHREAD_MUTEX_INITIALIZER;
 			cond = PTHREAD_COND_INITIALIZER;
-			locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
+			//locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
 			if (!timeout_)
 				timeout+=2;//set default timeout, otherwise wait return immediately
 		}
@@ -148,7 +148,7 @@ class Timoutlck {
 		//omit memory order because this 2 call rare and possibly from one thread
 		void set_not_clear()
 		{
-			is_clear.cleared();
+			is_clear.clear();
 		}
 		void clear_res()
 		{
@@ -187,7 +187,7 @@ class Timoutlck {
 			//in wait/signal it can probability that signal be earlier than wait, and wait thread can be wait
 			//infinitely
 			pthread_mutex_lock(&mutex);
-			locked.cleared(std::memory_order_released);//set locked to false
+			locked.clear(std::memory_order_release);//set locked to false
 			pthread_cond_signal(&cond);
 			pthread_mutex_unlock(&mutex);
 		}
@@ -196,7 +196,7 @@ class Timoutlck {
 		{
 			clear_res();
 		}
-};*/
+};
 
 //PTHREAD_MUTEX_ERRORCHECK: double lock form one thread cause error
 //PTHREAD_MUTEX_RECURSIVE: ...not cause, counter++, release if counter=0, has counter limit
