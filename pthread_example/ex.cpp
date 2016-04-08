@@ -18,9 +18,7 @@
 //SPINLOCK MUTEX
 //busy waiting + cpu_relax() for reduce CPU consumption
 //use for short-time wait
-//OR just use pthread library spinlock:
-// pthread_spin_init(&spinlock, 0); pthread_spin_lock(&spinlock);
-// pthread_spin_unlock(&spinlock); pthread_spin_destroy(&spinlock) - additionly release lock;
+//OR just use pthread library spinlock impl
 class SpinLock
 {
 	std::atomic_flag locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
@@ -161,7 +159,7 @@ class Timoutlck {
 
 		void lock()
 		{
-			pthread_mutex_lock(&mutex);//guarantee satisfy wait req of mutex lock
+			pthread_mutex_lock(&mutex);//(1*)guarantee satisfy wait req of mutex lock and be same, otherwise - UB
 			struct timespec timeToWait;
 			clock_gettime(CLOCK_REALTIME, &timeToWait);
 			timeToWait.tv_sec += timeout;
@@ -219,12 +217,34 @@ class Timoutlck {
 //to cancel tread just use return(always, never return local var address)
 //if main thread exit() - UB
 
+//(1)
 //c++11 thread MUSN'T be joinable(not been detached or joined) before call ~thread()
 //...or also can be moved(non-copyable,non-assignable), default-constructed
 //thread terminate normal or by thow exception (cancel is difficult)
 //to use native pthread.h function call native_handle() for fast performance, but with carefull!
 //return value by std::promise and std::future (or just send pointer as agr to avoid infinite future_wait)
 //c++11: thread that has finished is still active thread of execution and joinable
+
+//std::recursive_mutex use try-lock to avoid system error (max counter overflow)
+//std::mutex double lock from owned thread - UB
+//...std::unlock from not-owned thread - UB, not throw,
+//......prior to lock SYNC_WITH
+//...std::try_lock, no-throw
+//......prior unlock,lock SYNC_WITH if true!
+//......spuriously fail!
+//...std::lock, throw!
+//above true for both mutex and recursive_mutex
+
+//std::lock_guard - scope lock
+
+//std::unique_lock????!!!!
+
+//(1*)
+//it seems std::condition_variable equal pthread impl with except that it can throw 
+//std::condition_variable for std::unique_lock (for efficienty)
+//std::condition_variable_any with any lock...
+
+//std::once_flag/std::call_once - to call function once!
 
 void thread_f1(/*std::promise<int> prom_*/)
 {
@@ -234,6 +254,7 @@ void thread_f1(/*std::promise<int> prom_*/)
 
 int main()
 {	
+	//(1)
 	//std::promise<int> prom_;
 	//std::future<int> prom_future = prom_.get_future();
 	std::thread t1(thread_f1);
