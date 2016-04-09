@@ -233,21 +233,22 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //......prior to lock SYNC_WITH
 //...std::try_lock, no-throw
 //......prior unlock,lock SYNC_WITH if true!
-//......spuriously fail(?)
+//......spuriously fail - "lie" that has owner
 //...std::lock, throw!
 //above true for both mutex and recursive_mutex, except recursive lock
 
 //std::lock_guard - scope lock
-//std::unique_lock - destructor call unlock the associated mutex, if owned
-//std::unique_lock::try_lock/lock throw if no associated mutex or can cause deadlock or by custom Lockable
+//std::unique_lock - destructor call unlock the associated mutex, if owned (preffered than unlock!)
+//std::unique_lock::lock throw/try_lock if no associated mutex or if already locked by this unique_lock
 //std::unique_lock::unlock throw if no associated mutex or mutex is not locked
 //std::unique_lock::release break associated relation, no throw
 //...deffered case for std::lock after, adopt - before, trylock - for trylock
+//std::unique_lock::owns_lock check if this own locked mutex
 
 //std::lock(arg1,...argn) to avoid DEADLOCK! if use mutex with different order (pass by arg as example)
-//...so i prefer just don't use it...
 //...unspecified series of calls to lock, try_lock, unlock all if throw (does it seems be UB?)
 //...may cause Live-lock (unable to make further progress) problem or performance degradation
+//...so i preffer just don't use it...
 
 //(1*)
 //it seems std::condition_variable equal pthread impl with except that it can throw 
