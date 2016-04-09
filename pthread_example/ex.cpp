@@ -227,24 +227,32 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //return value by std::promise and std::future (or just send pointer as agr to avoid infinite future_wait)
 //c++11: thread that has finished is still active thread of execution and joinable
 
-//std::recursive_mutex use try-lock to avoid system error (max counter overflow)
+//std::recursive_mutex use try-lock to avoid throw (max counter overflow)
 //std::mutex recursive lock from owned thread - UB
 //...std::unlock from not-owned thread - UB, not throw,
 //......prior to lock SYNC_WITH
 //...std::try_lock, no-throw
 //......prior unlock,lock SYNC_WITH if true!
-//......spuriously fail!
+//......spuriously fail(?)
 //...std::lock, throw!
-//above true for both mutex and recursive_mutex
+//above true for both mutex and recursive_mutex, except recursive lock
 
 //std::lock_guard - scope lock
+//std::unique_lock - destructor call unlock the associated mutex, if owned
+//std::unique_lock::try_lock/lock throw if no associated mutex or can cause deadlock or by custom Lockable
+//std::unique_lock::unlock throw if no associated mutex or mutex is not locked
+//std::unique_lock::release break associated relation, no throw
+//...deffered case for std::lock after, adopt - before, trylock - for trylock
 
-//std::unique_lock????!!!!
+//std::lock(arg1,...argn) to avoid DEADLOCK! if use mutex with different order (pass by arg as example)
+//...unspecified series of calls to lock, try_lock, unlock all if throw (does it seems be UB?)
+//...may cause Live-lock (unable to make further progress) problem or performance degradation
 
 //(1*)
 //it seems std::condition_variable equal pthread impl with except that it can throw 
-//std::condition_variable for std::unique_lock (for efficienty)
+//std::condition_variable for std::unique_lock (for efficienty in some platform!!)
 //std::condition_variable_any with any lock...
+
 
 //std::once_flag/std::call_once - to call function once!
 
