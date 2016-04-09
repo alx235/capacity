@@ -127,20 +127,21 @@ void *function2()
 //Performance highly depend on platform/CPU instruction
 //...OR just use C++11 timed_mutex)
 
-class Timoutlck {//or pthread_mutex_timedlock but without "illegal" unlock
+class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 	pthread_mutex_t  mutex;
 	pthread_cond_t cond;
 	std::atomic_flag locked,is_clear;
-	int timeout;
+	//int timeout;
 	public:
-		Timoutlck(int timeout_):locked(ATOMIC_FLAG_INIT),is_clear(ATOMIC_FLAG_INIT)
+		Binaphore(/*int timeout_*/):locked(ATOMIC_FLAG_INIT),is_clear(ATOMIC_FLAG_INIT)
 		{
 			//is_clear = ATOMIC_FLAG_INIT;
 			mutex = PTHREAD_MUTEX_INITIALIZER;
 			cond = PTHREAD_COND_INITIALIZER;
 			//locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
-			if (!timeout_)
-				timeout+=2;//set default timeout, otherwise wait return immediately
+			set default timeout, otherwise wait return immediately
+			/*if (!timeout_)
+				timeout+=2;*///
 		}
 		
 		//omit memory order because this 2 call rare and possibly from one thread
@@ -160,9 +161,9 @@ class Timoutlck {//or pthread_mutex_timedlock but without "illegal" unlock
 		void lock()
 		{
 			pthread_mutex_lock(&mutex);//(1*)guarantee satisfy wait req of mutex lock and be same, otherwise - UB
-			struct timespec timeToWait;
+			/*struct timespec timeToWait;
 			clock_gettime(CLOCK_REALTIME, &timeToWait);
-			timeToWait.tv_sec += timeout;
+			timeToWait.tv_sec += timeout;*/
 			int ret = 0;//default succefull f() value
 			//first time flag is zero, read (0) mod (1) write(1), next thread will blocked
 			//if timeout: no mutex lock, er<0
@@ -170,8 +171,9 @@ class Timoutlck {//or pthread_mutex_timedlock but without "illegal" unlock
 			while (locked.test_and_set(std::memory_order_acquire) && (!ret))
 				//atomic: release mutex when calling wait and lock cond
 				//after succesfull (rc=0) return wait, released thread lock mutex, inside wait
-				ret = pthread_cond_timedwait(&cond, &mutex, &timeToWait);
-			if ((ret<0) && (ret!=ETIMEDOUT))
+				//ret = pthread_cond_timedwait(&cond, &mutex, &timeToWait);
+				ret = pthread_cond_wait(&cond, &mutex);
+			if ((ret<0) /*&& (ret!=ETIMEDOUT)*/)
 				std::cout<<"lock failled err:"<<ret<<" \n";
 			#ifdef debug_Timoutlck
 			std::cout<<"ret:"<<ret<<"\n";
@@ -190,7 +192,7 @@ class Timoutlck {//or pthread_mutex_timedlock but without "illegal" unlock
 			pthread_mutex_unlock(&mutex);
 		}
 		
-		~Timoutlck()
+		~Binaphore()
 		{
 			clear_res();
 		}
