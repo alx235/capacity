@@ -245,6 +245,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //...deffered case for std::lock after, adopt - before, trylock - for trylock
 
 //std::lock(arg1,...argn) to avoid DEADLOCK! if use mutex with different order (pass by arg as example)
+//...so i prefer just don't use it...
 //...unspecified series of calls to lock, try_lock, unlock all if throw (does it seems be UB?)
 //...may cause Live-lock (unable to make further progress) problem or performance degradation
 
