@@ -198,7 +198,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 		}
 };
 
-//PTHREAD_MUTEX_ERRORCHECK: recursive lock form one thread cause error
+//PTHREAD_MUTEX_ERRORCHECK: recursive lock from one thread cause error
 //PTHREAD_MUTEX_RECURSIVE: ...not cause, counter++, release if counter=0, has counter limit
 //...pthread_mutex_trylock() counter++, return true, false if reach limit or ...
 //PTHREAD_MUTEX_DEFAULT: ...cause UB
@@ -208,7 +208,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //pthread_mutex_lock() fail if thread has lower priority
 
 
-//std::thread is just class-wrapper, but comfortable)
+//std::thread is just class-wrapper, but comfortable and safe!!!
 //...but pthread more flexiable and fast
 //pthread create with default joinable attr
 //...(can be joined only ONCE, by only thread WITHOUT data races, if not - UB)
