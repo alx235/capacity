@@ -92,9 +92,8 @@ void quickSort(int *arr, int left, int right)//iterative QSort
       }
 }
 
-void inline merge(int* const a,const int low,const int mid,const int high)
+void inline merge(int* const a,int* const b,const int low,const int mid,const int high)
 {
-	std::unique_ptr<int[]> b(new int[high+1-low]);
 	int h,i,j,k;
 	h=low;
 	i=0;
@@ -138,23 +137,11 @@ void inline merge(int* const a,const int low,const int mid,const int high)
 	}
 }
 
-void merge_sort_( int a[], const int low, const int high )		// Recursive sort ...
-{
-	int mid;
-	if( low < high )
-	{
-		mid = ( low + high ) / 2;
-		merge_sort_( a, low, mid );
-		merge_sort_( a, mid + 1, high );
-		std::cout<<"low:"<<low<<" mid:"<<mid<<" high:"<<high<<"\n";
-		merge( a, low, mid, high );
-	}
-}
-
 void merge_sort(int* const a,const int low_,const int high_)
 {
 	int sort_count=0;
 	std::unique_ptr<strct_prms2[]> stack_prms(new strct_prms2[high_-low_]());
+	std::unique_ptr<int[]> b(new int[high_-low_]());
 	stack_prms[0].low=low_;
 	stack_prms[0].high=high_-1;
 	int low=-1;
@@ -164,11 +151,12 @@ void merge_sort(int* const a,const int low_,const int high_)
 	{
 		low=stack_prms[sort_count].low;
 		high=stack_prms[sort_count].high;
-		//std::cout<<"check:"<<stack_prms[sort_count].check_<<"\n";
-		if(stack_prms[sort_count].check_)
+		//std::cout<<"low:"<<low<<" high:"<<high<<" count:"<<sort_count<<"\n";
+		if(int tmp = stack_prms[sort_count].check_)
 		{
-			merge(a,low,mid,high);
-			std::cout<<"merge: "<<"low:"<<low<<" mid:"<<stack_prms[sort_count].mid<<" high:"<<high<<"\n";
+			merge(a,b.get(),low,stack_prms[sort_count].mid,high);
+			stack_prms[sort_count].check_=0;
+			//std::cout<<"merge: "<<"low:"<<low<<" mid:"<<stack_prms[sort_count].mid<<" high:"<<high<<" count:"<<sort_count<<" tmp:"<<tmp<<"\n";
 			--sort_count;
 		}
 		else
@@ -176,14 +164,15 @@ void merge_sort(int* const a,const int low_,const int high_)
 			if(low<high)
 				{	
 					stack_prms[sort_count].check_=1;
+					//std::cout<<"set: "<<"low:"<<low<<" high:"<<high<<" count:"<<sort_count<<"\n";
 					mid=(low+high)/2;
 					stack_prms[sort_count++].mid=mid;
 
 					stack_prms[sort_count].low=mid+1;
 					stack_prms[sort_count++].high=high;
-				
+
 					stack_prms[sort_count].low=low;
-					stack_prms[sort_count++].high=mid;
+					stack_prms[sort_count].high=mid;
 					//merge_sort(a,low,mid);
 					//merge_sort(a,mid+1,high);
 					//merge(a,low,mid,high);
@@ -288,37 +277,35 @@ void heapSort(int* const arr,int n)
     //one by one extract an element from heap
 	heapify(arr,0,n-1,true);
 }
+
+void gen_rand(int* const data,const int size)
+{
+	srand((unsigned)time(NULL));
+	for (int i=0;i<size;++i)
+		data[i]=rand()/(i+10000000)+rand()/1000000000 + i + i^2;
+}
+
+void check_correct(int* const data,const int size)
+{
+	for (int i=0;i<size;++i)//check correct
+	for (int j=i;j<size;++j)	
+		if (data[i]>data[j])
+			std::cout<<"--";
+}
  
 // test radix_sort
 int main()
 {	
-	const int size = 10000;
-	srand((unsigned)time(NULL));	
-	int *data2 = new int[size];
-	for (int i=0;i<size;++i)
-		data2[i] = rand() / (i+1);
-	
-	int data[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
-	int data3[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
-	int data4[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+	const int size=10;
+	std::unique_ptr<int[]> data(new int[size]);
+	gen_rand(data.get(),size);quickSort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);
+	gen_rand(data.get(),size);heapSort(data.get(),size);check_correct(data.get(),size);printArray(data.get(),size);
+	gen_rand(data.get(),size);msd_radix_sort(data.get(),data.get()+size);check_correct(data.get(),size);printArray(data.get(),size);
+	gen_rand(data.get(),size);merge_sort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);
 
-	quickSort(data,0,9);
-	merge_sort(data4,0,9);
-	std::cout<<"\n";
-	merge_sort_(data3,0,8);
-	/*msd_radix_sort(data3, data3 + 9);
-	heapSort_(data4,9);*/
-
- 	printArray(data,9);
-	printArray(data3,9);
-	printArray(data4,9);
-	
-	
-	/*heapSort(data2,size);
-	for (int i=0;i<size;++i)//check correct
-		for (int j=i;j<size;++j)	
-			if (data2[i]>data2[j])
-				std::cout<<"--";*/
+ 	//printArray(data,9);
+	//printArray(data3,9);
+	//printArray(data4,9);
 
 	/*int a = 1;int a2 = 2;
 	int const &a_r = a;
