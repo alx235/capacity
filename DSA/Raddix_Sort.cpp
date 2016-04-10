@@ -272,23 +272,25 @@ int main()
 	for (int i=0;i<size;++i)
 		data2[i] = rand() / (i+1);
 	
-	/*int data[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+	int data[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
 	int data3[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
-	int data4[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+	//int data4[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
 
 	quickSort(data,0,9);
-	msd_radix_sort(data3, data3 + 9);
+	merge_sort(data3,0,8);
+	/*msd_radix_sort(data3, data3 + 9);
 	heapSort_(data4,9);*/
 
- 	//printArray(data,9);
-	//printArray(data3,9);
+ 	printArray(data,9);
+	printArray(data3,9);
 	//printArray(data4,9);
-
-	heapSort(data2,size);
+	
+	
+	/*heapSort(data2,size);
 	for (int i=0;i<size;++i)//check correct
 		for (int j=i;j<size;++j)	
 			if (data2[i]>data2[j])
-				std::cout<<"--";
+				std::cout<<"--";*/
 
 	/*int a = 1;int a2 = 2;
 	int const &a_r = a;
