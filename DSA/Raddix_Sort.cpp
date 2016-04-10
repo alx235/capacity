@@ -1,4 +1,4 @@
-//from https://rosettacode.org/wiki/Sorting_algorithms/Radix_sort#C.2B.2B
+
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -7,17 +7,21 @@
 
 struct strct_prms
 {
-      int left;
-      int right;
+	int left;
+	int right;
+	strct_prms()
+	{
+		left=0;
+		right=0;
+	}	
 };
 
 void quickSort(int *arr, int left, int right)//iterative QSort
 {
       int sort_count = 1;
-      std::unique_ptr<strct_prms[]> stack_prms (new strct_prms[right-left]);
-
+      std::unique_ptr<strct_prms[]> stack_prms (new strct_prms[right-left]());
       stack_prms[0].left = left;
-      stack_prms[0].right = right;
+      stack_prms[0].right = right-1;
 
       while(sort_count--)
       {
@@ -57,7 +61,7 @@ void quickSort(int *arr, int left, int right)//iterative QSort
 			//std::cout<<"right\n";
 			if (ignore)//must keep order
 			{
-				stack_prms[sort_count+1] = stack_prms[sort_count];//shift left to next
+				stack_prms[sort_count+1] = stack_prms[sort_count];//shift to next
 				//set right before left to keep true order	
 				stack_prms[sort_count].left = i;
 				stack_prms[sort_count++].right = right;
@@ -100,33 +104,111 @@ void msd_radix_sort(int *first, int *last, int msb = 31)
         msd_radix_sort(mid, last, msb); // sort right partition
     }
 }
+
+/* A utility function to print array of size n */
+void printArray(int* arr,int n)
+{
+    for (int i=0; i<n; ++i)
+        std::cout << arr[i] << " ";
+    std::cout << "\n";
+}
+
+// To heapify a subtree rooted with node i which is
+// an index in arr[]. n is size of heap
+void heapify_(int* const arr,const int &n, int j, bool exch_frst_lst)
+{
+	int sort_count=0;
+	int largest=0;
+	int l=0;
+	int r=0;
+	int m=n;
+	int tmp=0;
+	//(1):Build heap (rearrange array) - j=n/2-1;
+	//(2):one by one extract an element from heap - j=n-1
+	for (int i=j;i >= 0;--i) 
+	{		
+		sort_count=1;
+		if (exch_frst_lst)//(2):Initialize largest as first,step-by-step reduce sort length	
+		{
+			std::swap(arr[0],arr[i]);//(2):Move current root to end, end to start
+			m=i;
+			tmp=i;
+			i=0;
+		}
+		else
+			tmp=i;
+		while(sort_count--)
+		{
+			largest=i;//Initialize largest as root
+
+			l=2*i+1;//left = 2*i + 1
+			r=2*i+2;//right = 2*i + 2
+			// If left child is larger than root
+			if ((l<m) && (arr[l]>arr[largest]))
+				largest=l;
+			// If right child is larger than largest so far
+			if ((r<m) && (arr[r]>arr[largest]))
+				largest=r;
+			// If largest is not root
+			if (largest!=i)
+			{
+				std::swap(arr[i],arr[largest]);
+				// Recursively heapify the affected sub-tree (3 elements)
+				//heapify(arr, n, largest);
+				i=largest;
+				++sort_count;
+			}
+		}
+		i=tmp;
+	}
+}
+ 
+// main function to do heap sort
+void heapSort_(int* const arr,int n)
+{
+    // Build heap (rearrange array)
+	heapify_(arr,n,n/2-1,false);
+    /*for (int i=n/2-1;i >= 0;--i)
+        heapify(arr,n,i);*/
+
+    //one by one extract an element from heap
+	heapify_(arr,0,n-1,true);
+    /*for (int i=n-1;i>=0;--i)
+    {
+        //Move current root to end, end to start
+        swap(arr[0],arr[i]);
+        //call max heapify on the "reduced" heap
+        heapify(arr,i,0);
+    }*/
+}
  
 // test radix_sort
 int main()
 {	
 	const int size = 10000;
-	srand((unsigned)time(NULL));
+	srand((unsigned)time(NULL));	
 	int *data2 = new int[size];
 	for (int i=0;i<size;++i)
 		data2[i] = rand() / (i+1);
 	
-    //int data[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+	/*int data[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+	int data3[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+	int data4[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
 
-	//int data2[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
-	//std::copy(data2, data2 + 100, std::ostream_iterator<int>(std::cout, " "));
-	quickSort(data2,0,size);
- 
-    /*msd_radix_sort(data, data + 9);
- 
-    std::copy(data, data + 9, std::ostream_iterator<int>(std::cout, " "));*/
-	//just output
-    std::cout<<"\n";
-    std::copy(data2, data2 + 10, std::ostream_iterator<int>(std::cout, " "));
-	std::cout<<"\n";
+	quickSort(data,0,9);
+	msd_radix_sort(data3, data3 + 9);
+	heapSort_(data4,9);*/
+
+ 	//printArray(data,9);
+	//printArray(data3,9);
+	//printArray(data4,9);
+
+	heapSort_(data2,size);
 	for (int i=0;i<size;++i)//check correct
 		for (int j=i;j<size;++j)	
 			if (data2[i]>data2[j])
 				std::cout<<"--";
+
 	/*int a = 1;int a2 = 2;
 	int const &a_r = a;
 	const int a3;*/
