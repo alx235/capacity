@@ -5,67 +5,6 @@
 #include <time.h>
 #include <memory>
 
-void merge_(int a[], const int low, const int mid, const int high)
-{
-	// Variables declaration. 
-	std::cout<<"low:"<<low<<" high:"<<high<<"\n";
-	int * b = new int[high+1-low];
-	int h,i,j,k;
-	h=low;
-	i=0;
-	j=mid+1;
-	// Merges the two array's into b[] until the first one is finish
-	while((h<=mid)&&(j<=high))
-	{
-		if(a[h]<=a[j])
-		{
-			b[i]=a[h];
-			h++;
-		}
-		else
-		{
-			b[i]=a[j];
-			j++;
-		}
-		i++;
-	}
-	// Completes the array filling in it the missing values
-	if(h>mid)
-	{
-		for(k=j;k<=high;k++)
-		{
-			b[i]=a[k];
-			i++;
-		}
-	}
-	else
-	{
-		for(k=h;k<=mid;k++)
-		{
-			b[i]=a[k];
-			i++;
-		}
-	}
-	// Prints into the original array
-	for(k=0;k<=high-low;k++) 
-	{
-		a[k+low]=b[k];
-	}
-	delete[] b;
-}
-
-void merge_sort_( int a[], const int low, const int high )		// Recursive sort ...
-{
-	int mid;
-	if( low < high )
-	{
-		mid = ( low + high ) / 2;
-		merge_sort_( a, low, mid );
-		merge_sort_( a, mid + 1, high );
-		merge_( a, low, mid, high );
-	}
-}
-
 struct strct_prms
 {
 	int left;
@@ -81,10 +20,14 @@ struct strct_prms2
 {
 	int low;
 	int high;
+	int mid;
+	int check_;
 	strct_prms2()
 	{
 		low=0;
 		high=0;
+		mid=0;
+		check_=0;
 	}	
 };
 
@@ -195,41 +138,59 @@ void inline merge(int* const a,const int low,const int mid,const int high)
 	}
 }
 
+void merge_sort_( int a[], const int low, const int high )		// Recursive sort ...
+{
+	int mid;
+	if( low < high )
+	{
+		mid = ( low + high ) / 2;
+		merge_sort_( a, low, mid );
+		merge_sort_( a, mid + 1, high );
+		std::cout<<"low:"<<low<<" mid:"<<mid<<" high:"<<high<<"\n";
+		merge( a, low, mid, high );
+	}
+}
+
 void merge_sort(int* const a,const int low_,const int high_)
 {
-	int sort_count=1;
+	int sort_count=0;
 	std::unique_ptr<strct_prms2[]> stack_prms(new strct_prms2[high_-low_]());
 	stack_prms[0].low=low_;
 	stack_prms[0].high=high_-1;
 	int low=-1;
 	int high=-1;
 	int mid=-1;
-	int merge_flag=-1;
-	while(sort_count--)
+	while(sort_count>=0)
 	{
 		low=stack_prms[sort_count].low;
 		high=stack_prms[sort_count].high;
-		std::cout<<"low:"<<low<<" high:"<<high<<"\n";
-		if(low<high)
-			{
-				mid=(low+high)/2;
-
-				stack_prms[sort_count].low=mid+1;
-				stack_prms[sort_count++].high=high;
-				
-				stack_prms[sort_count].low=low;
-				stack_prms[sort_count++].high=mid;
-				//merge_sort(a,low,mid);
-				//merge_sort(a,mid+1,high);
-				//merge(a,low,mid,high);
-			}
+		//std::cout<<"check:"<<stack_prms[sort_count].check_<<"\n";
+		if(stack_prms[sort_count].check_)
+		{
+			merge(a,low,mid,high);
+			std::cout<<"merge: "<<"low:"<<low<<" mid:"<<stack_prms[sort_count].mid<<" high:"<<high<<"\n";
+			--sort_count;
+		}
 		else
-			if(++merge_flag>0)
-			{
-				//merge(a,low,mid,high);
-				merge(a,stack_prms[sort_count+1].low,low-1,high);
-				std::cout<<"merge "<<"low:"<<stack_prms[sort_count+1].low<<"mid:"<<low-1<<"high:"<<high<<"\n";
-			}
+		{
+			if(low<high)
+				{	
+					stack_prms[sort_count].check_=1;
+					mid=(low+high)/2;
+					stack_prms[sort_count++].mid=mid;
+
+					stack_prms[sort_count].low=mid+1;
+					stack_prms[sort_count++].high=high;
+				
+					stack_prms[sort_count].low=low;
+					stack_prms[sort_count++].high=mid;
+					//merge_sort(a,low,mid);
+					//merge_sort(a,mid+1,high);
+					//merge(a,low,mid,high);
+				}
+			else
+				--sort_count;
+		}
 	}
 }
  
@@ -339,17 +300,18 @@ int main()
 	
 	int data[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
 	int data3[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
-	//int data4[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
+	int data4[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
 
 	quickSort(data,0,9);
-	//merge_sort(data3,0,9);
+	merge_sort(data4,0,9);
+	std::cout<<"\n";
 	merge_sort_(data3,0,8);
 	/*msd_radix_sort(data3, data3 + 9);
 	heapSort_(data4,9);*/
 
  	printArray(data,9);
 	printArray(data3,9);
-	//printArray(data4,9);
+	printArray(data4,9);
 	
 	
 	/*heapSort(data2,size);
