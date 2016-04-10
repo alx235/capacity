@@ -5,6 +5,66 @@
 #include <time.h>
 #include <memory>
 
+void merge_(int a[], const int low, const int mid, const int high)
+{
+	// Variables declaration. 
+	int * b = new int[high+1-low];
+	int h,i,j,k;
+	h=low;
+	i=0;
+	j=mid+1;
+	// Merges the two array's into b[] until the first one is finish
+	while((h<=mid)&&(j<=high))
+	{
+		if(a[h]<=a[j])
+		{
+			b[i]=a[h];
+			h++;
+		}
+		else
+		{
+			b[i]=a[j];
+			j++;
+		}
+		i++;
+	}
+	// Completes the array filling in it the missing values
+	if(h>mid)
+	{
+		for(k=j;k<=high;k++)
+		{
+			b[i]=a[k];
+			i++;
+		}
+	}
+	else
+	{
+		for(k=h;k<=mid;k++)
+		{
+			b[i]=a[k];
+			i++;
+		}
+	}
+	// Prints into the original array
+	for(k=0;k<=high-low;k++) 
+	{
+		a[k+low]=b[k];
+	}
+	delete[] b;
+}
+
+void merge_sort_( int a[], const int low, const int high )		// Recursive sort ...
+{
+	int mid;
+	if( low < high )
+	{
+		mid = ( low + high ) / 2;
+		merge_sort_( a, low, mid );
+		merge_sort_( a, mid + 1, high );
+		merge_( a, low, mid, high );
+	}
+}
+
 struct strct_prms
 {
 	int left;
@@ -147,11 +207,12 @@ void merge_sort(int* const a,const int low_,const int high_)
 	while(sort_count--)
 	{
 		low=stack_prms[sort_count].low;
-		high= stack_prms[sort_count].high;
+		high=stack_prms[sort_count].high;
+		std::cout<<"low:"<<low<<" high:"<<high<<"\n";
 		if(low<high)
 			{
 				mid=(low+high)/2;
-				
+
 				stack_prms[sort_count].low=mid+1;
 				stack_prms[sort_count++].high=high;
 				
@@ -163,9 +224,12 @@ void merge_sort(int* const a,const int low_,const int high_)
 			}
 		else
 			if(++merge_flag>0)
+			{
 				//merge(a,low,mid,high);
 				merge(a,stack_prms[sort_count+1].low,low-1,high);
-	}	
+				std::cout<<"merge "<<"low:"<<stack_prms[sort_count+1].low<<"mid:"<<low-1<<"high:"<<high<<"\n";
+			}
+	}
 }
  
 // Radix sort comparator for 32-bit two's complement integers
@@ -277,7 +341,8 @@ int main()
 	//int data4[] = { 170, 45, 75, -90, -802, 24, 2, 66, 67 };
 
 	quickSort(data,0,9);
-	merge_sort(data3,0,8);
+	//merge_sort(data3,0,9);
+	merge_sort_(data3,0,8);
 	/*msd_radix_sort(data3, data3 + 9);
 	heapSort_(data4,9);*/
 
