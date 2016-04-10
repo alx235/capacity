@@ -8,6 +8,7 @@
 void merge_(int a[], const int low, const int mid, const int high)
 {
 	// Variables declaration. 
+	std::cout<<"low:"<<low<<" high:"<<high<<"\n";
 	int * b = new int[high+1-low];
 	int h,i,j,k;
 	h=low;
