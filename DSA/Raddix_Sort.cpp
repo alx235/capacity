@@ -16,6 +16,17 @@ struct strct_prms
 	}	
 };
 
+struct strct_prms2
+{
+	int low;
+	int high;
+	strct_prms2()
+	{
+		low=0;
+		high=0;
+	}	
+};
+
 void quickSort(int *arr, int left, int right)//iterative QSort
 {
       int sort_count = 1;
@@ -79,7 +90,7 @@ void quickSort(int *arr, int left, int right)//iterative QSort
 
 void inline merge(int* const a,const int low,const int mid,const int high)
 {
-	std::unique_ptr<int[]> b = new int[high+1-low];
+	std::unique_ptr<int[]> b(new int[high+1-low]);
 	int h,i,j,k;
 	h=low;
 	i=0;
@@ -123,12 +134,12 @@ void inline merge(int* const a,const int low,const int mid,const int high)
 	}
 }
 
-void merge_sort(int* const a,const int low,const int high)
+void merge_sort(int* const a,const int low_,const int high_)
 {
 	int sort_count=1;
-	std::unique_ptr<strct_prms[]> stack_prms(new strct_prms[right-left]());
-	stack_prms[0].low=low;
-	stack_prms[0].high=high-1;
+	std::unique_ptr<strct_prms2[]> stack_prms(new strct_prms2[high_-low_]());
+	stack_prms[0].low=low_;
+	stack_prms[0].high=high_-1;
 	int low=-1;
 	int high=-1;
 	int mid=-1;
