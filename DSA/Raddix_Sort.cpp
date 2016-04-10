@@ -296,16 +296,12 @@ void check_correct(int* const data,const int size)
 // test radix_sort
 int main()
 {	
-	const int size=10;
+	const int size=10000;
 	std::unique_ptr<int[]> data(new int[size]);
-	gen_rand(data.get(),size);quickSort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);
-	gen_rand(data.get(),size);heapSort(data.get(),size);check_correct(data.get(),size);printArray(data.get(),size);
-	gen_rand(data.get(),size);msd_radix_sort(data.get(),data.get()+size);check_correct(data.get(),size);printArray(data.get(),size);
-	gen_rand(data.get(),size);merge_sort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);
-
- 	//printArray(data,9);
-	//printArray(data3,9);
-	//printArray(data4,9);
+	gen_rand(data.get(),size);quickSort(data.get(),0,size);check_correct(data.get(),size);//printArray(data.get(),size);
+	gen_rand(data.get(),size);heapSort(data.get(),size);check_correct(data.get(),size);//printArray(data.get(),size);
+	gen_rand(data.get(),size);msd_radix_sort(data.get(),data.get()+size);check_correct(data.get(),size);//printArray(data.get(),size);
+	gen_rand(data.get(),size);merge_sort(data.get(),0,size);check_correct(data.get(),size);//printArray(data.get(),size);
 
 	/*int a = 1;int a2 = 2;
 	int const &a_r = a;
