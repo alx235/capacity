@@ -76,6 +76,86 @@ void quickSort(int *arr, int left, int right)//iterative QSort
 		//std::cout<<"end\n";
       }
 }
+
+void inline merge(int* const a,const int low,const int mid,const int high)
+{
+	std::unique_ptr<int[]> b = new int[high+1-low];
+	int h,i,j,k;
+	h=low;
+	i=0;
+	j=mid+1;
+	// Merges the two array's into b[] until the first one is finish
+	while((h<=mid)&&(j<=high))
+	{
+		if(a[h]<=a[j])
+		{
+			b[i]=a[h];
+			h++;
+		}
+		else
+		{
+			b[i]=a[j];
+			j++;
+		}
+		i++;
+	}
+	// Completes the array filling in it the missing values
+	if(h>mid)
+	{
+		for(k=j;k<=high;k++)
+		{
+			b[i]=a[k];
+			i++;
+		}
+	}
+	else
+	{
+		for(k=h;k<=mid;k++)
+		{
+			b[i]=a[k];
+			i++;
+		}
+	}
+	// Prints into the original array
+	for(k=0;k<=high-low;k++) 
+	{
+		a[k+low]=b[k];
+	}
+}
+
+void merge_sort(int* const a,const int low,const int high)
+{
+	int sort_count=1;
+	std::unique_ptr<strct_prms[]> stack_prms(new strct_prms[right-left]());
+	stack_prms[0].low=low;
+	stack_prms[0].high=high-1;
+	int low=-1;
+	int high=-1;
+	int mid=-1;
+	int merge_flag=-1;
+	while(sort_count--)
+	{
+		low=stack_prms[sort_count].low;
+		high= stack_prms[sort_count].high;
+		if(low<high)
+			{
+				mid=(low+high)/2;
+				
+				stack_prms[sort_count].low=mid+1;
+				stack_prms[sort_count++].high=high;
+				
+				stack_prms[sort_count].low=low;
+				stack_prms[sort_count++].high=mid;
+				//merge_sort(a,low,mid);
+				//merge_sort(a,mid+1,high);
+				//merge(a,low,mid,high);
+			}
+		else
+			if(++merge_flag>0)
+				//merge(a,low,mid,high);
+				merge(a,stack_prms[sort_count+1].low,low-1,high);
+	}	
+}
  
 // Radix sort comparator for 32-bit two's complement integers
 class radix_test
@@ -86,17 +166,17 @@ public:
  
     bool operator()(const int &value) const // function call operator
     {
-        if (bit == 31) // sign bit
-            return value < 0; // negative int to left partition
+        if (bit==31) // sign bit
+            return value<0; // negative int to left partition
         else
-            return !(value & (1 << bit)); // 0 bit to left partition
+            return !(value & (1<<bit)); // 0 bit to left partition
     }
 };
  
 // Most significant digit radix sort (recursive)
 void msd_radix_sort(int *first, int *last, int msb = 31)
 {
-    if (first != last && msb >= 0)
+    if ((first!=last) && (msb>=0))
     {
         int *mid = std::partition(first, last, radix_test(msb));
         msb--; // decrement most-significant-bit
@@ -115,7 +195,7 @@ void printArray(int* arr,int n)
 
 // To heapify a subtree rooted with node i which is
 // an index in arr[]. n is size of heap
-void heapify_(int* const arr,const int &n, int j, bool exch_frst_lst)
+void heapify(int* const arr,const int &n, int j, bool exch_frst_lst)
 {
 	int sort_count=0;
 	int largest=0;
@@ -164,22 +244,12 @@ void heapify_(int* const arr,const int &n, int j, bool exch_frst_lst)
 }
  
 // main function to do heap sort
-void heapSort_(int* const arr,int n)
+void heapSort(int* const arr,int n)
 {
     // Build heap (rearrange array)
-	heapify_(arr,n,n/2-1,false);
-    /*for (int i=n/2-1;i >= 0;--i)
-        heapify(arr,n,i);*/
-
+	heapify(arr,n,n/2-1,false);
     //one by one extract an element from heap
-	heapify_(arr,0,n-1,true);
-    /*for (int i=n-1;i>=0;--i)
-    {
-        //Move current root to end, end to start
-        swap(arr[0],arr[i]);
-        //call max heapify on the "reduced" heap
-        heapify(arr,i,0);
-    }*/
+	heapify(arr,0,n-1,true);
 }
  
 // test radix_sort
@@ -203,7 +273,7 @@ int main()
 	//printArray(data3,9);
 	//printArray(data4,9);
 
-	heapSort_(data2,size);
+	heapSort(data2,size);
 	for (int i=0;i<size;++i)//check correct
 		for (int j=i;j<size;++j)	
 			if (data2[i]>data2[j])
