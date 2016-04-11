@@ -208,6 +208,10 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //pthread_mutex_lock() fail if thread has lower priority
 
 
+//---C++11 STD---\\
+
+//std::async + GCC = no comment (at least today...)
+
 //std::thread is just class-wrapper, but comfortable and safe!!!
 //...but pthread more flexiable and fast
 //pthread create with default joinable attr
@@ -220,12 +224,16 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //if main thread exit() - UB
 
 //(1)
-//c++11 thread MUSN'T be joinable(not been detached or joined) before call ~thread()
+//C++11 thread MUSN'T be joinable(not been detached or joined) before call ~thread()
 //...or also can be moved(non-copyable,non-assignable), default-constructed
 //thread terminate normal or by thow exception (cancel is difficult)
 //to use native pthread.h function call native_handle() for fast performance, but with carefull!
-//return value by std::promise and std::future (or just send pointer as agr to avoid infinite future_wait)
 //c++11: thread that has finished is still active thread of execution and joinable
+
+//return value to called thread by std::promise and std::future with try/catch block in joined thread (or just send pointer as agr to avoid infinite future_wait or using try/catch)
+//...prom_.set_value use single mutex
+//...i don't know real situation where this can be usefull 
+
 
 //std::recursive_mutex use try-lock to avoid throw (max counter overflow)
 //std::mutex recursive lock from owned thread - UB
@@ -239,7 +247,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 
 //std::lock_guard - scope lock
 //std::unique_lock - destructor call unlock the associated mutex, if owned (preffered than unlock!)
-//std::unique_lock::lock throw/try_lock if no associated mutex or if already locked by this unique_lock
+//std::unique_lock::lock/try_lock throw if no associated mutex or if already locked by this unique_lock
 //std::unique_lock::unlock throw if no associated mutex or mutex is not locked
 //std::unique_lock::release break associated relation, no throw
 //...deffered case for std::lock after, adopt - before, trylock - for trylock
@@ -255,7 +263,6 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //std::condition_variable for std::unique_lock (for efficienty in some platform!!)
 //std::condition_variable_any with any lock...
 
-
 //std::once_flag/std::call_once - to call function once!
 
 void thread_f1(/*std::promise<int> prom_*/)
@@ -270,7 +277,7 @@ int main()
 	//std::promise<int> prom_;
 	//std::future<int> prom_future = prom_.get_future();
 	std::thread t1(thread_f1);
-	//prom.future_wait();//wait until set_value can cause infinite wait, if there is exception in t1 thread
+	//prom.future_wait();//wait until set_value can cause infinite wait, if there is uncaught exception in t1 thread
 	//std::cout<<"recieved value:"<<prom_future.get()<<"\n";
 	t1.join();//wait until execution end then release resources
 	std::cout<<"program finish"<<"\n";
