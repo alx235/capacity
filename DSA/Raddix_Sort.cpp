@@ -326,10 +326,10 @@ void __msd_radix_sort_st2(int *first, int *last,int* const tmp,int msb=31)
     }
 }
 
-void msd_radix_sort_st2(int *first, int *last,int const size,int msb=31)
+void msd_radix_sort_st2(int *first, int *last,int msb=31)
 {
-	std::unique_ptr<int[]> tmp(new int[size]);
-	__msd_radix_sort_st2(first,last,tmp.get(),msb);std::cout<<"end \n";
+	std::unique_ptr<int[]> _tmp(new int[last-first]);
+	__msd_radix_sort_st2(first,last,_tmp.get(),msb);
 }
 
 // Most significant digit radix sort (recursive), for unexplained reasons, this version is faster
@@ -343,7 +343,7 @@ void msd_radix_sort_st(int *first, int *last,int msb=31)
         msd_radix_sort_st(mid,last,msb);
     }
 }
-/*
+
 void msd_radix_sort(int *first, int *last,int msb=31)
 {
     if ((first!=last) && (msb>=0))
@@ -355,13 +355,24 @@ void msd_radix_sort(int *first, int *last,int msb=31)
     }
 }
 
+void lsd_radix_sort2(int *first, int *last,int byte_size=32)
+{
+	std::unique_ptr<int[]> _tmp(new int[last-first]);
+	int* _tmp2 = _tmp.get();
+	
+    for (int lsb=0;lsb<byte_size;++lsb)
+    {
+		__radix_sort(_tmp2,first,last,lsb);
+    }
+}
+
 void lsd_radix_sort(int *first, int *last,int byte_size=32)
 {
     for (int lsb=0;lsb<byte_size;++lsb)
     {
         std::stable_partition(first, last, radix_test(lsb));
     }
-}*/
+}
 
 // Most significant digit radix sort (iterative)
 /*
@@ -450,12 +461,12 @@ int main()
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
 
-	msd_radix_sort_st2(data.get(),data.get()+size,size);
+	msd_radix_sort_st2(data.get(),data.get()+size);
 	//check_correct(data.get(),size);
 	end=std::chrono::steady_clock::now();
 
 	sh_time(begin,end,"msd_st2_r");
-	/*
+	
 	gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
@@ -463,17 +474,17 @@ int main()
 	//check_correct(data.get(),size);
 	end=std::chrono::steady_clock::now();
 
-	sh_time(begin,end,"lsd_st_r");
-
+	sh_time(begin,end,"lsd_st1_r");
+	
 	gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
-	msd_radix_sort_it_st(data.get(),data.get()+size);
+	lsd_radix_sort2(data.get(),data.get()+size);
 	//check_correct(data.get(),size);
 	end=std::chrono::steady_clock::now();
 
-	sh_time(begin,end,"msd_st_i");
-
+	sh_time(begin,end,"lsd_st2_r");
+	/*
 	gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
