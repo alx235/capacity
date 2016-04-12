@@ -41,52 +41,53 @@ void quickSort(int *arr, int left, int right)//iterative QSort
 
       while(sort_count--)
       {
-	      bool ignore = false;
-	      int left = stack_prms[sort_count].left;
-	      int right = stack_prms[sort_count].right;
+	      bool ignore=false;
+	      int left=stack_prms[sort_count].left;
+	      int right=stack_prms[sort_count].right;
 
-	      int i = left, j = right;
+	      int i=left, j=right;
 	      int tmp;
-	      int mid = arr[(left + right) / 2];
+	      int mid=arr[(left+right)/2];
 	 
 	      /* partition */
-	      while (i <= j) {
-		    while (arr[i] < mid)
+	      while (i<=j) {
+		    while (arr[i]<mid)
 		          i++;
-		    while (arr[j] > mid)
+		    while (arr[j]>mid)
 		          j--;
-		    if (i <= j) {
-		          tmp = arr[i];
-		          arr[i] = arr[j];
-		          arr[j] = tmp;
-		          i++;
-		          j--;
+		    if (i<=j) 
+			{
+		    	tmp=arr[i];
+		    	arr[i]=arr[j];
+		    	arr[j]=tmp;
+		    	i++;
+		    	j--;
 		    }
 	      };
 	 
-	      /* recursion */
-	      if (left < j)
+	      /* "recursion" */
+	      if (left<j)
 	      {
 			//std::cout<<"left\n";
-			stack_prms[sort_count].right = j;
-			stack_prms[sort_count++].left = left;
-			ignore = true;
+			stack_prms[sort_count].right=j;
+			stack_prms[sort_count++].left=left;
+			ignore=true;
 	      }
-	      if (i < right)
+	      if (i<right)
 	      {
 			//std::cout<<"right\n";
 			if (ignore)//must keep order
 			{
-				stack_prms[sort_count+1] = stack_prms[sort_count];//shift to next
+				stack_prms[sort_count+1]=stack_prms[sort_count];//shift to next
 				//set right before left to keep true order	
-				stack_prms[sort_count].left = i;
-				stack_prms[sort_count++].right = right;
+				stack_prms[sort_count].left=i;
+				stack_prms[sort_count++].right=right;
 				sort_count++;//increment again because we push twice
 			}
 			else
 			{
-				stack_prms[sort_count].left = i;
-				stack_prms[sort_count++].right = right;
+				stack_prms[sort_count].left=i;
+				stack_prms[sort_count++].right=right;
 			}
 	      }
 		//std::cout<<"end\n";
@@ -263,7 +264,7 @@ struct strct_prms3
 };
  
 // Radix sort comparator for 32-bit two's complement integers
-class radix_test
+/*class radix_test
 {
     const int bit; // bit position [0..31] to examine
 public:
@@ -276,7 +277,7 @@ public:
         else
             return !(value & (1<<bit)); // 0 bit to left partition
     }
-};
+};*/
 
 int* __radix_sort(int* const buff,int* const first,int* const last,const int signbit)
 {
@@ -372,7 +373,7 @@ void msd_radix_sort_st(int *first, int *last,int msb=31)
 }
 
 // Most significant digit radix sort (recursive), for unexplained reasons, this version is faster
-void msd_radix_sort(int *first, int *last,int msb=31)
+/*void msd_radix_sort(int *first, int *last,int msb=31)
 {
     if ((first!=last) && (msb>=0))
     {
@@ -381,7 +382,7 @@ void msd_radix_sort(int *first, int *last,int msb=31)
         msd_radix_sort_st(first,mid,msb);
         msd_radix_sort_st(mid,last,msb);
     }
-}
+}*/
 
 void msd_radix_sort2(int *first, int *last,int msb=31)
 {
@@ -405,13 +406,13 @@ void lsd_radix_sort2(int *first, int *last,int byte_size=32)
     }
 }
 
-void lsd_radix_sort(int *first, int *last,int byte_size=32)
+/*void lsd_radix_sort(int *first, int *last,int byte_size=32)
 {
     for (int lsb=0;lsb<byte_size;++lsb)
     {
         std::stable_partition(first, last, radix_test(lsb));
     }
-}
+}*/
 
 // Most significant digit radix sort (iterative)
 /*
@@ -521,7 +522,7 @@ int main()
 	end=std::chrono::steady_clock::now();
 	sh_time(begin,end,"lsd_st2_r");*/
 	
-	gen_rand(data.get(),size);
+	/*gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
 	msd_radix_sort(data.get(),data.get()+size);
@@ -538,7 +539,7 @@ int main()
 	end=std::chrono::steady_clock::now();
 	std::cout<<"custom msd"<<"\n";
 	sh_time(begin,end,"msd_ns2_r");
-	//printArray(data.get(),size);
+	//printArray(data.get(),size);*/
 	/*gen_rand(data.get(),size);quickSort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);
 	gen_rand(data.get(),size);heapSort(data.get(),size);check_correct(data.get(),size);printArray(data.get(),size);
 	gen_rand(data.get(),size);msd_radix_sort(data.get(),data.get()+size);check_correct(data.get(),size);printArray(data.get(),size);
