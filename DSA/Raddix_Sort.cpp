@@ -4,6 +4,7 @@
 #include <iterator>
 #include <time.h>
 #include <memory>
+#include <chrono>
 
 struct strct_prms
 {
@@ -182,34 +183,6 @@ void merge_sort(int* const a,const int low_,const int high_)
 		}
 	}
 }
- 
-// Radix sort comparator for 32-bit two's complement integers
-class radix_test
-{
-    const int bit; // bit position [0..31] to examine
-public:
-    radix_test(int offset) : bit(offset) {} // constructor
- 
-    bool operator()(const int &value) const // function call operator
-    {
-        if (bit==31) // sign bit
-            return value<0; // negative int to left partition
-        else
-            return !(value & (1<<bit)); // 0 bit to left partition
-    }
-};
- 
-// Most significant digit radix sort (recursive)
-void msd_radix_sort(int *first, int *last, int msb = 31)
-{
-    if ((first!=last) && (msb>=0))
-    {
-        int *mid = std::partition(first, last, radix_test(msb));
-        msb--; // decrement most-significant-bit
-        msd_radix_sort(first, mid, msb); // sort left partition
-        msd_radix_sort(mid, last, msb); // sort right partition
-    }
-}
 
 /* A utility function to print array of size n */
 void printArray(int* arr,int n)
@@ -238,11 +211,9 @@ void heapify(int* const arr,const int &n, int j, bool exch_frst_lst)
 		{
 			std::swap(arr[0],arr[i]);//(2):Move current root to end, end to start
 			m=i;
-			tmp=i;
 			i=0;
 		}
-		else
-			tmp=i;
+		tmp=i;
 		while(sort_count--)
 		{
 			largest=i;//Initialize largest as root
@@ -278,6 +249,93 @@ void heapSort(int* const arr,int n)
 	heapify(arr,0,n-1,true);
 }
 
+struct strct_prms3
+{
+	int* first_;
+	int* last_;
+	int msb_;
+	strct_prms3()
+	{
+		first_=nullptr;
+		last_=nullptr;
+		msb_=0;
+	}	
+};
+ 
+// Radix sort comparator for 32-bit two's complement integers
+class radix_test
+{
+    const int bit; // bit position [0..31] to examine
+public:
+    radix_test(int offset) : bit(offset) {} // constructor
+ 
+    bool operator()(const int &value) const // function call operator
+    {
+        if (bit==31) // sign bit
+            return value<0; // negative int to left partition
+        else
+            return !(value & (1<<bit)); // 0 bit to left partition
+    }
+};
+
+// Most significant digit radix sort (recursive), for unexplained reasons, this version is faster
+void msd_radix_sort_req(int *first, int *last, int &n,int &m,int msb = 31)
+{
+    if ((first!=last) && (msb>=0))
+    {
+        int *mid = std::partition(first, last, radix_test(msb));++n;if (n>m) m=n;
+        msb--;
+        msd_radix_sort_req(first,mid,n,m,msb);
+        msd_radix_sort_req(mid,last,n,m,msb);
+    }
+	else
+		--n;
+}
+
+// Most significant digit radix sort (iterative)
+void msd_radix_sort(int *frst, int *lst,const int &size,int &m, int bsize = 31)
+{
+	int sort_count=1;
+	int* mid_=nullptr; 
+
+	//std::unique_ptr<strct_prms3[]> stack_prms(new strct_prms3[bsize+1]);
+	strct_prms3 stack_prms[bsize+1];
+	stack_prms[0].first_=frst;
+	stack_prms[0].last_=lst;
+	stack_prms[0].msb_=bsize;
+
+	int* first_=nullptr;
+	int* last_=nullptr;
+	int msb_=-1;
+	
+	int n=0;
+    while (sort_count--)
+    {	
+		//strct_prms3* stack_tmp=stack_prms.get()+sort_count;
+		strct_prms3* stack_tmp=stack_prms+sort_count;
+		first_=stack_tmp->first_;
+		last_=stack_tmp->last_;
+		msb_=stack_tmp->msb_;     
+		if ((first_!=last_) && (msb_>=0))
+		{
+			mid_ = std::partition(first_, last_, radix_test(msb_));
+			--msb_;++n;if (n>m) m=n;
+
+			stack_tmp->first_=mid_;
+			stack_tmp->last_=last_;
+			stack_tmp->msb_=msb_;
+			++stack_tmp;
+			++sort_count;
+			stack_tmp->first_=first_;
+			stack_tmp->last_=mid_;
+			stack_tmp->msb_=msb_;
+			++sort_count;
+		}
+		else
+			--n;
+    }
+}
+
 void gen_rand(int* const data,const int size)
 {
 	srand((unsigned)time(NULL));
@@ -293,16 +351,61 @@ void check_correct(int* const data,const int size)
 			std::cout<<"--";
 }
  
-// test radix_sort
+// test
 int main()
 {	
-	const int size=10000;
+	//const int size=125000000;
+	const int size=10000000;
+	std::cout <<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
-	gen_rand(data.get(),size);quickSort(data.get(),0,size);check_correct(data.get(),size);//printArray(data.get(),size);
-	gen_rand(data.get(),size);heapSort(data.get(),size);check_correct(data.get(),size);//printArray(data.get(),size);
-	gen_rand(data.get(),size);msd_radix_sort(data.get(),data.get()+size);check_correct(data.get(),size);//printArray(data.get(),size);
-	gen_rand(data.get(),size);merge_sort(data.get(),0,size);check_correct(data.get(),size);//printArray(data.get(),size);
+	std::chrono::steady_clock::time_point begin,end;
+	gen_rand(data.get(),size);
+	//printArray(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	int max1=0;
+	msd_radix_sort(data.get(),data.get()+size,size,max1);
+	std::cout<<"max1:"<<max1<<"\n";
+	//check_correct(data.get(),size);
+	end=std::chrono::steady_clock::now();
+	std::cout << "elapsed time radix ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;
 
+	gen_rand(data.get(),size);
+	//printArray(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	int n2=0,max2=0;
+	msd_radix_sort_req(data.get(),data.get()+size,n2,max2);
+	std::cout<<"max2:"<<max2<<"\n";
+	//check_correct(data.get(),size);
+	end=std::chrono::steady_clock::now();
+	std::cout << "elapsed time r_req ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;
+	//printArray(data.get(),size);
+	/*gen_rand(data.get(),size);quickSort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);
+	gen_rand(data.get(),size);heapSort(data.get(),size);check_correct(data.get(),size);printArray(data.get(),size);
+	gen_rand(data.get(),size);msd_radix_sort(data.get(),data.get()+size);check_correct(data.get(),size);printArray(data.get(),size);
+	gen_rand(data.get(),size);merge_sort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);*/
+	/*gen_rand(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	quickSort(data.get(),0,size);
+	end=std::chrono::steady_clock::now();
+	std::cout << "elapsed time quick ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;*/
+
+	/*gen_rand(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	heapSort(data.get(),size);
+	end=std::chrono::steady_clock::now();
+	std::cout << "elapsed time heapS ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;
+
+	gen_rand(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	msd_radix_sort(data.get(),data.get()+size);
+	end=std::chrono::steady_clock::now();
+	std::cout << "elapsed time msd_r ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;
+
+	gen_rand(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	merge_sort(data.get(),0,size);
+	end=std::chrono::steady_clock::now();
+	std::cout << "elapsed time merge ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;/
 	/*int a = 1;int a2 = 2;
 	int const &a_r = a;
 	const int a3;*/
