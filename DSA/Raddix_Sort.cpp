@@ -311,16 +311,19 @@ void msd_radix_sort(int *frst, int *lst,const int &size,int &m, int bsize = 31)
 	int n=0;
     while (sort_count--)
     {	
-		//strct_prms3* stack_tmp=stack_prms.get()+sort_count;
+		////strct_prms3* stack_tmp=stack_prms.get()+sort_count;
 		strct_prms3* stack_tmp=stack_prms+sort_count;
 		first_=stack_tmp->first_;
 		last_=stack_tmp->last_;
-		msb_=stack_tmp->msb_;     
+		msb_=stack_tmp->msb_;
+		/*first_=stack_prms[sort_count].first_;
+		last_=stack_prms[sort_count].last_;
+		msb_=stack_prms[sort_count].msb_;*/    
 		if ((first_!=last_) && (msb_>=0))
 		{
 			mid_ = std::partition(first_, last_, radix_test(msb_));
 			--msb_;++n;if (n>m) m=n;
-
+			
 			stack_tmp->first_=mid_;
 			stack_tmp->last_=last_;
 			stack_tmp->msb_=msb_;
@@ -330,6 +333,14 @@ void msd_radix_sort(int *frst, int *lst,const int &size,int &m, int bsize = 31)
 			stack_tmp->last_=mid_;
 			stack_tmp->msb_=msb_;
 			++sort_count;
+			/*stack_prms[sort_count].first_=mid_;
+			stack_prms[sort_count].last_=last_;
+			stack_prms[sort_count].msb_=msb_;
+			++sort_count;
+			stack_prms[sort_count].first_=first_;
+			stack_prms[sort_count].last_=mid_;
+			stack_prms[sort_count].msb_=msb_;
+			++sort_count;*/		
 		}
 		else
 			--n;
@@ -355,7 +366,7 @@ void check_correct(int* const data,const int size)
 int main()
 {	
 	//const int size=125000000;
-	const int size=10000000;
+	const int size=100000000;
 	std::cout <<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	std::chrono::steady_clock::time_point begin,end;
