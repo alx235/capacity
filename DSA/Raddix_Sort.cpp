@@ -297,13 +297,17 @@ int* __radix_sort(int* const buff,int* const first,int* const last,const int sig
             _is_true=!(*_first & (1<<signbit)); // 0 bit to left partition
 		if (_is_true)
 		{//left
-			*_result1++=*_first++;
+			*_result1=*_first;_
+			++result1;
+		
 		}
 		else
 		{//right,second group
-			*_result2--=*_first++;
+			*_result2=*_first;
+			--_result2;
 			++_i;
 		}
+		++_first;
 	}
 	if (_i)
 	{
@@ -314,26 +318,65 @@ int* __radix_sort(int* const buff,int* const first,int* const last,const int sig
 	return last-_i;
 }
 
-void __msd_radix_sort_st2(int *first, int *last,int* const tmp,int msb=31)
+int* __radix_sort_unstable(int* const first,int* const last,const int signbit)
+{
+	bool _is_true=0;
+	int* const _result_begin=buff;
+	int* const _result_end=buff+(last-first);
+
+	int* _result1=_result_begin;
+	int* _result2=_result_end-1;
+	int* _first=first;
+	int* _first2=first;//false start position
+	int* _last=last;
+	bool _false_found=0;
+	for (;_first!=_last;)
+	{
+        if (signbit==31) // sign bit
+            _is_true=*_first<0; // negative int to left partition
+        else
+            _is_true=!(*_first & (1<<signbit)); // 0 bit to left partition
+		if (_is_true)
+		{//left
+			if (_false_found)
+			{
+				std::swap(*_first,*_first2);//send false forward, always exchange with first false
+				++_first2;
+			}	
+		}
+		else
+		{//right,second group
+			if (!_false_found)
+			{	
+				_false_found=1;
+				_first2=_first;//position where false
+			}
+		}
+		++_first;
+	}
+	return _first2;
+}
+
+void __msd_radix_sort_st(int *first, int *last,int* const tmp,int msb=31)
 {
     if ((first!=last) && (msb>=0))
     {
 		//std::cout<<"msb:"<<msb<<"\n";
         int *_mid = __radix_sort(tmp,first,last,msb);
         msb--;
-        __msd_radix_sort_st2(first,_mid,tmp,msb);
-        __msd_radix_sort_st2(_mid,last,tmp,msb);
+        __msd_radix_sort_st(first,_mid,tmp,msb);
+        __msd_radix_sort_st(_mid,last,tmp,msb);
     }
 }
 
-void msd_radix_sort_st2(int *first, int *last,int msb=31)
+void msd_radix_sort_st(int *first, int *last,int msb=31)
 {
 	std::unique_ptr<int[]> _tmp(new int[last-first]);
-	__msd_radix_sort_st2(first,last,_tmp.get(),msb);
+	__msd_radix_sort_st(first,last,_tmp.get(),msb);
 }
 
 // Most significant digit radix sort (recursive), for unexplained reasons, this version is faster
-void msd_radix_sort_st(int *first, int *last,int msb=31)
+void msd_radix_sort(int *first, int *last,int msb=31)
 {
     if ((first!=last) && (msb>=0))
     {
@@ -344,11 +387,11 @@ void msd_radix_sort_st(int *first, int *last,int msb=31)
     }
 }
 
-void msd_radix_sort(int *first, int *last,int msb=31)
+void msd_radix_sort2(int *first, int *last,int msb=31)
 {
     if ((first!=last) && (msb>=0))
     {
-        int *mid = std::partition(first, last, radix_test(msb));
+        int *mid = __radix_sort_unstable(first,last,msb);
         msb--;
         msd_radix_sort(first,mid,msb);
         msd_radix_sort(mid,last,msb);
@@ -437,17 +480,17 @@ void sh_time(std::chrono::steady_clock::time_point b,std::chrono::steady_clock::
 // test
 int main()
 {	
-	//const int size=1000000;
-	const int size=100000000;
+	//const int size=10;
+	//const int size=100000000;
 	std::cout <<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
-	/*gen_rand(data.get(),size);
+	gen_rand(data.get(),size);
 	printArray(data.get(),size);
-	msd_radix_sort_st2(data.get(),data.get()+size,size);//check_correct(data.get(),size);
-	printArray(data.get(),size);*/
+	msd_radix_sort2(data.get(),data.get()+size);//check_correct(data.get(),size);
+	printArray(data.get(),size);
 	std::chrono::steady_clock::time_point begin,end;
 
-	gen_rand(data.get(),size);
+	/*gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
 
@@ -483,7 +526,7 @@ int main()
 	//check_correct(data.get(),size);
 	end=std::chrono::steady_clock::now();
 
-	sh_time(begin,end,"lsd_st2_r");
+	sh_time(begin,end,"lsd_st2_r");*/
 	/*
 	gen_rand(data.get(),size);
 	//printArray(data.get(),size);
