@@ -279,19 +279,39 @@ public:
 };
 
 // Most significant digit radix sort (recursive), for unexplained reasons, this version is faster
-void msd_radix_sort_req(int *first, int *last,int msb = 31)
+void msd_radix_sort_st(int *first, int *last,int msb=31)
+{
+    if ((first!=last) && (msb>=0))
+    {
+        int *mid = std::stable_partition(first, last, radix_test(msb));
+        msb--;
+        msd_radix_sort_st(first,mid,msb);
+        msd_radix_sort_st(mid,last,msb);
+    }
+}
+
+void msd_radix_sort(int *first, int *last,int msb=31)
 {
     if ((first!=last) && (msb>=0))
     {
         int *mid = std::partition(first, last, radix_test(msb));
         msb--;
-        msd_radix_sort_req(first,mid,n,m,msb);
-        msd_radix_sort_req(mid,last,n,m,msb);
+        msd_radix_sort(first,mid,msb);
+        msd_radix_sort(mid,last,msb);
+    }
+}
+
+void lsd_radix_sort(int *first, int *last,int byte_size=32)
+{
+    for (int lsb=0;lsb<byte_size;++lsb)
+    {
+        std::stable_partition(first, last, radix_test(lsb));
     }
 }
 
 // Most significant digit radix sort (iterative)
-void msd_radix_sort(int *frst, int *lst,const int &size,int bsize = 31)
+
+void msd_radix_sort_it_st(int *frst, int *lst,int bsize = 31)
 {
 	int sort_count=1;
 	int* mid_=nullptr; 
@@ -313,7 +333,7 @@ void msd_radix_sort(int *frst, int *lst,const int &size,int bsize = 31)
 		msb_=stack_tmp->msb_;   
 		if ((first_!=last_) && (msb_>=0))
 		{
-			mid_ = std::partition(first_, last_, radix_test(msb_));
+			mid_ = std::stable_partition(first_, last_, radix_test(msb_));
 			--msb_;
 			
 			stack_tmp->first_=mid_;
@@ -343,32 +363,57 @@ void check_correct(int* const data,const int size)
 		if (data[i]>data[j])
 			std::cout<<"--";
 }
+
+void sh_time(std::chrono::steady_clock::time_point b,std::chrono::steady_clock::time_point e, const std::string &mes)
+{
+	std::cout << mes << " "<< std::chrono::duration_cast<std::chrono::nanoseconds> (e - b).count() <<std::endl;	
+}
  
 // test
 int main()
 {	
-	//const int size=125000000;
-	const int size=100000000;
+	const int size=1000000;
 	std::cout <<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
+
 	std::chrono::steady_clock::time_point begin,end;
-	gen_rand(data.get(),size);
-	//printArray(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	msd_radix_sort(data.get(),data.get()+size,size);
-	std::cout<<"max1:"<<max1<<"\n";
-	//check_correct(data.get(),size);
-	end=std::chrono::steady_clock::now();
-	std::cout << "elapsed time radix ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;
 
 	gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
-	msd_radix_sort_req(data.get(),data.get()+size);
-	std::cout<<"max2:"<<max2<<"\n";
+
+	msd_radix_sort_st(data.get(),data.get()+size);
 	//check_correct(data.get(),size);
 	end=std::chrono::steady_clock::now();
-	std::cout << "elapsed time r_req ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;
+
+	sh_time(begin,end,"msd_st_r");
+
+	gen_rand(data.get(),size);
+	//printArray(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	lsd_radix_sort(data.get(),data.get()+size);
+	//check_correct(data.get(),size);
+	end=std::chrono::steady_clock::now();
+
+	sh_time(begin,end,"lsd_st_r");
+
+	gen_rand(data.get(),size);
+	//printArray(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	msd_radix_sort_it_st(data.get(),data.get()+size);
+	//check_correct(data.get(),size);
+	end=std::chrono::steady_clock::now();
+
+	sh_time(begin,end,"msd_st_i");
+
+	gen_rand(data.get(),size);
+	//printArray(data.get(),size);
+	begin=std::chrono::steady_clock::now();
+	msd_radix_sort(data.get(),data.get()+size);
+	//check_correct(data.get(),size);
+	end=std::chrono::steady_clock::now();
+	std::cout<<"original msd"<<"\n";
+	sh_time(begin,end,"msd_ns_r");
 	//printArray(data.get(),size);
 	/*gen_rand(data.get(),size);quickSort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);
 	gen_rand(data.get(),size);heapSort(data.get(),size);check_correct(data.get(),size);printArray(data.get(),size);
