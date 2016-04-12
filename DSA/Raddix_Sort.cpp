@@ -279,26 +279,23 @@ public:
 };
 
 // Most significant digit radix sort (recursive), for unexplained reasons, this version is faster
-void msd_radix_sort_req(int *first, int *last, int &n,int &m,int msb = 31)
+void msd_radix_sort_req(int *first, int *last,int msb = 31)
 {
     if ((first!=last) && (msb>=0))
     {
-        int *mid = std::partition(first, last, radix_test(msb));++n;if (n>m) m=n;
+        int *mid = std::partition(first, last, radix_test(msb));
         msb--;
         msd_radix_sort_req(first,mid,n,m,msb);
         msd_radix_sort_req(mid,last,n,m,msb);
     }
-	else
-		--n;
 }
 
 // Most significant digit radix sort (iterative)
-void msd_radix_sort(int *frst, int *lst,const int &size,int &m, int bsize = 31)
+void msd_radix_sort(int *frst, int *lst,const int &size,int bsize = 31)
 {
 	int sort_count=1;
 	int* mid_=nullptr; 
 
-	//std::unique_ptr<strct_prms3[]> stack_prms(new strct_prms3[bsize+1]);
 	strct_prms3 stack_prms[bsize+1];
 	stack_prms[0].first_=frst;
 	stack_prms[0].last_=lst;
@@ -308,21 +305,16 @@ void msd_radix_sort(int *frst, int *lst,const int &size,int &m, int bsize = 31)
 	int* last_=nullptr;
 	int msb_=-1;
 	
-	int n=0;
     while (sort_count--)
     {	
-		////strct_prms3* stack_tmp=stack_prms.get()+sort_count;
 		strct_prms3* stack_tmp=stack_prms+sort_count;
 		first_=stack_tmp->first_;
 		last_=stack_tmp->last_;
-		msb_=stack_tmp->msb_;
-		/*first_=stack_prms[sort_count].first_;
-		last_=stack_prms[sort_count].last_;
-		msb_=stack_prms[sort_count].msb_;*/    
+		msb_=stack_tmp->msb_;   
 		if ((first_!=last_) && (msb_>=0))
 		{
 			mid_ = std::partition(first_, last_, radix_test(msb_));
-			--msb_;++n;if (n>m) m=n;
+			--msb_;
 			
 			stack_tmp->first_=mid_;
 			stack_tmp->last_=last_;
@@ -332,18 +324,8 @@ void msd_radix_sort(int *frst, int *lst,const int &size,int &m, int bsize = 31)
 			stack_tmp->first_=first_;
 			stack_tmp->last_=mid_;
 			stack_tmp->msb_=msb_;
-			++sort_count;
-			/*stack_prms[sort_count].first_=mid_;
-			stack_prms[sort_count].last_=last_;
-			stack_prms[sort_count].msb_=msb_;
-			++sort_count;
-			stack_prms[sort_count].first_=first_;
-			stack_prms[sort_count].last_=mid_;
-			stack_prms[sort_count].msb_=msb_;
-			++sort_count;*/		
+			++sort_count;	
 		}
-		else
-			--n;
     }
 }
 
@@ -373,8 +355,7 @@ int main()
 	gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
-	int max1=0;
-	msd_radix_sort(data.get(),data.get()+size,size,max1);
+	msd_radix_sort(data.get(),data.get()+size,size);
 	std::cout<<"max1:"<<max1<<"\n";
 	//check_correct(data.get(),size);
 	end=std::chrono::steady_clock::now();
@@ -383,8 +364,7 @@ int main()
 	gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	begin=std::chrono::steady_clock::now();
-	int n2=0,max2=0;
-	msd_radix_sort_req(data.get(),data.get()+size,n2,max2);
+	msd_radix_sort_req(data.get(),data.get()+size);
 	std::cout<<"max2:"<<max2<<"\n";
 	//check_correct(data.get(),size);
 	end=std::chrono::steady_clock::now();
