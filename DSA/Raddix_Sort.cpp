@@ -6,6 +6,42 @@
 #include <memory>
 #include <chrono>
 
+//for std::partition
+// Radix sort comparator for 32-bit two's complement integers
+/*class radix_test
+{
+    const int bit; // bit position [0..31] to examine
+public:
+    radix_test(int offset) : bit(offset) {} // constructor
+ 
+    bool operator()(const int &value) const // function call operator
+    {
+        if (bit==31) // sign bit
+            return value<0; // negative int to left partition
+        else
+            return !(value & (1<<bit)); // 0 bit to left partition
+    }
+};*/
+
+/*
+void __msd_radix_sort_stable(int *first, int *last,int* const tmp,int msb=31)
+{
+    if ((first!=last) && (msb>=0))
+    {
+		//std::cout<<"msb:"<<msb<<"\n";
+        int *_mid = __radix_sort(tmp,first,last,msb);
+        msb--;
+        __msd_radix_sort_stable(first,_mid,tmp,msb);
+        __msd_radix_sort_stable(_mid,last,tmp,msb);
+    }
+}
+
+void msd_radix_sort_stable(int *first, int *last,int msb=31)
+{
+	std::unique_ptr<int[]> _tmp(new int[last-first]);
+	__msd_radix_sort_st(first,last,_tmp.get(),msb);
+}*/
+
 struct strct_prms
 {
 	int left;
@@ -14,21 +50,6 @@ struct strct_prms
 	{
 		left=0;
 		right=0;
-	}	
-};
-
-struct strct_prms2
-{
-	int low;
-	int high;
-	int mid;
-	int check_;
-	strct_prms2()
-	{
-		low=0;
-		high=0;
-		mid=0;
-		check_=0;
 	}	
 };
 
@@ -94,7 +115,7 @@ void quickSort(int *arr, int left, int right)//iterative QSort
       }
 }
 
-void inline merge(int* const a,int* const b,const int low,const int mid,const int high)
+inline void _merge(int* const a,int* const b,const int low,const int mid,const int high)
 {
 	int h,i,j,k;
 	h=low;
@@ -139,6 +160,21 @@ void inline merge(int* const a,int* const b,const int low,const int mid,const in
 	}
 }
 
+struct strct_prms2
+{
+	int low;
+	int high;
+	int mid;
+	int check_;
+	strct_prms2()
+	{
+		low=0;
+		high=0;
+		mid=0;
+		check_=0;
+	}	
+};
+
 void merge_sort(int* const a,const int low_,const int high_)
 {
 	int sort_count=0;
@@ -156,7 +192,7 @@ void merge_sort(int* const a,const int low_,const int high_)
 		//std::cout<<"low:"<<low<<" high:"<<high<<" count:"<<sort_count<<"\n";
 		if(int tmp = stack_prms[sort_count].check_)
 		{
-			merge(a,b.get(),low,stack_prms[sort_count].mid,high);
+			_merge(a,b.get(),low,stack_prms[sort_count].mid,high);
 			stack_prms[sort_count].check_=0;
 			//std::cout<<"merge: "<<"low:"<<low<<" mid:"<<stack_prms[sort_count].mid<<" high:"<<high<<" count:"<<sort_count<<" tmp:"<<tmp<<"\n";
 			--sort_count;
@@ -166,7 +202,6 @@ void merge_sort(int* const a,const int low_,const int high_)
 			if(low<high)
 				{	
 					stack_prms[sort_count].check_=1;
-					//std::cout<<"set: "<<"low:"<<low<<" high:"<<high<<" count:"<<sort_count<<"\n";
 					mid=(low+high)/2;
 					stack_prms[sort_count++].mid=mid;
 
@@ -175,9 +210,6 @@ void merge_sort(int* const a,const int low_,const int high_)
 
 					stack_prms[sort_count].low=low;
 					stack_prms[sort_count].high=mid;
-					//merge_sort(a,low,mid);
-					//merge_sort(a,mid+1,high);
-					//merge(a,low,mid,high);
 				}
 			else
 				--sort_count;
@@ -185,55 +217,41 @@ void merge_sort(int* const a,const int low_,const int high_)
 	}
 }
 
-/* A utility function to print array of size n */
-void printArray(int* arr,int n)
-{
-    for (int i=0; i<n; ++i)
-        std::cout << arr[i] << " ";
-    std::cout << "\n";
-}
-
-// To heapify a subtree rooted with node i which is
-// an index in arr[]. n is size of heap
-void heapify(int* const arr,const int &n, int j, bool exch_frst_lst)
+void _heapify(int* const arr,const int &n, int j, bool exch_frst_lst)
 {
 	int sort_count=0;
-	int largest=0;
+	int max=0;
 	int l=0;
 	int r=0;
 	int m=n;
 	int tmp=0;
-	//(1):Build heap (rearrange array) - j=n/2-1;
-	//(2):one by one extract an element from heap - j=n-1
+	//(1):j=n/2-1;
+	//(2):j=n-1
 	for (int i=j;i >= 0;--i) 
 	{		
 		sort_count=1;
-		if (exch_frst_lst)//(2):Initialize largest as first,step-by-step reduce sort length	
+		if (exch_frst_lst)//(2)
 		{
-			std::swap(arr[0],arr[i]);//(2):Move current root to end, end to start
-			m=i;
-			i=0;
+			std::swap(arr[0],arr[i]);//exchange root and tail
+			m=i;//shift border guard one to root(not check tail again)
+			i=0;//always start check from root to new border guard position
 		}
 		tmp=i;
-		while(sort_count--)
+		while(sort_count--)//up max to root, lowest become down to tail
 		{
-			largest=i;//Initialize largest as root
+			max=i;//Initialize max as root
 
-			l=2*i+1;//left = 2*i + 1
-			r=2*i+2;//right = 2*i + 2
-			// If left child is larger than root
-			if ((l<m) && (arr[l]>arr[largest]))
-				largest=l;
-			// If right child is larger than largest so far
-			if ((r<m) && (arr[r]>arr[largest]))
-				largest=r;
-			// If largest is not root
-			if (largest!=i)
+			l=2*i+1;//left
+			r=2*i+2;//right
+			if ((l<m) && (arr[l]>arr[max]))
+				max=l;
+			if ((r<m) && (arr[r]>arr[max]))
+				max=r;
+			// if max is not root
+			if (max!=i)
 			{
-				std::swap(arr[i],arr[largest]);
-				// Recursively heapify the affected sub-tree (3 elements)
-				//heapify(arr, n, largest);
-				i=largest;
+				std::swap(arr[i],arr[max]);//exchange in sub-tree,continue check max child
+				i=max;
 				++sort_count;
 			}
 		}
@@ -241,45 +259,17 @@ void heapify(int* const arr,const int &n, int j, bool exch_frst_lst)
 	}
 }
  
-// main function to do heap sort
+//not require extra memory, but unstable
 void heapSort(int* const arr,int n)
 {
-    // Build heap (rearrange array)
-	heapify(arr,n,n/2-1,false);
-    //one by one extract an element from heap
-	heapify(arr,0,n-1,true);
+    //Build heap,up largest to root, lowest become down to tail
+	_heapify(arr,n,n/2-1,false);
+    //exchange root with tail, shift border guard one to root(not check tail again),lowest become down to tail
+	//always start check from root to new border guard position
+	_heapify(arr,0,n-1,true);
 }
 
-struct strct_prms3
-{
-	int* first_;
-	int* last_;
-	int msb_;
-	strct_prms3()
-	{
-		first_=nullptr;
-		last_=nullptr;
-		msb_=0;
-	}	
-};
- 
-// Radix sort comparator for 32-bit two's complement integers
-/*class radix_test
-{
-    const int bit; // bit position [0..31] to examine
-public:
-    radix_test(int offset) : bit(offset) {} // constructor
- 
-    bool operator()(const int &value) const // function call operator
-    {
-        if (bit==31) // sign bit
-            return value<0; // negative int to left partition
-        else
-            return !(value & (1<<bit)); // 0 bit to left partition
-    }
-};*/
-
-int* __radix_sort(int* const buff,int* const first,int* const last,const int signbit)
+inline int* __radix_sort(int* const buff,int* const first,int* const last,const int signbit)
 {
 	bool _is_true=0;
 	int* const _result_begin=buff;
@@ -319,7 +309,7 @@ int* __radix_sort(int* const buff,int* const first,int* const last,const int sig
 	return last-_i;
 }
 
-int* __radix_sort_unstable(int* const first,int* const last,const int signbit)
+inline int* __radix_sort_unstable(int* const first,int* const last,const int signbit)
 {
 	bool _is_true=0;
 
@@ -354,73 +344,38 @@ int* __radix_sort_unstable(int* const first,int* const last,const int signbit)
 	return _first2;
 }
 
-void __msd_radix_sort_st(int *first, int *last,int* const tmp,int msb=31)
+struct strct_prms3
 {
-    if ((first!=last) && (msb>=0))
-    {
-		//std::cout<<"msb:"<<msb<<"\n";
-        int *_mid = __radix_sort(tmp,first,last,msb);
-        msb--;
-        __msd_radix_sort_st(first,_mid,tmp,msb);
-        __msd_radix_sort_st(_mid,last,tmp,msb);
-    }
-}
+	int* first_;
+	int* last_;
+	int msb_;
+	strct_prms3()
+	{
+		first_=nullptr;
+		last_=nullptr;
+		msb_=0;
+	}	
+};
 
-void msd_radix_sort_st(int *first, int *last,int msb=31)
-{
-	std::unique_ptr<int[]> _tmp(new int[last-first]);
-	__msd_radix_sort_st(first,last,_tmp.get(),msb);
-}
-
-// Most significant digit radix sort (recursive), for unexplained reasons, this version is faster
-/*void msd_radix_sort(int *first, int *last,int msb=31)
-{
-    if ((first!=last) && (msb>=0))
-    {
-        int *mid = std::stable_partition(first, last, radix_test(msb));
-        msb--;
-        msd_radix_sort_st(first,mid,msb);
-        msd_radix_sort_st(mid,last,msb);
-    }
-}*/
-
-void msd_radix_sort2(int *first, int *last,int msb=31)
-{
-    if ((first!=last) && (msb>=0))
-    {
-        int *mid = __radix_sort_unstable(first,last,msb);
-        msb--;
-        msd_radix_sort(first,mid,msb);
-        msd_radix_sort(mid,last,msb);
-    }
-}
-
-void lsd_radix_sort2(int *first, int *last,int byte_size=32)
+void lsd_radix_sort(int *first, int *last,int byte_size=32)
 {
 	std::unique_ptr<int[]> _tmp(new int[last-first]);
 	int* _tmp2 = _tmp.get();
 	
-    for (int lsb=0;lsb<byte_size;++lsb)
-    {
+	for (int lsb=0;lsb<byte_size;++lsb)
+	{
 		__radix_sort(_tmp2,first,last,lsb);
-    }
+	}
 }
 
-/*void lsd_radix_sort(int *first, int *last,int byte_size=32)
-{
-    for (int lsb=0;lsb<byte_size;++lsb)
-    {
-        std::stable_partition(first, last, radix_test(lsb));
-    }
-}*/
-
 // Most significant digit radix sort (iterative)
-/*
-void msd_radix_sort_it_st(int *frst, int *lst,int bsize = 31)
+
+void msd_radix_sort(int *frst, int *lst,int bsize = 31)
 {
 	int sort_count=1;
 	int* mid_=nullptr; 
-
+	//std::unique_ptr<int[]> tmp(new int[last-first]);
+	//int* tmp_=tmp.get();
 	strct_prms3 stack_prms[bsize+1];
 	stack_prms[0].first_=frst;
 	stack_prms[0].last_=lst;
@@ -438,7 +393,7 @@ void msd_radix_sort_it_st(int *frst, int *lst,int bsize = 31)
 		msb_=stack_tmp->msb_;   
 		if ((first_!=last_) && (msb_>=0))
 		{
-			mid_ = std::stable_partition(first_, last_, radix_test(msb_));
+			mid_ = __radix_sort_unstable(first_,last_,msb_);
 			--msb_;
 			
 			stack_tmp->first_=mid_;
@@ -446,13 +401,14 @@ void msd_radix_sort_it_st(int *frst, int *lst,int bsize = 31)
 			stack_tmp->msb_=msb_;
 			++stack_tmp;
 			++sort_count;
+
 			stack_tmp->first_=first_;
 			stack_tmp->last_=mid_;
 			stack_tmp->msb_=msb_;
 			++sort_count;	
 		}
     }
-}*/
+}
 
 void gen_rand(int* const data,const int size)
 {
@@ -469,9 +425,30 @@ void check_correct(int* const data,const int size)
 			std::cout<<"--";
 }
 
-void sh_time(std::chrono::steady_clock::time_point b,std::chrono::steady_clock::time_point e, const std::string &mes)
+/* A utility function to print array of size n */
+void printArray(int* arr,int n)
 {
-	std::cout << mes << " "<< std::chrono::duration_cast<std::chrono::nanoseconds> (e - b).count() <<std::endl;	
+    for (int i=0; i<n; ++i)
+        std::cout << arr[i] << " ";
+    std::cout << "\n";
+}
+
+void _helper(const int size,int* const data,const std::string &mes,
+	int(*sort)(const int*, const int*),bool validate=0)
+{
+	std::chrono::steady_clock::time_point begin,end;
+	gen_rand(data,size);
+	
+	if (validate)
+	{
+		printArray(data,size);
+		check_correct(data,size);
+	}
+	begin=std::chrono::steady_clock::now();
+	if (validate)
+		printArray(data,size);
+	end=std::chrono::steady_clock::now();
+	std::cout<<mes<<" "<<std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count()<<std::endl;
 }
  
 // test
@@ -482,11 +459,12 @@ int main()
 	const int size=1000000;
 	std::cout <<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
+	int* _data=data.get();
 	/*gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	msd_radix_sort2(data.get(),data.get()+size);check_correct(data.get(),size);*/
 	//printArray(data.get(),size);
-	std::chrono::steady_clock::time_point begin,end;
+	//std::chrono::steady_clock::time_point begin,end;
 
 	/*gen_rand(data.get(),size);
 	//printArray(data.get(),size);
