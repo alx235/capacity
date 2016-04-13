@@ -335,11 +335,8 @@ inline int* __radix_sort(int* const buff,int* const first,int* const last,const 
 	int* _right_start=last-_i;
 	if (_i)
 	{
-		//std::cout<<_i<<"\n";
-		//std::copy(_result_begin,_result_end,first);
 		std::copy(_result_begin,_result1,first);//left direct order
 		std::reverse_copy(_result2,_result_end,_right_start);//right reverse order
-		//std::cout<<first[0]<<" "<<first[1]<<" "<<first[2]<<"\n";
 	}
 	return _right_start;
 }
@@ -393,31 +390,6 @@ struct strct_prms3
 	}	
 };
 
-//for std::partition
-// Radix sort comparator for 32-bit two's complement integers
-class radix_test
-{
-    const int bit; // bit position [0..31] to examine
-public:
-    radix_test(int offset) : bit(offset) {} // constructor
- 
-    bool operator()(const int &value) const // function call operator
-    {
-        if (bit==31) // sign bit
-            return value<0; // negative int to left partition
-        else
-            return !(value & (1<<bit)); // 0 bit to left partition
-    }
-};
-
-void lsd_radix_sort2(int *first, int *last,int byte_size=31)
-{
-    for (int lsb = 0; lsb < 32; ++lsb) // least-significant-bit
-    {
-        std::stable_partition(first, last, radix_test(lsb));
-    }
-}
-
 void lsd_radix_sort(int* const first, int* const last,int byte_size=31)
 {
 	std::unique_ptr<int[]> _tmp(new int[last-first]);
@@ -428,10 +400,7 @@ void lsd_radix_sort(int* const first, int* const last,int byte_size=31)
 		__radix_sort(_tmp2,first,last,lsb);
 	}
 }
-
-// Most significant digit radix sort (iterative)
-
-void msd_radix_sort(int *frst, int *lst,int bsize = 31)
+void msd_radix_sort(int *frst, int *lst,int bsize=31)
 {
 	int sort_count=1;
 	int* mid_=nullptr; 
@@ -523,7 +492,7 @@ int main()
 {	
 	//const int size=5;
 	//const int size=10000;
-	const int size=1000000;
+	const int size=100000000;
 	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	std::unique_ptr<int[]> data2(new int[size]);
@@ -531,7 +500,7 @@ int main()
 	gen_rand(_data,size);
 	int* _data2=data2.get();
 	std::copy(_data,_data+size,_data2);
-	_helper(_data,size,"lsd1",lsd_radix_sort);
-	_helper(_data2,size,"lsd2",lsd_radix_sort2);
+	_helper(_data,size,"lsd",lsd_radix_sort);
+	_helper(_data2,size,"msd",msd_radix_sort);
     return 0;
 }
