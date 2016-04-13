@@ -335,7 +335,8 @@ inline int* __radix_sort(int* const buff,int* const first,int* const last,const 
 	int* _right_start=last-_i;
 	if (_i)
 	{
-		std::copy(_result_begin,_result1,first);//left direct order
+		_first=first;//don't trust 3d library
+		std::copy(_result_begin,_result1,_first);//left direct order
 		std::reverse_copy(_result2,_result_end,_right_start);//right reverse order
 	}
 	return _right_start;
@@ -400,7 +401,7 @@ void lsd_radix_sort(int* const first, int* const last,int byte_size=31)
 		__radix_sort(_tmp2,first,last,lsb);
 	}
 }
-void msd_radix_sort(int *frst, int *lst,int bsize=31)
+void msd_radix_sort(int* const frst, int* const lst,int bsize=31)
 {
 	int sort_count=1;
 	int* mid_=nullptr; 
@@ -450,6 +451,7 @@ void gen_rand(int* const data,const int size)
 
 void check_correct(int* const data,const int size)
 {
+	//std::cout<<"check\n";	
 	for (int i=0;i<size;++i)//check correct
 	for (int j=i;j<size;++j)	
 		if (data[i]>data[j])
@@ -491,16 +493,20 @@ void _helper(int* const data,const int size,const std::string &mes,
 int main()
 {	
 	//const int size=5;
-	//const int size=10000;
-	const int size=100000000;
+	const int size=10000;
 	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	std::unique_ptr<int[]> data2(new int[size]);
-	int* _data=data.get();
+	int* const _data=data.get();
 	gen_rand(_data,size);
-	int* _data2=data2.get();
-	std::copy(_data,_data+size,_data2);
-	_helper(_data,size,"lsd",lsd_radix_sort);
-	_helper(_data2,size,"msd",msd_radix_sort);
+	int* const _data2=data2.get();
+
+	int* const __data=_data;
+	int* const __data2=_data2;
+	std::copy(__data,__data+size,__data2);
+
+	_helper(__data,size,"lsd",lsd_radix_sort);
+	_helper(__data2,size,"msd",msd_radix_sort);
+	std::cout<<"1\n";
     return 0;
 }
