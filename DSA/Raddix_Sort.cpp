@@ -282,11 +282,6 @@ inline int* __radix_sort(int* const buff,int* const first,int* const last,const 
 	int* _right_start=last-_i;
 	if (_i)
 	{
-		if (_i==1)
-		{
-			std::swap(*(--_result2),*(_last-1));
-			return _right_start;
-		}
 		_first=first;//don't trust 3d library
 		int* __result_end=_result_end;
 		std::copy(_result_begin,_result1,_first);//left direct order
