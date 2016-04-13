@@ -357,12 +357,12 @@ struct strct_prms3
 	}	
 };
 
-void lsd_radix_sort(int *first, int *last,int byte_size=32)
+void lsd_radix_sort(int* const first, int* const last,int byte_size=31)
 {
 	std::unique_ptr<int[]> _tmp(new int[last-first]);
 	int* _tmp2 = _tmp.get();
 	
-	for (int lsb=0;lsb<byte_size;++lsb)
+	for (int lsb=0;lsb<byte_size+1;++lsb)
 	{
 		__radix_sort(_tmp2,first,last,lsb);
 	}
@@ -433,22 +433,25 @@ void printArray(int* arr,int n)
     std::cout << "\n";
 }
 
-void _helper(const int size,int* const data,const std::string &mes,
-	int(*sort)(const int*, const int*),bool validate=0)
+void _test(){};
+
+void _helper(int* const data,const int size,const std::string &mes,
+	void (*sort)(int* const, int* const,int),bool validate,int def_size=31)
 {
 	std::chrono::steady_clock::time_point begin,end;
 	gen_rand(data,size);
 	
 	if (validate)
+		printArray(data,size);
+	begin=std::chrono::steady_clock::now();
+	(*sort)(data,data+size,def_size);
+	end=std::chrono::steady_clock::now();
+	std::cout<<mes<<": "<<std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count()<<" ns"<<std::endl;
+	if (validate)
 	{
 		printArray(data,size);
 		check_correct(data,size);
 	}
-	begin=std::chrono::steady_clock::now();
-	if (validate)
-		printArray(data,size);
-	end=std::chrono::steady_clock::now();
-	std::cout<<mes<<" "<<std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count()<<std::endl;
 }
  
 // test
@@ -456,10 +459,12 @@ int main()
 {	
 	//const int size=10;
 	//const int size=100000000;
-	const int size=1000000;
+	const int size=10;
 	std::cout <<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	int* _data=data.get();
+	_helper(_data,size,"lsd",&msd_radix_sort,true);
+	
 	/*gen_rand(data.get(),size);
 	//printArray(data.get(),size);
 	msd_radix_sort2(data.get(),data.get()+size);check_correct(data.get(),size);*/
