@@ -1,4 +1,5 @@
 
+#include <cmath>
 #include <algorithm>
 #include <iostream>
 #include <iterator>
@@ -282,15 +283,14 @@ inline int* __radix_sort(int* const buff,int* const first,int* const last,const 
 	int _i=0;
 	for (;_first!=_last;)
 	{
-        if (signbit==31) // sign bit
-            _is_true=*_first<0; // negative int to left partition
+        if (signbit==31)//sign bit
+            _is_true=*_first<0;//negative int to left partition
         else
-            _is_true=!(*_first & (1<<signbit)); // 0 bit to left partition
+            _is_true=!(*_first & (1<<signbit));//0 bit to left partition
 		if (_is_true)
 		{//left
 			*_result1=*_first;
 			++_result1;
-		
 		}
 		else
 		{//right,second group
@@ -319,10 +319,10 @@ inline int* __radix_sort_unstable(int* const first,int* const last,const int sig
 	bool _false_found=0;
 	for (;_first!=_last;)
 	{
-        if (signbit==31) // sign bit
-            _is_true=*_first<0; // negative int to left partition
+        if (signbit==31)//sign bit
+            _is_true=*_first<0;//negative int to left partition
         else
-            _is_true=!(*_first & (1<<signbit)); // 0 bit to left partition
+            _is_true=!(*_first & (1<<signbit));//0 bit to left partition
 		if (_is_true)
 		{//left
 			if (_false_found)
@@ -341,6 +341,7 @@ inline int* __radix_sort_unstable(int* const first,int* const last,const int sig
 		}
 		++_first;
 	}
+	if (_first2==first) return last;
 	return _first2;
 }
 
@@ -374,8 +375,8 @@ void msd_radix_sort(int *frst, int *lst,int bsize = 31)
 {
 	int sort_count=1;
 	int* mid_=nullptr; 
-	//std::unique_ptr<int[]> tmp(new int[last-first]);
-	//int* tmp_=tmp.get();
+	std::unique_ptr<int[]> tmp(new int[lst-frst]);
+	int* tmp_=tmp.get();
 	strct_prms3 stack_prms[bsize+1];
 	stack_prms[0].first_=frst;
 	stack_prms[0].last_=lst;
@@ -393,7 +394,8 @@ void msd_radix_sort(int *frst, int *lst,int bsize = 31)
 		msb_=stack_tmp->msb_;   
 		if ((first_!=last_) && (msb_>=0))
 		{
-			mid_ = __radix_sort_unstable(first_,last_,msb_);
+			//mid_=__radix_sort_unstable(first_,last_,msb_);
+			mid_=__radix_sort(tmp_,first_,last_,msb_);
 			--msb_;
 			
 			stack_tmp->first_=mid_;
@@ -414,7 +416,7 @@ void gen_rand(int* const data,const int size)
 {
 	srand((unsigned)time(NULL));
 	for (int i=0;i<size;++i)
-		data[i]=rand()/(i+10000000)+rand()/1000000000 + i + i^2;
+		data[i]=pow(-1,i)*(rand()/(i+10000000)+rand()/1000000000 + i + i^2);
 }
 
 void check_correct(int* const data,const int size)
@@ -422,7 +424,7 @@ void check_correct(int* const data,const int size)
 	for (int i=0;i<size;++i)//check correct
 	for (int j=i;j<size;++j)	
 		if (data[i]>data[j])
-			std::cout<<"--";
+			std::cout<<"violation";
 }
 
 /* A utility function to print array of size n */
@@ -436,123 +438,40 @@ void printArray(int* arr,int n)
 void _test(){};
 
 void _helper(int* const data,const int size,const std::string &mes,
-	void (*sort)(int* const, int* const,int),bool validate,int def_size=31)
+	void (*sort)(int* const, int* const,int),int def_size=31)
 {
-	std::chrono::steady_clock::time_point begin,end;
+	#define _print_
+	//#define _check_
+	using namespace std::chrono;
+	steady_clock::time_point begin,end;
 	gen_rand(data,size);
-	
-	if (validate)
-		printArray(data,size);
-	begin=std::chrono::steady_clock::now();
+	#ifdef _print_
+	printArray(data,size);
+	#endif
+	begin=steady_clock::now();
 	(*sort)(data,data+size,def_size);
-	end=std::chrono::steady_clock::now();
-	std::cout<<mes<<": "<<std::chrono::duration_cast<std::chrono::nanoseconds>(end-begin).count()<<" ns"<<std::endl;
-	if (validate)
-	{
-		printArray(data,size);
-		check_correct(data,size);
-	}
+	end=steady_clock::now();
+	
+	std::cout<<mes<<": "<<duration_cast<nanoseconds>(end-begin).count()<<" ns"<<std::endl;
+	#ifdef _print_
+	printArray(data,size);
+	#endif
+	#ifdef _check_
+	check_correct(data,size);
+	#endif
 }
  
 // test
 int main()
 {	
-	//const int size=10;
-	//const int size=100000000;
 	const int size=10;
-	std::cout <<"size="<<size<<"\n";
+	//const int size=100000000;
+	//const int size=10000;
+	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	int* _data=data.get();
-	_helper(_data,size,"lsd",&msd_radix_sort,true);
-	
-	/*gen_rand(data.get(),size);
-	//printArray(data.get(),size);
-	msd_radix_sort2(data.get(),data.get()+size);check_correct(data.get(),size);*/
-	//printArray(data.get(),size);
-	//std::chrono::steady_clock::time_point begin,end;
-
-	/*gen_rand(data.get(),size);
-	//printArray(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-
-	msd_radix_sort_st(data.get(),data.get()+size);
-	//check_correct(data.get(),size);
-	end=std::chrono::steady_clock::now();
-	sh_time(begin,end,"msd_st1_r");
-
-	gen_rand(data.get(),size);
-	//printArray(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-
-	msd_radix_sort_st2(data.get(),data.get()+size);
-	//check_correct(data.get(),size);
-	end=std::chrono::steady_clock::now();
-	sh_time(begin,end,"msd_st2_r");
-	
-	gen_rand(data.get(),size);
-	//printArray(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	lsd_radix_sort(data.get(),data.get()+size);
-	//check_correct(data.get(),size);
-	end=std::chrono::steady_clock::now();
-	sh_time(begin,end,"lsd_st1_r");
-	
-	gen_rand(data.get(),size);
-	//printArray(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	lsd_radix_sort2(data.get(),data.get()+size);
-	//check_correct(data.get(),size);
-	end=std::chrono::steady_clock::now();
-	sh_time(begin,end,"lsd_st2_r");*/
-	
-	/*gen_rand(data.get(),size);
-	//printArray(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	msd_radix_sort(data.get(),data.get()+size);
-	//check_correct(data.get(),size);
-	end=std::chrono::steady_clock::now();
-	std::cout<<"original msd"<<"\n";
-	sh_time(begin,end,"msd_ns1_r");
-
-	gen_rand(data.get(),size);
-	//printArray(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	msd_radix_sort2(data.get(),data.get()+size);
-	//check_correct(data.get(),size);
-	end=std::chrono::steady_clock::now();
-	std::cout<<"custom msd"<<"\n";
-	sh_time(begin,end,"msd_ns2_r");
-	//printArray(data.get(),size);*/
-	/*gen_rand(data.get(),size);quickSort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);
-	gen_rand(data.get(),size);heapSort(data.get(),size);check_correct(data.get(),size);printArray(data.get(),size);
-	gen_rand(data.get(),size);msd_radix_sort(data.get(),data.get()+size);check_correct(data.get(),size);printArray(data.get(),size);
-	gen_rand(data.get(),size);merge_sort(data.get(),0,size);check_correct(data.get(),size);printArray(data.get(),size);*/
-	/*gen_rand(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	quickSort(data.get(),0,size);
-	end=std::chrono::steady_clock::now();
-	std::cout << "elapsed time quick ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;*/
-
-	/*gen_rand(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	heapSort(data.get(),size);
-	end=std::chrono::steady_clock::now();
-	std::cout << "elapsed time heapS ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;
-
-	gen_rand(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	msd_radix_sort(data.get(),data.get()+size);
-	end=std::chrono::steady_clock::now();
-	std::cout << "elapsed time msd_r ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;
-
-	gen_rand(data.get(),size);
-	begin=std::chrono::steady_clock::now();
-	merge_sort(data.get(),0,size);
-	end=std::chrono::steady_clock::now();
-	std::cout << "elapsed time merge ns:" << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() <<std::endl;/
-	/*int a = 1;int a2 = 2;
-	int const &a_r = a;
-	const int a3;*/
- 
+	//_helper(_data,size,"msd",&msd_radix_sort);
+	_helper(_data,size,"lsd",&lsd_radix_sort);
+ 	//gen_rand(_data,size);printArray(_data,size);lsd_radix_sort(_data,_data+size);printArray(_data,size);
     return 0;
 }
