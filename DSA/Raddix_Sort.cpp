@@ -7,25 +7,6 @@
 #include <memory>
 #include <chrono>
 
-/*
-void __msd_radix_sort_stable(int *first, int *last,int* const tmp,int msb=31)
-{
-    if ((first!=last) && (msb>=0))
-    {
-		//std::cout<<"msb:"<<msb<<"\n";
-        int *_mid = __radix_sort(tmp,first,last,msb);
-        msb--;
-        __msd_radix_sort_stable(first,_mid,tmp,msb);
-        __msd_radix_sort_stable(_mid,last,tmp,msb);
-    }
-}
-
-void msd_radix_sort_stable(int *first, int *last,int msb=31)
-{
-	std::unique_ptr<int[]> _tmp(new int[last-first]);
-	__msd_radix_sort_st(first,last,_tmp.get(),msb);
-}*/
-
 struct strct_prms
 {
 	int left;
@@ -167,41 +148,47 @@ struct strct_prms2
 	}	
 };
 
-void merge_sort(int* const a,const int low_,const int high_)
+void merge_sort(int* const a,const int high)
 {
+	const int LOW=0;
+	const int TMPSIZE=high-LOW;
+	const int STACKSIZE=log2(TMPSIZE)*3;
 	int sort_count=0;
-	std::unique_ptr<strct_prms2[]> stack_prms(new strct_prms2[high_-low_]());
-	std::unique_ptr<int[]> b(new int[high_-low_]());
-	stack_prms[0].low=low_;
-	stack_prms[0].high=high_-1;
-	int low=-1;
-	int high=-1;
-	int mid=-1;
+	strct_prms2 stack_prms[STACKSIZE];
+	std::unique_ptr<int[]> b(new int[TMPSIZE]());
+	stack_prms[0].low=LOW;
+	stack_prms[0].high=high-1;
+	strct_prms2* _ptr=nullptr;
+	int _low=-1;
+	int _high=-1;
+	int _mid=-1;
 	while(sort_count>=0)
 	{
-		low=stack_prms[sort_count].low;
-		high=stack_prms[sort_count].high;
+		strct_prms2* _ptr=stack_prms+sort_count;
+		_low=_ptr->low;
+		_high=_ptr->high;
 		//std::cout<<"low:"<<low<<" high:"<<high<<" count:"<<sort_count<<"\n";
-		if(int tmp = stack_prms[sort_count].check_)
+		if(int _tmp=_ptr->check_)
 		{
-			_merge(a,b.get(),low,stack_prms[sort_count].mid,high);
-			stack_prms[sort_count].check_=0;
+			_merge(a,b.get(),_low,_ptr->mid,_high);
+			_ptr->check_=0;
 			//std::cout<<"merge: "<<"low:"<<low<<" mid:"<<stack_prms[sort_count].mid<<" high:"<<high<<" count:"<<sort_count<<" tmp:"<<tmp<<"\n";
 			--sort_count;
 		}
 		else
 		{
-			if(low<high)
+			if(_low<_high)
 				{	
-					stack_prms[sort_count].check_=1;
-					mid=(low+high)/2;
-					stack_prms[sort_count++].mid=mid;
-
-					stack_prms[sort_count].low=mid+1;
-					stack_prms[sort_count++].high=high;
-
-					stack_prms[sort_count].low=low;
-					stack_prms[sort_count].high=mid;
+					
+					_ptr->check_=1;
+					_mid=(_low+_high)/2;
+					_ptr->mid=_mid;
+					++sort_count;++_ptr;
+					_ptr->low=_mid+1;
+					_ptr->high=_high;
+					++sort_count;++_ptr;
+					_ptr->low=_low;
+					_ptr->high=_mid;
 				}
 			else
 				--sort_count;
@@ -212,47 +199,47 @@ void merge_sort(int* const a,const int low_,const int high_)
 void _heapify(int* const arr,const int &n, int j, bool exch_frst_lst)
 {
 	int sort_count=0;
-	int max=0;
-	int l=0;
-	int r=0;
+	int _max=0;
+	int _l=0;
+	int _r=0;
 	int m=n;
-	int tmp=0;
+	int _tmp=0;
 	//(1):j=n/2-1;
 	//(2):j=n-1
 	for (int i=j;i >= 0;--i) 
 	{		
 		sort_count=1;
+		_tmp=i;
 		if (exch_frst_lst)//(2)
 		{
 			std::swap(arr[0],arr[i]);//exchange root and tail
 			m=i;//shift border guard one to root(not check tail again)
 			i=0;//always start check from root to new border guard position
 		}
-		tmp=i;
 		while(sort_count--)//up max to root, lowest become down to tail
 		{
-			max=i;//Initialize max as root
+			_max=i;//Initialize max as root
 
-			l=2*i+1;//left
-			r=2*i+2;//right
-			if ((l<m) && (arr[l]>arr[max]))
-				max=l;
-			if ((r<m) && (arr[r]>arr[max]))
-				max=r;
+			_l=2*i+1;//left
+			_r=2*i+2;//right
+			if ((_l<m) && (arr[_l]>arr[_max]))
+				_max=_l;
+			if ((_r<m) && (arr[_r]>arr[_max]))
+				_max=_r;
 			// if max is not root
-			if (max!=i)
+			if (_max!=i)
 			{
-				std::swap(arr[i],arr[max]);//exchange in sub-tree,continue check max child
-				i=max;
+				std::swap(arr[i],arr[_max]);//exchange in sub-tree,continue check max child
+				i=_max;
 				++sort_count;
 			}
 		}
-		i=tmp;
+		i=_tmp;
 	}
 }
  
 //not require extra memory, but unstable
-void heapSort(int* const arr,int n)
+void heapSort(int* const arr,const int n)
 {
     //Build heap,up largest to root, lowest become down to tail
 	_heapify(arr,n,n/2-1,false);
@@ -261,52 +248,12 @@ void heapSort(int* const arr,int n)
 	_heapify(arr,0,n-1,true);
 }
 
-/*
 inline int* __radix_sort(int* const buff,int* const first,int* const last,const int signbit)
 {
 	bool _is_true=0;
 	int* const _result_begin=buff;
-	int* const _result_end=buff+(last-first);
-
-	int* _result1=_result_begin;
-	int* _result2=_result_end-1;
-	int* _first=first;
-	int* _last=last;
-	int _i=0;
-	for (;_first!=_last;)
-	{
-        if (signbit==31)//sign bit
-            _is_true=*_first<0;//negative int to left partition
-        else
-            _is_true=!(*_first & (1<<signbit));//0 bit to left partition
-		if (_is_true)
-		{//left
-			*_result1=*_first;
-			++_result1;
-		}
-		else
-		{//right,second group
-			*_result2=*_first;
-			--_result2;
-			++_i;
-		}
-		++_first;
-	}
-	if (_i)
-	{
-		//std::cout<<_i<<"\n";
-		std::copy(_result_begin,_result_end,first);
-		//std::cout<<first[0]<<" "<<first[1]<<" "<<first[2]<<"\n";
-	}
-	return last-_i;
-}*/
-
-inline int* __radix_sort(int* const buff,int* const first,int* const last,const int signbit)
-{
-	bool _is_true=0;
-	int* const _result_begin=buff;
-	int _size=last-first;
-	int* const _result_end=buff+(_size);
+	int size=last-first;
+	int* const _result_end=buff+size;
 
 	int* _result1=_result_begin;
 	int* _result2=_result_end-1;
@@ -335,9 +282,22 @@ inline int* __radix_sort(int* const buff,int* const first,int* const last,const 
 	int* _right_start=last-_i;
 	if (_i)
 	{
+		if (_i==1)
+		{
+			std::swap(*(--_result2),*(_last-1));
+			return _right_start;
+		}
 		_first=first;//don't trust 3d library
+		int* __result_end=_result_end;
 		std::copy(_result_begin,_result1,_first);//left direct order
-		std::reverse_copy(_result2,_result_end,_right_start);//right reverse order
+		//std::reverse_copy(_result2,__result_end,_right_start);
+		while (_i)//right reverse order
+		{
+    		--__result_end;
+    		*_right_start=*__result_end;
+    		++_right_start;
+			--_i;
+  		}
 	}
 	return _right_start;
 }
@@ -380,63 +340,62 @@ inline int* __radix_sort_unstable(int* const first,int* const last,const int sig
 
 struct strct_prms3
 {
-	int* first_;
-	int* last_;
-	int msb_;
+	int* first;
+	int* last;
+	int msb;
 	strct_prms3()
 	{
-		first_=nullptr;
-		last_=nullptr;
-		msb_=0;
+		first=nullptr;
+		last=nullptr;
+		msb=0;
 	}	
 };
 
 void lsd_radix_sort(int* const first, int* const last,int byte_size=31)
 {
-	std::unique_ptr<int[]> _tmp(new int[last-first]);
-	int* _tmp2 = _tmp.get();
-	
+	std::unique_ptr<int[]> tmp(new int[last-first]);
+	int* _tmp=tmp.get();
 	for (int lsb=0;lsb<byte_size+1;++lsb)
 	{
-		__radix_sort(_tmp2,first,last,lsb);
+		__radix_sort(_tmp,first,last,lsb);
 	}
 }
-void msd_radix_sort(int* const frst, int* const lst,int bsize=31)
+void msd_radix_sort(int* const first, int* const last,int bsize=31)
 {
 	int sort_count=1;
-	int* mid_=nullptr; 
+	int* _mid=nullptr; 
 	/*std::unique_ptr<int[]> tmp(new int[lst-frst]);
 	int* tmp_=tmp.get();*/
 	strct_prms3 stack_prms[bsize+1];
-	stack_prms[0].first_=frst;
-	stack_prms[0].last_=lst;
-	stack_prms[0].msb_=bsize;
+	stack_prms[0].first=first;
+	stack_prms[0].last=last;
+	stack_prms[0].msb=bsize;
 
-	int* first_=nullptr;
-	int* last_=nullptr;
-	int msb_=-1;
+	int* _first=nullptr;
+	int* _last=nullptr;
+	int _msb=-1;
 	
     while (sort_count--)
     {	
-		strct_prms3* stack_tmp=stack_prms+sort_count;
-		first_=stack_tmp->first_;
-		last_=stack_tmp->last_;
-		msb_=stack_tmp->msb_;   
-		if ((first_!=last_) && (msb_>=0))
+		strct_prms3* _ptr=stack_prms+sort_count;
+		_first=_ptr->first;
+		_last=_ptr->last;
+		_msb=_ptr->msb;   
+		if ((_first!=_last) && (_msb>=0))
 		{
-			mid_=__radix_sort_unstable(first_,last_,msb_);
+			_mid=__radix_sort_unstable(_first,_last,_msb);
 			//mid_=__radix_sort(tmp_,first_,last_,msb_);
-			--msb_;
+			--_msb;
 			
-			stack_tmp->first_=mid_;
-			stack_tmp->last_=last_;
-			stack_tmp->msb_=msb_;
-			++stack_tmp;
+			_ptr->first=_mid;
+			_ptr->last=_last;
+			_ptr->msb=_msb;
+			++_ptr;
 			++sort_count;
 
-			stack_tmp->first_=first_;
-			stack_tmp->last_=mid_;
-			stack_tmp->msb_=msb_;
+			_ptr->first=_first;
+			_ptr->last=_mid;
+			_ptr->msb=_msb;
 			++sort_count;	
 		}
     }
@@ -451,7 +410,7 @@ void gen_rand(int* const data,const int size)
 
 void check_correct(int* const data,const int size)
 {
-	//std::cout<<"check\n";	
+	std::cout<<"check\n";	
 	for (int i=0;i<size;++i)//check correct
 	for (int j=i;j<size;++j)	
 		if (data[i]>data[j])
@@ -467,6 +426,7 @@ void _helper(int* const data,const int size,const std::string &mes,
 	#endif
 	using namespace std::chrono;
 	steady_clock::time_point begin,end;
+	gen_rand(data,size);
 	#ifdef _print_
 	{	
 		std::cout<<"old value\n";
@@ -488,25 +448,60 @@ void _helper(int* const data,const int size,const std::string &mes,
 	check_correct(data,size);
 	#endif
 }
+
+void _helper2(int* const data,const int size,const std::string &mes,
+	void (*sort)(int* const, int))
+{
+	using namespace std::chrono;
+	steady_clock::time_point begin,end;
+	gen_rand(data,size);
+	#ifdef _print_
+	{	
+		std::cout<<"old value\n";
+		printArray(data,size);
+	}
+	#endif
+	begin=steady_clock::now();
+	(*sort)(data,size);
+	end=steady_clock::now();
+	
+	std::cout<<mes<<": "<<duration_cast<nanoseconds>(end-begin).count()<<" ns"<<std::endl;
+	#ifdef _print_
+	{
+		std::cout<<"new value\n";
+		printArray(data,size);
+	}
+	#endif
+	#ifdef _check_
+	check_correct(data,size);
+	#endif
+}
  
 // test
 int main()
 {	
-	//const int size=5;
-	const int size=10000;
+	const int size=1000000;
 	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
-	std::unique_ptr<int[]> data2(new int[size]);
 	int* const _data=data.get();
 	gen_rand(_data,size);
+	std::unique_ptr<int[]> data2(new int[size]);
+	std::unique_ptr<int[]> data3(new int[size]);
+	std::unique_ptr<int[]> data4(new int[size]);
 	int* const _data2=data2.get();
-
-	int* const __data=_data;
-	int* const __data2=_data2;
-	std::copy(__data,__data+size,__data2);
-
-	_helper(__data,size,"lsd",lsd_radix_sort);
-	_helper(__data2,size,"msd",msd_radix_sort);
-	std::cout<<"1\n";
+	int* const _data3=data3.get();
+	int* const _data4=data4.get();
+	std::copy(_data,_data+size,_data2);
+	std::copy(_data,_data+size,_data3);
+	std::copy(_data,_data+size,_data4);
+	_helper(_data,size,"lsd__",lsd_radix_sort);
+	_helper(_data2,size,"msd__",msd_radix_sort);
+	_helper2(_data3,size,"heap_",heapSort);
+	_helper2(_data4,size,"merge",merge_sort);
+	//printArray(_data,size);
+	//heapSort(_data,size);
+	//printArray(_data,size);
+	//merge_sort(_data,size);
+	//check_correct(_data,size);
     return 0;
 }
