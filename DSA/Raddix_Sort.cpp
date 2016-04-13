@@ -7,23 +7,6 @@
 #include <memory>
 #include <chrono>
 
-//for std::partition
-// Radix sort comparator for 32-bit two's complement integers
-/*class radix_test
-{
-    const int bit; // bit position [0..31] to examine
-public:
-    radix_test(int offset) : bit(offset) {} // constructor
- 
-    bool operator()(const int &value) const // function call operator
-    {
-        if (bit==31) // sign bit
-            return value<0; // negative int to left partition
-        else
-            return !(value & (1<<bit)); // 0 bit to left partition
-    }
-};*/
-
 /*
 void __msd_radix_sort_stable(int *first, int *last,int* const tmp,int msb=31)
 {
@@ -53,6 +36,14 @@ struct strct_prms
 		right=0;
 	}	
 };
+
+/* A utility function to print array of size n */
+void printArray(int* arr,int n)
+{
+    for (int i=0;i<n;++i)
+        std::cout<<arr[i]<<" ";
+    std::cout<<"\n";
+}
 
 void quickSort(int *arr, int left, int right)//iterative QSort
 {
@@ -270,6 +261,7 @@ void heapSort(int* const arr,int n)
 	_heapify(arr,0,n-1,true);
 }
 
+/*
 inline int* __radix_sort(int* const buff,int* const first,int* const last,const int signbit)
 {
 	bool _is_true=0;
@@ -307,6 +299,49 @@ inline int* __radix_sort(int* const buff,int* const first,int* const last,const 
 		//std::cout<<first[0]<<" "<<first[1]<<" "<<first[2]<<"\n";
 	}
 	return last-_i;
+}*/
+
+inline int* __radix_sort(int* const buff,int* const first,int* const last,const int signbit)
+{
+	bool _is_true=0;
+	int* const _result_begin=buff;
+	int _size=last-first;
+	int* const _result_end=buff+(_size);
+
+	int* _result1=_result_begin;
+	int* _result2=_result_end-1;
+	int* _first=first;
+	int* _last=last;
+	int _i=0;
+	for (;_first!=_last;)
+	{
+        if (signbit==31)//sign bit
+            _is_true=*_first<0;//negative int to left partition
+        else
+            _is_true=!(*_first & (1<<signbit));//0 bit to left partition
+		if (_is_true)
+		{//left
+			*_result1=*_first;
+			++_result1;
+		}
+		else
+		{//right,second group
+			*_result2=*_first;
+			--_result2;
+			++_i;
+		}
+		++_first;
+	}
+	int* _right_start=last-_i;
+	if (_i)
+	{
+		//std::cout<<_i<<"\n";
+		//std::copy(_result_begin,_result_end,first);
+		std::copy(_result_begin,_result1,first);//left direct order
+		std::reverse_copy(_result2,_result_end,_right_start);//right reverse order
+		//std::cout<<first[0]<<" "<<first[1]<<" "<<first[2]<<"\n";
+	}
+	return _right_start;
 }
 
 inline int* __radix_sort_unstable(int* const first,int* const last,const int signbit)
@@ -358,6 +393,31 @@ struct strct_prms3
 	}	
 };
 
+//for std::partition
+// Radix sort comparator for 32-bit two's complement integers
+class radix_test
+{
+    const int bit; // bit position [0..31] to examine
+public:
+    radix_test(int offset) : bit(offset) {} // constructor
+ 
+    bool operator()(const int &value) const // function call operator
+    {
+        if (bit==31) // sign bit
+            return value<0; // negative int to left partition
+        else
+            return !(value & (1<<bit)); // 0 bit to left partition
+    }
+};
+
+void lsd_radix_sort2(int *first, int *last,int byte_size=31)
+{
+    for (int lsb = 0; lsb < 32; ++lsb) // least-significant-bit
+    {
+        std::stable_partition(first, last, radix_test(lsb));
+    }
+}
+
 void lsd_radix_sort(int* const first, int* const last,int byte_size=31)
 {
 	std::unique_ptr<int[]> _tmp(new int[last-first]);
@@ -375,8 +435,8 @@ void msd_radix_sort(int *frst, int *lst,int bsize = 31)
 {
 	int sort_count=1;
 	int* mid_=nullptr; 
-	std::unique_ptr<int[]> tmp(new int[lst-frst]);
-	int* tmp_=tmp.get();
+	/*std::unique_ptr<int[]> tmp(new int[lst-frst]);
+	int* tmp_=tmp.get();*/
 	strct_prms3 stack_prms[bsize+1];
 	stack_prms[0].first_=frst;
 	stack_prms[0].last_=lst;
@@ -394,8 +454,8 @@ void msd_radix_sort(int *frst, int *lst,int bsize = 31)
 		msb_=stack_tmp->msb_;   
 		if ((first_!=last_) && (msb_>=0))
 		{
-			//mid_=__radix_sort_unstable(first_,last_,msb_);
-			mid_=__radix_sort(tmp_,first_,last_,msb_);
+			mid_=__radix_sort_unstable(first_,last_,msb_);
+			//mid_=__radix_sort(tmp_,first_,last_,msb_);
 			--msb_;
 			
 			stack_tmp->first_=mid_;
@@ -416,7 +476,7 @@ void gen_rand(int* const data,const int size)
 {
 	srand((unsigned)time(NULL));
 	for (int i=0;i<size;++i)
-		data[i]=pow(-1,i)*(rand()/(i+10000000)+rand()/1000000000 + i + i^2);
+		data[i]=/*pow(-1,i)**/(rand()/(i+10000000)+rand()/1000000000 + i + i^2);
 }
 
 void check_correct(int* const data,const int size)
@@ -427,26 +487,20 @@ void check_correct(int* const data,const int size)
 			std::cout<<"violation";
 }
 
-/* A utility function to print array of size n */
-void printArray(int* arr,int n)
-{
-    for (int i=0; i<n; ++i)
-        std::cout << arr[i] << " ";
-    std::cout << "\n";
-}
-
-void _test(){};
-
 void _helper(int* const data,const int size,const std::string &mes,
 	void (*sort)(int* const, int* const,int),int def_size=31)
 {
-	#define _print_
-	//#define _check_
+	//#define _print_
+	#ifndef _print_
+		//#define _check_
+	#endif
 	using namespace std::chrono;
 	steady_clock::time_point begin,end;
-	gen_rand(data,size);
 	#ifdef _print_
-	printArray(data,size);
+	{	
+		std::cout<<"old value\n";
+		printArray(data,size);
+	}
 	#endif
 	begin=steady_clock::now();
 	(*sort)(data,data+size,def_size);
@@ -454,7 +508,10 @@ void _helper(int* const data,const int size,const std::string &mes,
 	
 	std::cout<<mes<<": "<<duration_cast<nanoseconds>(end-begin).count()<<" ns"<<std::endl;
 	#ifdef _print_
-	printArray(data,size);
+	{
+		std::cout<<"new value\n";
+		printArray(data,size);
+	}
 	#endif
 	#ifdef _check_
 	check_correct(data,size);
@@ -464,14 +521,17 @@ void _helper(int* const data,const int size,const std::string &mes,
 // test
 int main()
 {	
-	const int size=10;
-	//const int size=100000000;
+	//const int size=5;
 	//const int size=10000;
+	const int size=1000000;
 	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
+	std::unique_ptr<int[]> data2(new int[size]);
 	int* _data=data.get();
-	//_helper(_data,size,"msd",&msd_radix_sort);
-	_helper(_data,size,"lsd",&lsd_radix_sort);
- 	//gen_rand(_data,size);printArray(_data,size);lsd_radix_sort(_data,_data+size);printArray(_data,size);
+	gen_rand(_data,size);
+	int* _data2=data2.get();
+	std::copy(_data,_data+size,_data2);
+	_helper(_data,size,"lsd1",lsd_radix_sort);
+	_helper(_data2,size,"lsd2",lsd_radix_sort2);
     return 0;
 }
