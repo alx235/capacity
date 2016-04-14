@@ -18,14 +18,6 @@ struct strct_prms
 	}	
 };
 
-/* A utility function to print array of size n */
-void printArray(int* arr,int n)
-{
-    for (int i=0;i<n;++i)
-        std::cout<<arr[i]<<" ";
-    std::cout<<"\n";
-}
-
 void quickSort(int *arr, int left, int right)//iterative QSort
 {
       int sort_count = 1;
@@ -408,9 +400,8 @@ void gen_rand(int* const data,const int size)
 void check_correct(int* const data,const int size)
 {
 	std::cout<<"check\n";
-	for (int i=0;i<size;++i)//check correct
-	for (int j=i;j<size;++j)	
-		if (data[i]>data[j])
+	for (int i=0;i<size-1;++i)//check correct	
+		if (data[i]>data[i+1])
 			std::cout<<"violation";
 }
 
@@ -472,6 +463,14 @@ void _helper2(int* const data,const int size,const std::string &mes,
 	#ifdef _check_
 	check_correct(data,size);
 	#endif
+}
+
+/* A utility function to print array of size n */
+void printArray(int* arr,int n)
+{
+    for (int i=0;i<n;++i)
+        std::cout<<arr[i]<<" ";
+    std::cout<<"\n";
 }
  
 // test
