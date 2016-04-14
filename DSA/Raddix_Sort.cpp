@@ -400,12 +400,14 @@ void gen_rand(int* const data,const int size)
 {
 	srand((unsigned)time(NULL));
 	for (int i=0;i<size;++i)
-		data[i]=/*pow(-1,i)**/(rand()/(i+10000000)+rand()/1000000000 + i + i^2);
+		//data[i]=/*pow(-1,i)**/(rand()/(i+10000000)+rand()/1000000000 + i + i^2);
+		data[i]=-1000+(i+1)/100000;
+		//data[i]=rand();
 }
 
 void check_correct(int* const data,const int size)
 {
-	std::cout<<"check\n";	
+	std::cout<<"check\n";
 	for (int i=0;i<size;++i)//check correct
 	for (int j=i;j<size;++j)	
 		if (data[i]>data[j])
@@ -491,8 +493,8 @@ int main()
 	std::copy(_data,_data+size,_data4);
 	_helper(_data,size,"lsd__",lsd_radix_sort);
 	_helper(_data2,size,"msd__",msd_radix_sort);
-	_helper2(_data3,size,"heap_",heapSort);
-	_helper2(_data4,size,"merge",merge_sort);
+	//_helper2(_data3,size,"heap_",heapSort);
+	//_helper2(_data4,size,"merge",merge_sort);
 	//printArray(_data,size);
 	//heapSort(_data,size);
 	//printArray(_data,size);
