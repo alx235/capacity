@@ -7,6 +7,14 @@
 #include <memory>
 #include <chrono>
 
+/* A utility function to print array of size n */
+void printArray(int* arr,int n)
+{
+    for (int i=0;i<n;++i)
+        std::cout<<arr[i]<<" ";
+    std::cout<<"\n";
+}
+
 struct strct_prms
 {
 	int left;
@@ -20,107 +28,128 @@ struct strct_prms
 
 void quickSort(int *arr,int right)//iterative QSort
 {
-      int sort_count=1;
-      std::unique_ptr<strct_prms[]> stack_prms (new strct_prms[right]);
-      stack_prms[0].left=0;
-      stack_prms[0].right=right-1;
-      while(sort_count--)
-      {
-	      bool left_set=false;
-	      int left=stack_prms[sort_count].left;
-	      int right=stack_prms[sort_count].right;
+	int sort_count=1;
+	std::unique_ptr<strct_prms[]> stack_prms (new strct_prms[right]);
+	strct_prms* _stack_prms=stack_prms.get();
+	strct_prms* _ptr=nullptr;
+	stack_prms[0].left=0;
+	stack_prms[0].right=right-1;
 
-	      int i=left, j=right;
-	      int tmp;
-	      int mid=arr[(left+right)/2];
-	 
-	      /* partition */
-	      while (i<=j) {
-		    while (arr[i]<mid)
-		          i++;
-		    while (arr[j]>mid)
-		          j--;
-		    if (i<=j) 
+	int* _ar1=nullptr;
+	int* _ar2=nullptr;
+	bool _left_set=false;
+	int _left=-1;
+	int _right=-1;
+	int _tmp=-1;
+	int _tmp_left=-1,_tmp_right=-1;
+	int _mid=-1;
+	int i=0,j=0;
+	while(sort_count--)
+	{
+		_left_set=false;
+		_ptr=_stack_prms+sort_count;
+		_left=_ptr->left;
+		_right=_ptr->right;
+		i=_left;
+		_ar1=arr+_left;
+		j=_right;
+		_ar2=arr+_right;
+		_mid=arr[(_left+_right)>>1];
+		while (i<=j)
+		{
+			while (*_ar1<_mid)
 			{
-		    	tmp=arr[i];
-		    	arr[i]=arr[j];
-		    	arr[j]=tmp;
-		    	i++;
-		    	j--;
-		    }
-	      };
-	      if (left<j)
-	      {
-			stack_prms[sort_count].right=j;
-			stack_prms[sort_count++].left=left;
-			left_set=true;
-	      }
-	      if (i<right)
-	      {
-			stack_prms[sort_count].left=i;
-			stack_prms[sort_count++].right=right;
-			if (left_set)
-				std::swap(stack_prms[sort_count-1],stack_prms[sort_count-2]);
-	      }
-      }
+	  			++_ar1;++i;
+			}
+			while (*_ar2>_mid)
+			{
+	  			--_ar2;--j;
+			}
+			if (i<=j) 
+			{
+			_tmp=*_ar1;
+			*_ar1=*_ar2;
+			*_ar2=_tmp;
+			++_ar1;++i;
+			--_ar2;--j;
+			}
+		}
+		if(_left<j)
+		{
+			_ptr->right=j;
+			_ptr->left=_left;
+			++sort_count;++_ptr;
+			_left_set=true;
+		}
+		if(i<_right)
+		{
+			_ptr->left=i;
+			_ptr->right=_right;
+			++sort_count;++_ptr;
+			if(_left_set)
+			{
+				//exchange _ptr-1 and _ptr-2 to keep recursive order 
+				--_ptr;
+				_tmp_left=_ptr->left;
+				_tmp_right=_ptr->right;
+				*_ptr=*(_ptr-1);
+				--_ptr;
+				_ptr->left=_tmp_left;
+				_ptr->right=_tmp_right;
+			}
+		}
+	}
 }
 
-inline void _merge(int* const a,int* const b,const int low,const int mid,const int high)
+inline void _merge(int* const a,int* const b,const int low,const int high)
 {
-	int h,i,j,k;
-	h=low;
-	i=0;
-	j=mid+1;
-	// Merges the two array's into b[] until the first one is finish
-	while((h<=mid)&&(j<=high))
+	if (low==high)
+		return;
+	int _low1=low;
+	const int mid=(low+high)>>1;
+	int _low2=mid+1;
+	int* _b=b;//tmp buffer
+
+	int* _a1=a+_low1;//first array
+	int* _a2=a+_low2;//second array
+	while((_low1<=mid)&&(_low2<=high))
 	{
-		if(a[h]<=a[j])
+		if(*_a1<*_a2)
 		{
-			b[i]=a[h];
-			h++;
+			*_b=*_a1;
+			++_low1;++_b;++_a1;
 		}
 		else
 		{
-			b[i]=a[j];
-			j++;
+			*_b=*_a2;
+			++_low2;++_b;++_a2;
 		}
-		i++;
 	}
-	// Completes the array filling in it the missing values
-	if(h>mid)
-	{
-		for(k=j;k<=high;k++)
+	if (_low1<=mid)
+		while (_low1<=mid)
 		{
-			b[i]=a[k];
-			i++;
+			*_b=*_a1;
+			++_low1;++_b;++_a1;			
 		}
-	}
 	else
-	{
-		for(k=h;k<=mid;k++)
+		while (_low2<=high)
 		{
-			b[i]=a[k];
-			i++;
+			*_b=*_a2;
+			++_low2;++_b;++_a2;		
 		}
-	}
-	// Prints into the original array
-	for(k=0;k<=high-low;k++) 
-	{
-		a[k+low]=b[k];
-	}
+	int* _b_start=b;
+	std::copy(_b_start,_b,a+low);
 }
 
 struct strct_prms2
 {
 	int low;
 	int high;
-	int mid;
 	int check_;
 	strct_prms2()
 	{
-		low=0;
-		high=0;
-		mid=0;
+		low=-1;
+		high=-1;
 		check_=0;
 	}	
 };
@@ -129,10 +158,11 @@ void merge_sort(int* const a,const int high)
 {
 	const int LOW=0;
 	const int TMPSIZE=high-LOW;
-	const int STACKSIZE=log2(TMPSIZE)*3;
+	const int STACKSIZE=log2(TMPSIZE)*2+2;
 	int sort_count=0;
 	strct_prms2 stack_prms[STACKSIZE];
-	std::unique_ptr<int[]> b(new int[TMPSIZE]);
+	std::unique_ptr<int[]> buff(new int[TMPSIZE]);
+	int* _buff = buff.get();
 	stack_prms[0].low=LOW;
 	stack_prms[0].high=high-1;
 	strct_prms2* _ptr=nullptr;
@@ -144,12 +174,10 @@ void merge_sort(int* const a,const int high)
 		strct_prms2* _ptr=stack_prms+sort_count;
 		_low=_ptr->low;
 		_high=_ptr->high;
-		//std::cout<<"low:"<<low<<" high:"<<high<<" count:"<<sort_count<<"\n";
 		if((_ptr->check_))
 		{
-			_merge(a,b.get(),_low,_ptr->mid,_high);
+			_merge(a,_buff,_low,_high);
 			_ptr->check_=0;
-			//std::cout<<"merge: "<<"low:"<<low<<" mid:"<<stack_prms[sort_count].mid<<" high:"<<high<<" count:"<<sort_count<<" tmp:"<<tmp<<"\n";
 			--sort_count;
 		}
 		else
@@ -158,8 +186,7 @@ void merge_sort(int* const a,const int high)
 				{	
 					
 					_ptr->check_=1;
-					_mid=(_low+_high)/2;
-					_ptr->mid=_mid;
+					_mid=(_low+_high)>>1;
 					++sort_count;++_ptr;
 					_ptr->low=_mid+1;
 					_ptr->high=_high;
@@ -181,6 +208,7 @@ void _heapify(int* const arr,const int &n, int j, bool exch_frst_lst)
 	int _r=0;
 	int m=n;
 	int _tmp=0;
+
 	//(1):j=n/2-1;
 	//(2):j=n-1
 	for (int i=j;i >= 0;--i) 
@@ -236,7 +264,7 @@ inline int* _radix_sort(int* const buff,int* const first,int* const last,const i
 	int* _result2=_result_end-1;
 	int* _first=first;
 	int* _last=last;
-	int _i=0;
+	int i=0;
 	for (;_first!=_last;)
 	{
         if (signbit==31)//sign bit
@@ -252,23 +280,23 @@ inline int* _radix_sort(int* const buff,int* const first,int* const last,const i
 		{//right,second group
 			*_result2=*_first;
 			--_result2;
-			++_i;
+			++i;
 		}
 		++_first;
 	}
-	int* _right_start=last-_i;
-	if (_i)
+	int* _right_start=last-i;
+	if (i)
 	{
 		_first=first;//don't trust 3d library
 		int* __result_end=_result_end;
 		std::copy(_result_begin,_result1,_first);//left direct order
 		//std::reverse_copy(_result2,__result_end,_right_start);
-		while (_i)//right reverse order
+		while (i)//right reverse order
 		{
     		--__result_end;
     		*_right_start=*__result_end;
     		++_right_start;
-			--_i;
+			--i;
   		}
 	}
 	return _right_start;
@@ -379,7 +407,7 @@ void gen_rand(int* const data,const int size)
 	for (int i=0;i<size;++i)
 		//data[i]=/*pow(-1,i)**/(rand()/(i+10000000)+rand()/1000000000 + i + i^2);
 		//data[i]=-1000+(i+1)/100000;
-		data[i]=rand();
+		data[i]=rand()/1000000;
 }
 
 void check_correct(int* const data,const int size)
@@ -387,24 +415,17 @@ void check_correct(int* const data,const int size)
 	std::cout<<"check\n";
 	for (int i=0;i<size-1;++i)//check correct	
 		if (data[i]>data[i+1])
-			std::cout<<"violation";
-}
-
-/* A utility function to print array of size n */
-void printArray(int* arr,int n)
-{
-    for (int i=0;i<n;++i)
-        std::cout<<arr[i]<<" ";
-    std::cout<<"\n";
+		{
+			std::cout<<"violation\n";
+			return;
+		}
 }
 
 void _helper(int* const data,const int size,const std::string &mes,
 	void (*sort)(int* const, int* const,int),int def_size=31)
 {
+	//#define _print_
 	#define _check_
-	#ifndef _print_
-		#define _check_
-	#endif
 	using namespace std::chrono;
 	steady_clock::time_point begin,end;
 	gen_rand(data,size);
@@ -461,28 +482,27 @@ void _helper2(int* const data,const int size,const std::string &mes,
 // test
 int main()
 {	
-	const int size=10000;
+	const int size=1000000;
 	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	int* const _data=data.get();
 	gen_rand(_data,size);
-	/*std::unique_ptr<int[]> data2(new int[size]);
+	std::unique_ptr<int[]> data2(new int[size]);
 	std::unique_ptr<int[]> data3(new int[size]);
 	std::unique_ptr<int[]> data4(new int[size]);
+	std::unique_ptr<int[]> data5(new int[size]);
 	int* const _data2=data2.get();
 	int* const _data3=data3.get();
 	int* const _data4=data4.get();
+	int* const _data5=data4.get();
 	std::copy(_data,_data+size,_data2);
 	std::copy(_data,_data+size,_data3);
 	std::copy(_data,_data+size,_data4);
+	std::copy(_data,_data+size,_data5);
 	_helper(_data,size,"lsd__",lsd_radix_sort);
-	_helper(_data2,size,"msd__",msd_radix_sort);*/
-	//_helper2(_data,size,"quick",quickSort);
-	_helper2(_data,size,"merge",merge_sort);
-	//printArray(_data,size);
-	//heapSort(_data,size);
-	//printArray(_data,size);
-	//merge_sort(_data,size);
-	//check_correct(_data,size);
+	_helper(_data2,size,"msd__",msd_radix_sort);
+	_helper2(_data3,size,"quick",quickSort);
+	_helper2(_data4,size,"merge",merge_sort);
+	_helper2(_data5,size,"heap_",heapSort);
     return 0;
 }
