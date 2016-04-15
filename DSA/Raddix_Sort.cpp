@@ -461,7 +461,7 @@ void _helper2(int* const data,const int size,const std::string &mes,
 // test
 int main()
 {	
-	const int size=10;
+	const int size=10000;
 	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	int* const _data=data.get();
@@ -477,8 +477,8 @@ int main()
 	std::copy(_data,_data+size,_data4);
 	_helper(_data,size,"lsd__",lsd_radix_sort);
 	_helper(_data2,size,"msd__",msd_radix_sort);*/
-	_helper2(_data,size,"quick",quickSort);
-	//_helper2(_data4,size,"merge",merge_sort);
+	//_helper2(_data,size,"quick",quickSort);
+	_helper2(_data,size,"merge",merge_sort);
 	//printArray(_data,size);
 	//heapSort(_data,size);
 	//printArray(_data,size);
