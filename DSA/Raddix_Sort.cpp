@@ -18,16 +18,15 @@ struct strct_prms
 	}	
 };
 
-void quickSort(int *arr, int left, int right)//iterative QSort
+void quickSort(int *arr,int right)//iterative QSort
 {
-      int sort_count = 1;
-      std::unique_ptr<strct_prms[]> stack_prms (new strct_prms[right-left]());
-      stack_prms[0].left = left;
-      stack_prms[0].right = right-1;
-
+      int sort_count=1;
+      std::unique_ptr<strct_prms[]> stack_prms (new strct_prms[right]);
+      stack_prms[0].left=0;
+      stack_prms[0].right=right-1;
       while(sort_count--)
       {
-	      bool ignore=false;
+	      bool left_set=false;
 	      int left=stack_prms[sort_count].left;
 	      int right=stack_prms[sort_count].right;
 
@@ -50,33 +49,19 @@ void quickSort(int *arr, int left, int right)//iterative QSort
 		    	j--;
 		    }
 	      };
-	 
-	      /* "recursion" */
 	      if (left<j)
 	      {
-			//std::cout<<"left\n";
 			stack_prms[sort_count].right=j;
 			stack_prms[sort_count++].left=left;
-			ignore=true;
+			left_set=true;
 	      }
 	      if (i<right)
 	      {
-			//std::cout<<"right\n";
-			if (ignore)//must keep order
-			{
-				stack_prms[sort_count+1]=stack_prms[sort_count];//shift to next
-				//set right before left to keep true order	
-				stack_prms[sort_count].left=i;
-				stack_prms[sort_count++].right=right;
-				sort_count++;//increment again because we push twice
-			}
-			else
-			{
-				stack_prms[sort_count].left=i;
-				stack_prms[sort_count++].right=right;
-			}
+			stack_prms[sort_count].left=i;
+			stack_prms[sort_count++].right=right;
+			if (left_set)
+				std::swap(stack_prms[sort_count-1],stack_prms[sort_count-2]);
 	      }
-		//std::cout<<"end\n";
       }
 }
 
@@ -147,7 +132,7 @@ void merge_sort(int* const a,const int high)
 	const int STACKSIZE=log2(TMPSIZE)*3;
 	int sort_count=0;
 	strct_prms2 stack_prms[STACKSIZE];
-	std::unique_ptr<int[]> b(new int[TMPSIZE]());
+	std::unique_ptr<int[]> b(new int[TMPSIZE]);
 	stack_prms[0].low=LOW;
 	stack_prms[0].high=high-1;
 	strct_prms2* _ptr=nullptr;
@@ -160,7 +145,7 @@ void merge_sort(int* const a,const int high)
 		_low=_ptr->low;
 		_high=_ptr->high;
 		//std::cout<<"low:"<<low<<" high:"<<high<<" count:"<<sort_count<<"\n";
-		if(int _tmp=_ptr->check_)
+		if((_ptr->check_))
 		{
 			_merge(a,b.get(),_low,_ptr->mid,_high);
 			_ptr->check_=0;
@@ -240,7 +225,7 @@ void heapSort(int* const arr,const int n)
 	_heapify(arr,0,n-1,true);
 }
 
-inline int* __radix_sort(int* const buff,int* const first,int* const last,const int signbit)
+inline int* _radix_sort(int* const buff,int* const first,int* const last,const int signbit)
 {
 	bool _is_true=0;
 	int* const _result_begin=buff;
@@ -289,7 +274,7 @@ inline int* __radix_sort(int* const buff,int* const first,int* const last,const 
 	return _right_start;
 }
 
-inline int* __radix_sort_unstable(int* const first,int* const last,const int signbit)
+inline int* _radix_sort_unstable(int* const first,int* const last,const int signbit)
 {
 	bool _is_true=0;
 
@@ -344,7 +329,7 @@ void lsd_radix_sort(int* const first, int* const last,int byte_size=31)
 	int* _tmp=tmp.get();
 	for (int lsb=0;lsb<byte_size+1;++lsb)
 	{
-		__radix_sort(_tmp,first,last,lsb);
+		_radix_sort(_tmp,first,last,lsb);
 	}
 }
 void msd_radix_sort(int* const first, int* const last,int bsize=31)
@@ -370,7 +355,7 @@ void msd_radix_sort(int* const first, int* const last,int bsize=31)
 		_msb=_ptr->msb;   
 		if ((_first!=_last) && (_msb>=0))
 		{
-			_mid=__radix_sort_unstable(_first,_last,_msb);
+			_mid=_radix_sort_unstable(_first,_last,_msb);
 			//mid_=__radix_sort(tmp_,first_,last_,msb_);
 			--_msb;
 			
@@ -393,8 +378,8 @@ void gen_rand(int* const data,const int size)
 	srand((unsigned)time(NULL));
 	for (int i=0;i<size;++i)
 		//data[i]=/*pow(-1,i)**/(rand()/(i+10000000)+rand()/1000000000 + i + i^2);
-		data[i]=-1000+(i+1)/100000;
-		//data[i]=rand();
+		//data[i]=-1000+(i+1)/100000;
+		data[i]=rand();
 }
 
 void check_correct(int* const data,const int size)
@@ -405,12 +390,20 @@ void check_correct(int* const data,const int size)
 			std::cout<<"violation";
 }
 
+/* A utility function to print array of size n */
+void printArray(int* arr,int n)
+{
+    for (int i=0;i<n;++i)
+        std::cout<<arr[i]<<" ";
+    std::cout<<"\n";
+}
+
 void _helper(int* const data,const int size,const std::string &mes,
 	void (*sort)(int* const, int* const,int),int def_size=31)
 {
-	//#define _print_
+	#define _check_
 	#ifndef _print_
-		//#define _check_
+		#define _check_
 	#endif
 	using namespace std::chrono;
 	steady_clock::time_point begin,end;
@@ -464,24 +457,16 @@ void _helper2(int* const data,const int size,const std::string &mes,
 	check_correct(data,size);
 	#endif
 }
-
-/* A utility function to print array of size n */
-void printArray(int* arr,int n)
-{
-    for (int i=0;i<n;++i)
-        std::cout<<arr[i]<<" ";
-    std::cout<<"\n";
-}
  
 // test
 int main()
 {	
-	const int size=1000000;
+	const int size=10;
 	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	int* const _data=data.get();
 	gen_rand(_data,size);
-	std::unique_ptr<int[]> data2(new int[size]);
+	/*std::unique_ptr<int[]> data2(new int[size]);
 	std::unique_ptr<int[]> data3(new int[size]);
 	std::unique_ptr<int[]> data4(new int[size]);
 	int* const _data2=data2.get();
@@ -491,8 +476,8 @@ int main()
 	std::copy(_data,_data+size,_data3);
 	std::copy(_data,_data+size,_data4);
 	_helper(_data,size,"lsd__",lsd_radix_sort);
-	_helper(_data2,size,"msd__",msd_radix_sort);
-	//_helper2(_data3,size,"heap_",heapSort);
+	_helper(_data2,size,"msd__",msd_radix_sort);*/
+	_helper2(_data,size,"quick",quickSort);
 	//_helper2(_data4,size,"merge",merge_sort);
 	//printArray(_data,size);
 	//heapSort(_data,size);
