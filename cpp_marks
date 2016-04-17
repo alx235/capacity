@@ -1,3 +1,4 @@
+pointer increase on a <=> implicit increase pointer on a*sizeof(T) 
 The following operations are always O(1) (depends on impl.) when they exist:
 	begin(), end()
 	empty()
