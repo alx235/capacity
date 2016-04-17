@@ -1,4 +1,6 @@
 pointer increase on a <=> implicit increase pointer on a*sizeof(T) 
+	*int* p=((int*)3+3); 
+	pointer store: 3+3*sizeof(int)
 The following operations are always O(1) (depends on impl.) when they exist:
 	begin(), end()
 	empty()
