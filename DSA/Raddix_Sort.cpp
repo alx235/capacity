@@ -289,13 +289,14 @@ inline int* _radix_sort(int* const buff,int* const first,int* const last,const i
 	{
 		_first=first;//don't trust 3d library
 		int* __result_end=_result_end;
+		int* __right_start=_right_start;
 		std::copy(_result_begin,_result1,_first);//left direct order
 		//std::reverse_copy(_result2,__result_end,_right_start);
 		while (i)//right reverse order
 		{
     		--__result_end;
-    		*_right_start=*__result_end;
-    		++_right_start;
+    		*__right_start=*__result_end;
+    		++__right_start;
 			--i;
   		}
 	}
@@ -478,7 +479,6 @@ void _helper2(int* const data,const int size,const std::string &mes,
 	check_correct(data,size);
 	#endif
 }
- 
 // test
 int main()
 {	
@@ -504,5 +504,6 @@ int main()
 	_helper2(_data3,size,"quick",quickSort);
 	_helper2(_data4,size,"merge",merge_sort);
 	_helper2(_data5,size,"heap_",heapSort);
-    return 0;
+
+	return 0;
 }
