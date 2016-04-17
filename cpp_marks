@@ -244,7 +244,6 @@ bit field (int:1(2), bool name:1), or union for save memory do not give guarante
 Widget w3 = w2; // call copy constructor! (first init)
 
 forbid copy constr and operator assignment = inherit from class with private copy constr and operator assignment
-private inheritance forbid cast from derived to base
 
 !never call virt function in constructor and destructor - when creating derived object object type is base...so undefined beh
 can exist...
