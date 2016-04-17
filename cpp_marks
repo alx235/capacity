@@ -25,11 +25,6 @@ auto_ptr:
 	two equal objects since one has lost its ownership of the pointer.
 		std::auto_ptr<X> pX = vecX[0];  // vecX[0] is assigned NULL.
 
-MTS!
-You would only get a problem with thread safety if you were to pass this pointer to another thread
-that would then concurrently modify this memory at the same time as your original (or another) thread.
-!MTS
-
 Inheritance visible case:
 
 private inh.:
@@ -77,7 +72,7 @@ public:
     String(const char *p); // initialize sobject with string p
 };*/
 
-Defaults params are early binding ( at compile time ) , and virtual functions - later, important for def virt fucnt. params.
+Defaults params are early binding ( at compile time ) , and virtual functions - later, important for def virt func. params.
 
 compiler forbid const ref ref to temporary object
 
@@ -104,7 +99,7 @@ external C/{} - link C compatible code (binar), have no influence on call's sema
  compiler need .h, linker libs
  - NOT use for diff.
       C++ compilers!!!
-preprocessor make macroreplace and insert from include sorces...and check path of sources
+preprocessor make macroreplace and insert from include sorces - make translation unit...and check path of sources
 compiler check declaration rule
 linker check other rule and multiple different translation unit
  each declaration (can be separate) must have only one definiton
@@ -213,19 +208,19 @@ RUN-TIME POLYMORPHISM - VIRTUAL FUNCTION AND OBJECT INHERITANCE
 IN GENERAL, GENERIC FROM ONE TEMPLATE 2 TYPES HAVE NO REFERENCE.
 
 DECLARE USING INSIDE CLASS USE FOR OVERLOAD BASE OR DERIVED MEMBERS.
-
+/*
 FOR BASE CLASS CASE USE EXPLICIT CLOSE DERIVED DEFINITON OR
 USE VIRTUAL BASE CLASS (:VIRTUAL _base_)...for cast
 
 2 REPLACEMENT FUNCTIONS USING IN MULTIPLE INHERITANCE LEAD TO AMBIGUITY.
-
+*/
 dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymorthic type D, if fail =0
  for & => bad_cast exception
  for virtual base (multiple inheritance) can be ambiguity (what object???)
  dynamic_cast<void*>(D*) give adress of object beginning (pol. type)
  dynamic_cast move at hierarchy to tail, to head
  static_cast - for void* to T* cast/POD type cast
-  void* pointer can be used for any standart pointer operation only static_cast
+  void* pointer can be used for any standart pointer operation only static_cast?
  const_cast full save only in case when object declare as non-const(volatile)
 typeid: return pointer to type info (std type), bad_type if for zero pol type pointer or ref, compil-time value for non-pol type
 !!! NEVER use C-style cast !!!
@@ -242,21 +237,16 @@ for_each - cycle alternative
 
 copy? + push_back - protected from out_range
 
-STD::ALGORITMS - NEED (IF NEED...because of standart case implementation) EXAMPLE
-
-iterator - just pointer to array wrapper, which has const time operation (not sure about [] for random access).
-
 Memory allocator (+d.3.5) is complex and non-trivial topic, need test, experience..so i can't say that it'll done near future.
 
 bit field (int:1(2), bool name:1), or union for save memory do not give guarantee of portability,  but save memory.
 
 Widget w3 = w2; // call copy constructor! (first init)
 
-local static order init in diff. transl unit = undefined
-
 forbid copy constr and operator assignment = inherit from class with private copy constr and operator assignment
+private inheritance forbid cast from derived to base
 
-never call virt function in constructor and destructor - when creating derived object object type is base...so undefined beh
+!never call virt function in constructor and destructor - when creating derived object object type is base...so undefined beh
 can exist...
 
 use special smart pointer to dynamic array
@@ -264,31 +254,24 @@ use special smart pointer to dynamic array
 //получения доступа к ресурсу в конструкторе, а освобождения — в деструкторе соответствующего класса
 +RAII - Resource Acquision is Initialization - forbid copy operations or ref counter//
 
-pointer def value is NOT ALWAYS NULL.
+pointer def value is NOT guarantee be NULL.
 
 deref NULL pointer take no effect.
 
-Place dynamic object into separate location to avoid memory leaks (just not forget free resource)
+!Place dynamic object into separate location to avoid memory leaks (just not forget free resource)
 
 +To avoid duplicate code in const/non-const member use const_cast
 
-+/- return object not ref because of lost ref problem => Mayers said that compiler will resolve this problem (don't think this
-always happen, but be carefull!)
-
 +Always use const if can, for save...
 
-+Use non-member fuction for case when need cast all params.
++Use non-member fuction for case when need cast all params?
 
 PARTIAL SPECIALIZATION for template function is FORBID
 
 +Use init cur val instead of def constr and init...(free processor time)
 
-private inheritance forbid cast from derived to base
-
 +VIRTUAL INHERITANCE is very expensive and low!
 
 +CLASS AND TYPENAME ARE EQUAL KEYWORD!
 
-User type POD type not use constructor
-
-ref(&a) link with lvalue;
+User type POD type not use constructor they default value insert
