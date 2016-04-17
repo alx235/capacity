@@ -32,6 +32,7 @@ Base members that were protected, public, became private in Derived.
 protected inh.:
 Base members that were protected, public, became protected in Derived.
 public...no comment
+default: private for class and public for struct
 
 Enum - http://stackoverflow.com/questions/9630744/should-you-declare-enums-inside-or-outside-a-class.
 
@@ -227,7 +228,6 @@ typeid: return pointer to type info (std type), bad_type if for zero pol type po
 
 reinterpret_cast for void** and any cast without check guarantee
 
-
 pointer to VIRTUAL member need to get it from one adress space to another with condition of equal same type location,
 because of pointer of virtual member like offset in array
 
@@ -244,6 +244,7 @@ bit field (int:1(2), bool name:1), or union for save memory do not give guarante
 Widget w3 = w2; // call copy constructor! (first init)
 
 forbid copy constr and operator assignment = inherit from class with private copy constr and operator assignment
+private inheritance forbid cast from derived to base
 
 !never call virt function in constructor and destructor - when creating derived object object type is base...so undefined beh
 can exist...
