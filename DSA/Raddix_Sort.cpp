@@ -25,7 +25,6 @@ struct strct_prms
 		right=0;
 	}	
 };
-
 void quickSort(int *arr,int right)//iterative QSort
 {
 	int sort_count=1;
@@ -158,7 +157,7 @@ void merge_sort(int* const a,const int high)
 {
 	const int LOW=0;
 	const int TMPSIZE=high-LOW;
-	const int STACKSIZE=log2(TMPSIZE)*2+2;
+	const int STACKSIZE=log2(TMPSIZE)*2+3;
 	int sort_count=0;
 	strct_prms2 stack_prms[STACKSIZE];
 	std::unique_ptr<int[]> buff(new int[TMPSIZE]);
@@ -253,12 +252,12 @@ void heapSort(int* const arr,const int n)
 	_heapify(arr,0,n-1,true);
 }
 
-inline int* _radix_sort(int* const buff,int* const first,int* const last,const int signbit)
+inline int* _radix_sort(int* const buff,int* const first,const int size,const int signbit)
 {
 	bool _is_true=0;
 	int* const _result_begin=buff;
-	int size=last-first;
 	int* const _result_end=buff+size;
+	int* const last=first+size;
 
 	int* _result1=_result_begin;
 	int* _result2=_result_end-1;
@@ -308,7 +307,7 @@ inline int* _radix_sort_unstable(int* const first,int* const last,const int sign
 	bool _is_true=0;
 
 	int* _first=first;
-	int* _first2=first;//false start position
+	int* _first2=last;//false start position
 	int* _last=last;
 	bool _false_found=0;
 	for (;_first!=_last;)
@@ -335,7 +334,6 @@ inline int* _radix_sort_unstable(int* const first,int* const last,const int sign
 		}
 		++_first;
 	}
-	if (_first2==first) return last;
 	return _first2;
 }
 
@@ -354,19 +352,20 @@ struct strct_prms3
 
 void lsd_radix_sort(int* const first, int* const last,int byte_size=31)
 {
-	std::unique_ptr<int[]> tmp(new int[last-first]);
-	int* _tmp=tmp.get();
+	std::unique_ptr<int[]> buff(new int[last-first]);
+	int* _buff=buff.get();
+	int size=last-first;
 	for (int lsb=0;lsb<byte_size+1;++lsb)
 	{
-		_radix_sort(_tmp,first,last,lsb);
+		_radix_sort(_buff,first,size,lsb);
 	}
 }
 void msd_radix_sort(int* const first, int* const last,int bsize=31)
 {
 	int sort_count=1;
 	int* _mid=nullptr; 
-	/*std::unique_ptr<int[]> tmp(new int[lst-frst]);
-	int* tmp_=tmp.get();*/
+	//std::unique_ptr<int[]> tmp(new int[lst-frst]);
+	//int* tmp_=tmp.get();
 	strct_prms3 stack_prms[bsize+1];
 	stack_prms[0].first=first;
 	stack_prms[0].last=last;
@@ -482,7 +481,7 @@ void _helper2(int* const data,const int size,const std::string &mes,
 // test
 int main()
 {	
-	const int size=1000000;
+	const int size=10000000;
 	std::cout<<"size="<<size<<"\n";
 	std::unique_ptr<int[]> data(new int[size]);
 	int* const _data=data.get();
