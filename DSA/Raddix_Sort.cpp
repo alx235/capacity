@@ -36,7 +36,6 @@ void quickSort(int *arr,int right)//iterative QSort
 
 	int* _ar1=nullptr;
 	int* _ar2=nullptr;
-	bool _left_set=false;
 	int _left=-1;
 	int _right=-1;
 	int _tmp=-1;
@@ -45,7 +44,6 @@ void quickSort(int *arr,int right)//iterative QSort
 	int i=0,j=0;
 	while(sort_count--)
 	{
-		_left_set=false;
 		_ptr=_stack_prms+sort_count;
 		_left=_ptr->left;
 		_right=_ptr->right;
@@ -73,29 +71,17 @@ void quickSort(int *arr,int right)//iterative QSort
 			--_ar2;--j;
 			}
 		}
-		if(_left<j)
-		{
-			_ptr->right=j;
-			_ptr->left=_left;
-			++sort_count;++_ptr;
-			_left_set=true;
-		}
 		if(i<_right)
 		{
 			_ptr->left=i;
 			_ptr->right=_right;
 			++sort_count;++_ptr;
-			if(_left_set)
-			{
-				//exchange _ptr-1 and _ptr-2 to keep recursive order 
-				--_ptr;
-				_tmp_left=_ptr->left;
-				_tmp_right=_ptr->right;
-				*_ptr=*(_ptr-1);
-				--_ptr;
-				_ptr->left=_tmp_left;
-				_ptr->right=_tmp_right;
-			}
+		}
+		if(_left<j)
+		{
+			_ptr->right=j;
+			_ptr->left=_left;
+			++sort_count;++_ptr;
 		}
 	}
 }
