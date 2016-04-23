@@ -283,6 +283,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 
 //(5)
 //std::thread works with any callable type, so we can use function object (not temporary, it ignore new thread run!)
+//...avoid by parentheses or braces or lamda expr (C non-compatible)
 
 void thread_f1(/*std::promise<int> prom_*/)
 {
