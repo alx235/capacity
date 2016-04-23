@@ -12,9 +12,10 @@ The following operations are always O(1) (depends on impl.) when they exist:
 
 !std::swap(const& T a,const& T b){ tmp(a),a=b,b=tmp} it is not always (maybe never) effective!
 
-C++11: Never use std::move to move automatic objects out of functions.
+C++11: !Never use std::move to move automatic objects out of functions.
 C++11: move semantic is very close to auto_ptr with temporary object
 C++11: std::move for move lvalue to rvaule
+C++11: !move constructor should not throw
 
 Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
 - An element must be copyable by a copy constructor
