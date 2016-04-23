@@ -282,20 +282,30 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //~std::thread=>std::terminate() if it not joined or detached
 
 //(5)
-//*std::thread works with any callable type, so we can use function object (not temporary, it ignore new thread!)
-//ex need..
+//std::thread works with any callable type, so we can use function object (not temporary, it ignore new thread run!)
 
 void thread_f1(/*std::promise<int> prom_*/)
 {
 	
 	//(4)
-	std::this_thread::sleep_for(std::chrono::seconds(10));
+	//std::this_thread::sleep_for(std::chrono::seconds(10));
 	
 	//(2)
 	//prom_.set_value(1);//notify future
 
+	//(5)
+	std::this_thread::sleep_for(std::chrono::seconds(5));
 	std::cout<<"run with id:"<<std::this_thread::get_id()<< "\n";
 }
+
+class background_task
+{
+	public:
+		void operator()()
+		{
+			thread_f1();
+		}
+};
 
 int main()
 {	
@@ -315,10 +325,18 @@ int main()
 		//t1.join();//if not join or detached =>std::terminate()
 		
 		//(4)
-		std::thread t1(thread_f1);
-		t1.detach();//if main thread exit =>UB
+		//std::thread t1(thread_f1);
+		//t1.detach();//if main thread exit =>UB
 	}
-	std::this_thread::sleep_for(std::chrono::seconds(15));
+	//(4)
+	//std::this_thread::sleep_for(std::chrono::seconds(15));
+	
+	//(5)	
+	/*std::cout<<"main id:"<<std::this_thread::get_id()<<"\n";
+	//std::thread t1(background_task());//just return thread object, don't call new thread or associated f()
+	std::thread t1{background_task()};//with {} work correct
+	t1.join();	*/
+	
 	std::cout<<"program finish"<<"\n";
 	return 0;
 }
