@@ -1,3 +1,10 @@
+//<THREAD MARKS
+
+
+
+//<THREAD MARKS
+
+
 //g++ ex.cpp -pthread -std=c++11
 //#include <algorithm>
 #include <atomic>
@@ -9,6 +16,7 @@
 #include <pthread.h>
 #include <time.h>
 #include <future>
+#include <chrono>
 
 #define cpu_relax_flag
 #ifdef cpu_relax_flag
@@ -114,7 +122,7 @@ void *function2()
 		}		
 };*/
 
-//pthread_cond_t is "signal and wait"
+//Pthread_Cond_T is "signal and wait"
 //wake up waiting thread by signal,waiting thread must wait until some condition become true (producer/consumer)
 //waiting(pthread_cond_wait) case must be rare
 //usefull in producer/consumer problem and semaphore, only one non-abstract example i have founded is bounded queue.
@@ -139,7 +147,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 			mutex = PTHREAD_MUTEX_INITIALIZER;
 			cond = PTHREAD_COND_INITIALIZER;
 			//locked = ATOMIC_FLAG_INIT;//default state is cleared(false)
-			set default timeout, otherwise wait return immediately
+			//set default timeout, otherwise wait return immediately
 			/*if (!timeout_)
 				timeout+=2;*///
 		}
@@ -210,6 +218,8 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 
 //---C++11 STD---\\
 
+//STD THREAD OBJECT IT IS NOT THREAD IT SELF!!! 
+
 //std::async + GCC = no comment (at least today...)
 
 //std::thread is just class-wrapper, but comfortable and safe!!!
@@ -218,6 +228,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //...(can be joined only ONCE, by only thread WITHOUT data races, if not - UB)
 //failed to join joinable thread produce Zombie!
 //join return control to thread call join, detached - immediately, returning value (void*) return to second join arg
+//(1)
 //joinable thread MUST be join to avoid resource leak!
 //threads need it's own try/catch
 //to cancel tread just use return(always, never return local var address)
@@ -228,8 +239,10 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //...or also can be moved(non-copyable,non-assignable), default-constructed
 //thread terminate normal or by thow exception (cancel is difficult)
 //to use native pthread.h function call native_handle() for fast performance, but with carefull!
-//c++11: thread that has finished is still active thread of execution and joinable
-
+//c++11: THread that has finished is still active thread of execution and joinable
+//...(4)Detached THread CAN BE active after ~thread object
+//......Because THread object is only Wrapper!
+//(2)
 //return value to called thread by std::promise and std::future with try/catch block in joined thread (or just send pointer as agr to avoid infinite future_wait or using try/catch)
 //...prom_.set_value use single mutex
 //...i don't know real situation where this can be usefull 
@@ -237,9 +250,9 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 
 //std::recursive_mutex use try-lock to avoid throw (max counter overflow)
 //std::mutex recursive lock from owned thread - UB
-//...std::unlock from not-owned thread - UB, not throw,
+//...std::unlock from not-owned thread - UB, NO-throw,
 //......prior to lock SYNC_WITH
-//...std::try_lock, no-throw
+//...std::try_lock, NO-throw
 //......prior unlock,lock SYNC_WITH if true!
 //......spuriously fail - "lie" that has owner
 //...std::lock, throw!
@@ -265,21 +278,47 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 
 //std::once_flag/std::call_once - to call function once!
 
+//(3)
+//~std::thread=>std::terminate() if it not joined or detached
+
+//(5)
+//*std::thread works with any callable type, so we can use function object (not temporary, it ignore new thread!)
+//ex need..
+
 void thread_f1(/*std::promise<int> prom_*/)
 {
-	std::cout<<"run with id:"<<std::this_thread::get_id()<< "\n";
+	
+	//(4)
+	std::this_thread::sleep_for(std::chrono::seconds(10));
+	
+	//(2)
 	//prom_.set_value(1);//notify future
+
+	std::cout<<"run with id:"<<std::this_thread::get_id()<< "\n";
 }
 
 int main()
 {	
-	//(1)
+	//(2)
 	//std::promise<int> prom_;
 	//std::future<int> prom_future = prom_.get_future();
-	std::thread t1(thread_f1);
-	//prom.future_wait();//wait until set_value can cause infinite wait, if there is uncaught exception in t1 thread
+	//std::thread t1(thread_f1);
+	//prom.future_wait();//wait until set_value can cause infinite wait, if thread-t1 sleep forever
 	//std::cout<<"recieved value:"<<prom_future.get()<<"\n";
-	t1.join();//wait until execution end then release resources
+
+	//(1)
+	//t1.join();//wait until execution end then release resources
+
+	
+	{	//(3)
+		//std::thread t1(thread_f1);
+		//t1.join();//if not join or detached =>std::terminate()
+		
+		//(4)
+		std::thread t1(thread_f1);
+		t1.detach();//if main thread exit =>UB
+	}
+	std::this_thread::sleep_for(std::chrono::seconds(15));
 	std::cout<<"program finish"<<"\n";
 	return 0;
 }
