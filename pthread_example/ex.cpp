@@ -1,7 +1,8 @@
 //<THREAD MARKS
-
-
-
+//1) Launch thread give overhead: OS allocate kernel res, stack space and add thread to scheduler
+//2) Many threads run once slow down system performance.
+//3) More threds run than more context swith OS has to do this can reduce performance
+//4) Use high-level threads abstraction slower than use low-level.
 //<THREAD MARKS
 
 
@@ -17,6 +18,7 @@
 #include <time.h>
 #include <future>
 #include <chrono>
+#include <vector>
 
 #define cpu_relax_flag
 #ifdef cpu_relax_flag
@@ -52,10 +54,13 @@ class SpinLock
 
 //DEADLOCK EXAMPLE
 /*
-//pthread_mutex_trylock() usefull to prevent DEADLOCK, lock if can, return false if already locked
-//use lock/unlock in same order to avoid DEADLOCK
-//if 2 threads have dependency on lock use same mutex to avoid case when one release and another
-//start to wait infinitely
+//Pthread_mutex_TRrylock() usefull to prevent DEADLOCK, lock if can, return false if already locked
+//Use lock/unlock in Same Order to avoid DEADLOCK
+//If 2 THreads have dependency on lock use SAME mutex to avoid case when one release and another
+//...start to wait infinitely
+//AVOID NESTED LOCK
+//TRANSFER mutex ownership between scope by std::unique_lock (has only move ctors)
+
 void *function1()
 {
    ...
@@ -210,7 +215,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //PTHREAD_MUTEX_RECURSIVE: ...not cause, counter++, release if counter=0, has counter limit
 //...pthread_mutex_trylock() counter++, return true, false if reach limit or ...
 //PTHREAD_MUTEX_DEFAULT: ...cause UB
-//PTHREAD_MUTEX_NORMAL: ...cause deadlock
+//PTHREAD_MUTEX_NORMAL: ...cause DL
 
 //pthread_mutex_unlock() fail if thread doesn't own mutex, UB - for DEFAULT and NORMAL
 //pthread_mutex_lock() fail if thread has lower priority
@@ -218,57 +223,59 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 
 //---C++11 STD---\\
 
-//STD THREAD OBJECT IT IS NOT THREAD IT SELF!!! 
+//STD THREAD OBJECT IT IS NOT THREAD IT SELF!!!
+
+//Copy-constructor&Operator= forbid for thread object 
 
 //std::async + GCC = no comment (at least today...)
 
-//std::thread is just class-wrapper, but comfortable and safe!!!
+//std::thread is just class-wrapper, but COmfortable and SAFE!!!
 //...but pthread more flexiable and fast
 //pthread create with default joinable attr
 //...(can be joined only ONCE, by only thread WITHOUT data races, if not - UB)
 //failed to join joinable thread produce Zombie!
 //join return control to thread call join, detached - immediately, returning value (void*) return to second join arg
 //(1)
-//joinable thread MUST be join to avoid resource leak!
+//joinable thread MUST be JOoin to avoid resource leak!
 //threads need it's own try/catch
 //to cancel tread just use return(always, never return local var address)
 //if main thread exit() - UB
 
 //(1)
-//C++11 thread MUSN'T be joinable(not been detached or joined) before call ~thread()
-//...or also can be moved(non-copyable,non-assignable), default-constructed
+//C++11 thread MUSN'T be JOinable(not been detached or joined) before call ~THread()
+//...or also can be Moved(non-copyable,non-assignable), Default-Constructed
 //thread terminate normal or by thow exception (cancel is difficult)
-//to use native pthread.h function call native_handle() for fast performance, but with carefull!
+//to use NAtive pthread.h function call native_handle() for fast performance, but with carefull!
 //c++11: THread that has finished is still active thread of execution and joinable
 //...(4)Detached THread CAN BE active after ~thread object
-//......Because THread object is only Wrapper!
+//......Because THread OBject is only Wrapper!
 //(2)
 //return value to called thread by std::promise and std::future with try/catch block in joined thread (or just send pointer as agr to avoid infinite future_wait or using try/catch)
 //...prom_.set_value use single mutex
 //...i don't know real situation where this can be usefull 
 
 
-//std::recursive_mutex use try-lock to avoid throw (max counter overflow)
+//std::recursive_mutex use TRy-lock to avoid throw (max counter overflow)
 //std::mutex recursive lock from owned thread - UB
 //...std::unlock from not-owned thread - UB, NO-throw,
 //......prior to lock SYNC_WITH
 //...std::try_lock, NO-throw
-//......prior unlock,lock SYNC_WITH if true!
-//......spuriously fail - "lie" that has owner
-//...std::lock, throw!
+//......PRior unlock,lock SYNC_WITH if true!
+//......SPuriously fail - "lie" that has owner
+//...std::lock, THrow!
 //above true for both mutex and recursive_mutex, except recursive lock
 
 //std::lock_guard - scope lock
-//std::unique_lock - destructor call unlock the associated mutex, if owned (preffered than unlock!)
+//std::unique_lock - destructor call unlock the associated mutex, if OWned (preffered than unlock!)
 //std::unique_lock::lock/try_lock throw if no associated mutex or if already locked by this unique_lock
 //std::unique_lock::unlock throw if no associated mutex or mutex is not locked
 //std::unique_lock::release break associated relation, no throw
 //...deffered case for std::lock after, adopt - before, trylock - for trylock
 //std::unique_lock::owns_lock check if this own locked mutex
 
-//std::lock(arg1,...argn) to avoid DEADLOCK! if use mutex with different order (pass by arg as example)
+//std::lock(arg1,...argn) to AVoid DEADLOCK! if use mutex with different order (pass by arg as example)
 //...unspecified series of calls to lock, try_lock, unlock all if throw (does it seems be UB?)
-//...may cause Live-lock (unable to make further progress) problem or performance degradation
+//...may cause LL (unable to make further progress) problem or performance degradation
 //...so i preffer just don't use it...
 
 //(1*)
@@ -276,14 +283,24 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //std::condition_variable for std::unique_lock (for efficienty in some platform!!)
 //std::condition_variable_any with any lock...
 
-//std::once_flag/std::call_once - to call function once!
+//STd::ONnce_flag/std::call_ONce - to call function ONce(DCLP like)!
 
-//(3)
+//(1++)
 //~std::thread=>std::terminate() if it not joined or detached
 
 //(5)
 //std::thread works with any callable type, so we can use function object (not temporary, it ignore new thread run!)
 //...avoid by parentheses or braces or lamda expr (C non-compatible)
+
+//(6)
+//Don't use cast local params when pass to thread function arg, local can be Destroyed before cast end
+//(7) PASS PARAM reference to Thread Arg with STD::REF or use STD::BIND, otherwise Thread will make FULL-COPY
+//(8) USE STD::MOVE for object that can only be move
+//(9) THREAD std:move usefull for Thread Pool, when pushing in container just move temporary thread, NOT create new
+//...and NOT destroy
+//(10) std::thread::hardware_concurrency()
+//(11) ONE MUTEX FOR MANY THREADS IT'S OBVIOSLY BAD IDEA!
+//(12) shared_ptr usefull for container and deffer delete
 
 void thread_f1(/*std::promise<int> prom_*/)
 {
@@ -299,14 +316,41 @@ void thread_f1(/*std::promise<int> prom_*/)
 	std::cout<<"run with id:"<<std::this_thread::get_id()<< "\n";
 }
 
-class background_task
+//(5)
+/*class background_task
 {
 	public:
 		void operator()()
 		{
 			thread_f1();
 		}
-};
+};*/
+
+//(5++)	
+/*class thread_guard
+{
+	std::thread& t;
+	public:
+		explicit thread_guard(std::thread &t_):t(t_)
+		{}
+		~thread_guard()
+		{
+			std::cout<<"~guard"<<"\n";
+			if (t.joinable())//double join/detached BAD idea
+			{
+				t.join();//or detached
+				std::cout<<"guard finish"<<"\n";
+			}
+		}
+		thread_guard(const thread_guard &x)=delete;
+		thread_guard& operator=(const thread_guard &x)=delete;
+};*/
+
+//(8)
+void f2(std::unique_ptr<int> _data)
+{
+}
+
 
 int main()
 {	
@@ -321,7 +365,7 @@ int main()
 	//t1.join();//wait until execution end then release resources
 
 	
-	{	//(3)
+	{	//(1++)
 		//std::thread t1(thread_f1);
 		//t1.join();//if not join or detached =>std::terminate()
 		
@@ -336,7 +380,37 @@ int main()
 	/*std::cout<<"main id:"<<std::this_thread::get_id()<<"\n";
 	//std::thread t1(background_task());//just return thread object, don't call new thread or associated f()
 	std::thread t1{background_task()};//with {} work correct
-	t1.join();	*/
+	t1.join();*/
+	
+	//(5++)
+	/*try
+	{	
+		std::thread t1(thread_f1);
+		thread_guard g(t1);
+		//IF it throw than we lost chance to join/detach thread
+		//solution:try/catch or class wrapper thread guard
+		throw 20;
+		//t1.join();//if not join or detached =>std::terminate(), guard wrapper allow omit this
+	}
+	catch(...){};
+	std::this_thread::sleep_for(std::chrono::seconds(15));*/
+	
+	//(8)
+	/*
+	std::unique_ptr<int> data(new int(1));
+	f2(std::unique_ptr<int>(new int(1)));//move auto for temporary
+	//f2(data);//error:but not auto for named
+	f2(std::move(data));//correct*/
+
+	//(9-10)
+	/*std::vector<std::thread> th_pool;
+	const int TH_MAX=std::thread::hardware_concurrency()-1;
+	th_pool.reserve(TH_MAX);
+	for(int i=0;i<TH_MAX;++i)
+		th_pool.push_back(std::thread(thread_f1));
+	for(int i=0;i<TH_MAX;++i)
+		th_pool[i].join();
+	std::cout<<"availiable threads count:"<<std::thread::hardware_concurrency()<<"\n";*/
 	
 	std::cout<<"program finish"<<"\n";
 	return 0;
