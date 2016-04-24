@@ -17,7 +17,9 @@ C++11: move semantic is very close to auto_ptr with temporary object
 C++11: std::move for move lvalue to rvaule
 C++11: !move constructor should not throw
 C++11(?): dtor exception under stack => std::terminate
-C++11: std::MAKE_SHARED can be more safely and efficiently (singe allocation instead double) than std::shared_ptr<T>() 
+C++11: std::MAKE_SHARED can be more safely and efficiently (singe allocation instead double) than std::shared_ptr<T>()
+	std::MAKE_SHARED allocate once block control and managed data (that way it's safely)
+C++ allows arbitrary order of evaluation of inner expressions
 
 Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
 - An element must be copyable by a copy constructor
