@@ -12,6 +12,13 @@ The following operations are always O(1) (depends on impl.) when they exist:
 
 !std::swap(const& T a,const& T b){ tmp(a),a=b,b=tmp} it is not always (maybe never) effective!
 
+C++11: !Never use std::move to move automatic objects out of functions.
+C++11: move semantic is very close to auto_ptr with temporary object
+C++11: std::move for move lvalue to rvaule
+C++11: !move constructor should not throw
+C++11(?): dtor exception under stack => std::terminate
+C++11: std::MAKE_SHARED can be more safely and efficiently (singe allocation instead double) than std::shared_ptr<T>() 
+
 Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
 - An element must be copyable by a copy constructor
 - An element must be assignable by the assignment operator
@@ -161,10 +168,9 @@ which cal terminate().
 CATCH Derived except cancel CATCH of BASE except (in def order).
 
 When a THROW expression is evaluated, an exception object is initialized
- from the value of the expression.
- The exception object which is thrown gets its type from the static type
- of the throw expression ignoring any const and volatile qualifiers.
+ from the value of the expression, ignoring any const and volatile qualifiers.
  For class types this means that copy-initialization is performed
+!unnamed throw (throw()) can't be catched by catch(...)
 
 FABRIC METHOD: definite abstract class with virtual T_BASE* function=0,
 return T_SOME_DERIVED* in override - just interface returning base class pointer.
