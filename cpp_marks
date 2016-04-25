@@ -20,7 +20,8 @@ C++11: !move constructor should not throw
 C++11(?): dtor exception under stack => std::terminate
 C++11: std::MAKE_SHARED can be more safely and efficiently (singe allocation instead double) than std::shared_ptr<T>()
 	std::MAKE_SHARED allocate once block control and managed data (that way it's safely)
-С++11: static_assert(std::is_base_of<Base, T1>::value, "T1 must derive from Base");	
+С++11: static_assert(std::is_base_of<Base, T1>::value, "T1 must derive from Base");
+	(before c++11):typedef int static_assert_something[something ? 1 : -1] 
 C++ allows arbitrary order of evaluation of inner expressions
 
 Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
