@@ -8,13 +8,15 @@ The following operations are always O(1) (depends on impl.) when they exist:
 	size() (note that list::size() was not necessarily O(1) prior to C++11) not constant in SGI
 	push_front() (note that std::vector does not have push_front(), as it would not be O(1))
 	push_back()
+RVO: return temporary object replaced by insert vaule without copy and temporary creation
 
 () {} default value explicit init for dynamic/stack array
 
 !std::swap(const& T a,const& T b){ tmp(a),a=b,b=tmp} it is not always (maybe never) effective!
 
-C++11: !Never use std::move to move automatic objects out of functions (return local object auto move by move ctor
-	for value return function!)
+C++11: Not use std::move to move standart automatic objects out of functions (compiler CAN optimize if you not use), with except return rvaule
+	...(because NRVO not allowed with ref)
+	...there is no clear answer to use or not use
 C++11: move semantic is very close to auto_ptr, no_throw
 C++11: std::move for move lvalue->xvalue->rvaule
 	!move auto for temporary object (prvalue) (+with conversion!?) for rvalue arg 
