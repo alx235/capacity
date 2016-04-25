@@ -211,6 +211,11 @@ INSTANTIATION POINT TEMPLATE - FIRST DEFENITE PARAM TYPE
 MORE SPECIAL TEMPLATE VERSION HAS PRIOR FOR DECLAR OBJ, POINTER
  AND OVERLOAD RESOLUTION, PARTIAL SPECIALIZATION MUST!!! BE ABOVE COMPLETE=>
  ORDER IMPORTANT!!!
+ ORDER: common,
+ 	partial spec. (where after class declare special case: template<T> class A<T*>),
+ 	complete spec. (without any type params: template<>class A<void*>
+ PARTIAL SPECIALIZATION for template function is FORBID
+ +CLASS AND TYPENAME ARE EQUAL KEYWORD!
 
 COMPILE-TIME(PARAMETRIC) POLYMORPHISM - TEMPLATE AND INHERITANCE
 RUN-TIME POLYMORPHISM - VIRTUAL FUNCTION AND OBJECT INHERITANCE
@@ -275,12 +280,8 @@ deref NULL pointer take no effect.
 
 +Use non-member fuction for case when need cast all params?
 
-PARTIAL SPECIALIZATION for template function is FORBID
-
 +Use init cur val instead of def constr and init...(free processor time)
 
 +VIRTUAL INHERITANCE is very expensive and low!
-
-+CLASS AND TYPENAME ARE EQUAL KEYWORD!
 
 User type POD type not use constructor they default value insert
