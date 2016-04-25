@@ -19,6 +19,8 @@ C++11: move semantic is very close to auto_ptr
 C++11: std::move for move lvalue->xvalue->rvaule
 	!move auto for temporary object (prvalue) (+with conversion!?) for rvalue arg 
 C++11: !move constructor should not throw
+C++11:: !Forwarding references for tempate function with rvaule required
+
 C++11(?): dtor exception under stack => std::terminate
 
 C++11: std::MAKE_SHARED can be more safely and efficiently (singe allocation instead double) than std::shared_ptr<T>()
