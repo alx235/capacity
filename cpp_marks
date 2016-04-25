@@ -15,7 +15,7 @@ The following operations are always O(1) (depends on impl.) when they exist:
 
 C++11: !Never use std::move to move automatic objects out of functions (return local object auto move by move ctor
 	for value return function!)
-C++11: move semantic is very close to auto_ptr
+C++11: move semantic is very close to auto_ptr, no_throw
 C++11: std::move for move lvalue->xvalue->rvaule
 	!move auto for temporary object (prvalue) (+with conversion!?) for rvalue arg 
 C++11: !move constructor should not throw
