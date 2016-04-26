@@ -8,7 +8,6 @@ The following operations are always O(1) (depends on impl.) when they exist:
 	size() (note that list::size() was not necessarily O(1) prior to C++11) not constant in SGI
 	push_front() (note that std::vector does not have push_front(), as it would not be O(1))
 	push_back()
-RVO: return temporary object omit temporary creation
 
 () {} default value explicit init for dynamic/stack array
 
@@ -68,8 +67,9 @@ Copying values means that the STL containers provide value semantics
 
 itearator template wrapper of array Type T.
 
-ref<->pointer:
-
+temporary(implicit conversion) object can't link with Non-Const reference(only lvalue)
+	Non-Const reference can't link with const (not 100% lvalue)
+	
 Pol. run-time: truncation if base b = d (derived); 
 
     object types with virtual functions are usually implemented in C++ with a per-object pointer
@@ -155,8 +155,6 @@ nonlocal static var call constr in def order in bound of translation unit to gua
 - first flag use strategy or ...static int x = 0;...
 - local static var. init first time (control flow) cross defenition, after call main(...) counter, nonlocal init before,
 in all case destructor call after main(..) except some abnormal program complete
-temporary object can't link with non-const reference? (maybe because this type object can't be lvalue?,
- and const ref is not obliged to check this condition)
 
 FORBIDDEN overload: ::, ., .*, ?;, sizeof, typeid.
 
