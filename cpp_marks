@@ -22,8 +22,8 @@ C++11: Not use std::move to move standart automatic objects out of functions (co
 	...(because NRVO not allowed with ref)
 	...there is no clear answer to use or not use
 C++11: move semantic is very close to auto_ptr, no_throw
-C++11: std::move for move lvalue->xvalue->rvaule
-	!move auto for temporary object (prvalue) (+with conversion!?) for rvalue arg 
+C++11: std::move for move lvalue->xvalue(rvaule), it's just static cust to rvalue, it's not "move" anything 
+	!move auto for temporary object (make prvalue) (+with implicit conversion) for rvalue arg 
 C++11: !move constructor should not throw
 C++11:: !Forwarding references for tempate function with rvaule required
 
