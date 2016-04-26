@@ -133,7 +133,6 @@ linker check other rule and multiple different translation unit
    -located in another transl unit
    -identical by lexeme
    -has same mean(typedef) in each transl unit
-process of destroying local objects and calling destructors is called stack unwinding
 if throw() list of funct except has another type except it cause unexpected() => terminate => abort,
  if exception spec list is empty => no except
   exit() call only static var destr
