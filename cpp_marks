@@ -69,9 +69,6 @@ Copying values means that the STL containers provide value semantics
 itearator template wrapper of array Type T.
 
 ref<->pointer:
-	int* a = new int(1);
-	int& a1 = *a;
-	int* b = &a1;
 
 Pol. run-time: truncation if base b = d (derived); 
 
