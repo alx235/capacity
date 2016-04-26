@@ -67,10 +67,10 @@ Copying values means that the STL containers provide value semantics
 
 itearator template wrapper of array Type T.
 
-temporary/implicit conversion object can't link with Non-Const Reference(only lvalue)
+temporary[implicit conversion] object can't link with Non-Const Reference(only lvalue)
 	Non-Const Ref/Pointer can't link with const variable/Ref/Pointer
 	Ref can't change linked address after init
-	Const Ref can't change it's value, but allowed temporary/implicit conversion
+	Const Ref can't change it's value, but allowed temporary[implicit conversion]
 Pointer store only memory address
 	
 Pol. run-time: truncation if base b = d (derived); 
