@@ -33,9 +33,10 @@ C++11:: !Forwarding references for tempate function with strong rvaule required
 
 C++11(?): dtor exception under stack => std::terminate
 
-C++11: std::MAKE_SHARED can be more safely and efficiently (singe allocation instead double) than std::shared_ptr<T>()
+C++11: std::MAKE_SHARED can be more safely and efficiently (singe allocation instead double for shared_ptr)
+	than std::shared_ptr<T>()
 	std::MAKE_SHARED allocate once block control and managed data (that way it's safely)
-	
+	std::shared_ptr<T>(raw_ptr_that_already_managed_by_another_shared_prt) - UB
 С++11: static_assert(std::is_base_of<Base, T1>::value, "T1 must derive from Base");
 	(before c++11):typedef int static_assert_something[something ? 1 : -1]
 
