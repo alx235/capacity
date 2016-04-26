@@ -18,7 +18,10 @@ STD::VECTOR - when erase/clear it call ONLY dtor when
 	than call deallocate(not call dtor) and dtors for elements which haven't been erased
 	So vector divide destroy objects and storage deallocation
 
-C++11: Not use std::move to move standart automatic objects out of functions (compiler CAN optimize if you not use), with except return rvaule
+C++11: pass param by value copy-ctor if arg is lvaule or move-ctor if arg is rvaule
+
+C++11: move ctor also allow when return T/void d(T value)
+C++11: Not use std::move to move standart automatic objects out of functions (compiler CAN optimize if you not use), with except return ref?
 	...(because NRVO not allowed with ref)
 	...there is no clear answer to use or not use
 C++11: move semantic is very close to auto_ptr, no_throw
