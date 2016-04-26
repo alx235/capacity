@@ -16,7 +16,7 @@ RVO: return temporary object replaced by insert vaule without copy and temporary
 STD::VECTOR - when erase/clear it call ONLY dtor when
 	~vector/shink_to_fit(std::vector<T>(v).swap(v);)/real_clear(std::vector<T>().swap(v);)
 	than call deallocate(not call dtor) and dtors for elements which haven't been erased
-	So vector divide destroy objects and stotage deallocation
+	So vector divide destroy objects and storage deallocation
 
 C++11: Not use std::move to move standart automatic objects out of functions (compiler CAN optimize if you not use), with except return rvaule
 	...(because NRVO not allowed with ref)
