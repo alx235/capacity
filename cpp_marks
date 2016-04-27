@@ -2,6 +2,8 @@ Rvalue references can be used to extend the lifetimes of temporary objects
 (note, lvalue references to const can extend the lifetimes of temporary objects too,
 but they are not modifiable through them) http://en.cppreference.com/w/cpp/language/reference
 
+if destroyed murex accessed by thread=>UB
+
 Strong exception guarantee - keep container state before call that throw
 pointer increase on a <=> implicit increase pointer on a*sizeof(T) 
 	*int* p=((int*)3+3); 
