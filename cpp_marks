@@ -1,4 +1,4 @@
-Strong exception guarantee - keep program state before call that throw
+Strong exception guarantee - keep container state before call that throw
 pointer increase on a <=> implicit increase pointer on a*sizeof(T) 
 	*int* p=((int*)3+3); 
 	pointer store: 3+3*sizeof(int)
@@ -16,8 +16,9 @@ STD::VECTOR - when erase/clear it call ONLY dtor when
 	~vector/shink_to_fit(std::vector<T>(v).swap(v);)/real_clear(std::vector<T>().swap(v);)
 	than call deallocate(not call dtor) and dtors for elements which haven't been erased
 	So vector divide destroy objects and storage deallocation
+STD::VECTOR reserve free space at the end, STD::DEQUE additionaly reserve at the begin
 
-C++ allows arbitrary order of evaluation of inner expressions (e.g.: more than 1 arg can cause leak)
+C++ allows arbitrary order of evaluation of inner expressions (e.g.: more than 1 arg can cause leak,f(shared_ptr(new..),g())
 
 C++11: pass param by value copy-ctor if arg is lvaule or move-ctor if arg is rvaule
 
@@ -39,7 +40,7 @@ C++11: std::MAKE_SHARED can be more safely and efficiently (singe allocation ins
 С++11: static_assert(std::is_base_of<Base, T1>::value, "T1 must derive from Base");
 	(before c++11):typedef int static_assert_something[something ? 1 : -1]
 
-Requirements for Container Elements (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
+Requirements for Container Elements (C++98?) (http://www.ccplusplus.com/2014/01/stl-container-element-c.html):
 - An element must be copyable by a copy constructor
 - An element must be assignable by the assignment operator
 - An element must be destroyable by a destructor
@@ -102,10 +103,7 @@ public:
 };*/
 
 Defaults params are early binding ( at compile time ) , and virtual functions - later, important for def virt func. params.
-
-compiler forbid const ref ref to temporary object
-
-All objects originally non-const.
+	so default ll'be early bind defined!
 
 Invoking delete on a pointer not allocated dynamically using new is something called Undefined Behavior
 
@@ -128,31 +126,38 @@ external C/{} - link C compatible code (binar), have no influence on call's sema
  compiler need .h, linker libs
  - NOT use for diff.
       C++ compilers!!!
-preprocessor make macroreplace and insert from include sorces - make translation unit...and check path of sources
-compiler check declaration rule
-linker check other rule and multiple different translation unit
+      
+Preprocessor make macroreplace and insert from include sorces - make translation unit...and check path of sources
+Compiler check declaration rule
+Linker check other rule and multiple different translation unit
  each declaration (can be separate) must have only one definiton
   BUT:
   ODR: two def mean one if:
    -located in another transl unit
    -identical by lexeme
    -has same mean(typedef) in each transl unit
+   
 if throw() list of funct except has another type except it cause unexpected() => terminate => abort,
  if exception spec list is empty => no except
   exit() call only static var destr
   abort() ignore all
-?ABORT/EXIT LEAVE STACK...MAYBE GOTO...
-?replacement funct MUST have more specialization list of exception
+Fucntion Signature Throw (specif. excep.) call std::unexpected if throw except that not belong to list of except below,
+which cal terminate().
 
-С++ no virtual constructor (ONLY VIRTUAL FABRIC METHOD,ex below) 
+CATCH Derived except cancel CATCH of BASE except (in def order).
+
+When a THROW expression is evaluated, an exception object is initialized
+ from the value of the expression, ignoring any const and volatile qualifiers.
+ For class types this means that copy-initialization is performed
+!unnamed throw (throw()) can't be catched by catch(...)
+
+С++ no virtual constructor (ONLY VIRTUAL FABRIC METHOD can be declared)
+	FABRIC METHOD: definite abstract class with virtual T_BASE* function=0,
+		return T_SOME_DERIVED* in override - just interface returning base class pointer.
 
 defenition constant in header file cause effective compilator code
 
-<const_cast>/mutable(const modification member) - guess for what)
-
-s=q or s(q) call member-by-member copy of all bit from one to another
-
-s==q? maybe some bit compare?
+<const_cast>/mutable(const modification member) - allow mod in const member const/var, safe if source originally non-const)
 
 nonlocal static var call constr in def order in bound of translation unit to guaranted out use static flag (keep state)
 - first flag use strategy or ...static int x = 0;...
@@ -168,30 +173,17 @@ Overload operatos: =,[],(),-> only non-static member;
  () - functional object
  ->defer pointer or iterator
 
-friend mod => function get access only in hide scope of class (example in MYstring)
-
-IMPLICIT CONVERSION NOT ALLOWED WITH NON_CONST REF FUNC ARGS
+friend mod => function get access only in hide scope of class (example in cpp2,mycontainer)
 
 POSTFIX OVERLOAD operator have signature with int arg, it's value has no mean..., it's only signature and all.
 
 Exception in destructor call terminate() which call abort() - so it bad, because memory will not free.
  alloc memory, constr.
  destr., dealloc memory
+ Can be call independently (e.g.:vector,...)
+
 
 Function() = 0 - pure virtual => abstract class (can't create object)
-
-Fucntion Signature Throw (specif. excep.) call std::unexpected if throw except that not belong to list of except below,
-which cal terminate().
-
-CATCH Derived except cancel CATCH of BASE except (in def order).
-
-When a THROW expression is evaluated, an exception object is initialized
- from the value of the expression, ignoring any const and volatile qualifiers.
- For class types this means that copy-initialization is performed
-!unnamed throw (throw()) can't be catched by catch(...)
-
-FABRIC METHOD: definite abstract class with virtual T_BASE* function=0,
-return T_SOME_DERIVED* in override - just interface returning base class pointer.
 
 !!!
 it is more efficient to do ++iterator than iterator++ since it avoids an 
@@ -238,12 +230,7 @@ RUN-TIME POLYMORPHISM - VIRTUAL FUNCTION AND OBJECT INHERITANCE
 IN GENERAL, GENERIC FROM ONE TEMPLATE 2 TYPES HAVE NO REFERENCE.
 
 DECLARE USING INSIDE CLASS USE FOR OVERLOAD BASE OR DERIVED MEMBERS.
-/*
-FOR BASE CLASS CASE USE EXPLICIT CLOSE DERIVED DEFINITON OR
-USE VIRTUAL BASE CLASS (:VIRTUAL _base_)...for cast
 
-2 REPLACEMENT FUNCTIONS USING IN MULTIPLE INHERITANCE LEAD TO AMBIGUITY.
-*/
 dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymorthic type D, if fail =0
  for & => bad_cast exception
  for virtual base (multiple inheritance) can be ambiguity (what object???)
@@ -254,28 +241,22 @@ dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymo
  const_cast full save only in case when object declare as non-const(volatile)
 typeid: return pointer to type info (std type), bad_type if for zero pol type pointer or ref, compil-time value for non-pol type
 !!! NEVER use C-style cast !!!
+reinterpret_cast for void** and any cast without check guarantee and guarantee of STABLE AND SAFE!
 
-reinterpret_cast for void** and any cast without check guarantee
-
-pointer to VIRTUAL member need to get it from one adress space to another with condition of equal same type location,
-because of pointer of virtual member like offset in array
 
 predicat - just function return bool
 
 for_each - cycle alternative
 
-copy? + push_back - protected from out_range
-
 Memory allocator (+d.3.5) is complex and non-trivial topic, need test, experience..so i can't say that it'll done near future.
 
-bit field (int:1(2), bool name:1), or union for save memory do not give guarantee of portability,  but save memory.
+bit field (int:1(2), bool name:1), or union for save memory do not give guarantee of portability.
 
 Widget w3 = w2; // call copy constructor! (first init)
+Forbid copy constr and operator assignment <= inherit from class with private copy constr and operator assignment
+Private/Protected/(Default with class) inheritance Forbid cast from derived to base
 
-forbid copy constr and operator assignment = inherit from class with private copy constr and operator assignment
-private inheritance forbid cast from derived to base
-
-!never call virt function in constructor and destructor - when creating derived object object type is base...so undefined beh
+!Never call virt. function in constructor and destructor - when creating derived object object type is base...so undefined beh
 can exist...
 
 use special smart pointer to dynamic array
@@ -299,4 +280,4 @@ deref NULL pointer take no effect.
 
 +VIRTUAL INHERITANCE is very expensive and low!
 
-User type POD type not use constructor they default value insert
+!User type POD type not use constructor they default value insert (if static and some another condition)
