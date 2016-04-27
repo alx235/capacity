@@ -3,7 +3,9 @@ Rvalue references can be used to extend the lifetimes of Temporary! objects
 	but they are not modifiable through them
 	and they must be local-http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary)
 http://en.cppreference.com/w/cpp/language/reference
-
+	Temporary object: return T; and...
+		http://en.cppreference.com/w/cpp/language/lifetime
+		http://stackoverflow.com/questions/10897799/temporary-objects-when-are-they-created-how-do-you-recognise-them-in-code
 
 if destroyed murex accessed by thread=>UB
 
