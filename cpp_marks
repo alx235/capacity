@@ -1,6 +1,9 @@
-Rvalue references can be used to extend the lifetimes of temporary objects
-(note, lvalue references to const can extend the lifetimes of temporary objects too,
-but they are not modifiable through them) http://en.cppreference.com/w/cpp/language/reference
+Rvalue references can be used to extend the lifetimes of Temporary! objects
+	(note, lvalue references to const can extend the lifetimes of temporary objects too,
+	but they are not modifiable through them
+	and they must be local-http://stackoverflow.com/questions/2784262/does-a-const-reference-prolong-the-life-of-a-temporary)
+http://en.cppreference.com/w/cpp/language/reference
+
 
 if destroyed murex accessed by thread=>UB
 
@@ -29,7 +32,7 @@ STD::VECTOR reserve free space at the end, STD::DEQUE additionaly reserve at the
 C++ allows arbitrary order of evaluation of inner expressions (e.g.: more than 1 arg can cause leak,f(shared_ptr(new..),g())
 
 C++11: pass param by value copy-ctor if arg is lvaule or move-ctor if arg is rvaule
-
+!Returning reference or pointer to a local variable is undefined behavior
 C++11: move ctor http://en.cppreference.com/w/cpp/language/move_constructor
 C++11: Not use std::move to move standart automatic objects out of functions (compiler CAN optimize if you not use),
 	with except return ref (because NRVO not allowed with ref)
