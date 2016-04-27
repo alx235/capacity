@@ -141,7 +141,7 @@ void *function2()
 
 //Pthread_Cond_T is "signal and wait"
 //wake up waiting thread by signal,waiting thread must wait until some condition become true (producer/consumer)
-//waiting(pthread_cond_wait) case must be rare
+//waiting(pthread_cond_wait) case must be rare (how much rare?...)
 //usefull in producer/consumer problem and semaphore, only one non-abstract example i have founded is bounded queue.
 //semaphore - limit count of threads have access(by wait(limit--)) to share resource, if limit reached (0) next will 	"wait" until one of accessed finish(post(limit++)), ++ current number and send "wake up" signal to one "waiting"...
 //not found any "not study" example of semaphore...
@@ -195,7 +195,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 			//if wait "lie": locked back it to wait again
 			while (locked.test_and_set(std::memory_order_acquire) && (!ret))
 				//atomic: release mutex when calling wait and lock cond
-				//after succesfull (rc=0) return wait, released thread lock mutex, inside wait
+				//after succesfull (rc=0) return wait, acquire mutex again
 				//ret = pthread_cond_timedwait(&cond, &mutex, &timeToWait);
 				ret = pthread_cond_wait(&cond, &mutex);
 			if ((ret<0) /*&& (ret!=ETIMEDOUT)*/)
@@ -209,7 +209,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 		void unlock()
 		{	
 			//use same mutex to avoid parallel lock and unlock, because there is a dependency on lock 
-			//in wait/signal it can probability that signal be earlier than wait, and wait thread can be wait
+			//in wait/signal it can be chance that signal be earlier than wait, and wait thread can be wait
 			//infinitely
 			pthread_mutex_lock(&mutex);
 			locked.clear(std::memory_order_release);//set locked to false
@@ -248,7 +248,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //failed to join joinable thread produce Zombie!
 //join return control to thread call join, detached - immediately, returning value (void*) return to second join arg
 //(1)
-//joinable thread MUST be JOoin to avoid resource leak!
+//joinable thread MUST be JOin to avoid resource leak!
 //threads need it's own try/catch
 //to cancel tread just use return(always, never return local var address)
 //if main thread exit() - UB
@@ -278,7 +278,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //above true for both mutex and recursive_mutex, except recursive lock
 
 //std::lock_guard - scope lock
-//std::unique_lock - destructor call unlock the associated mutex, if OWned (preffered than unlock!)
+//std::unique_lock - Dtor call unlock the associated mutex, if OWned (Preffered than Unlock!)
 //std::unique_lock::lock/try_lock throw if no associated mutex or if already locked by this unique_lock
 //std::unique_lock::unlock throw if no associated mutex or mutex is not locked
 //std::unique_lock::release break associated relation, no throw
@@ -292,8 +292,11 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 
 //(1*)
 //it seems std::condition_variable equal pthread impl with except that it can throw 
-//std::condition_variable for std::unique_lock (for efficienty in some platform!!)
+//std::condition_variable for std::unique_lock (for efficienty in some platform!?)
 //std::condition_variable_any with any lock...
+//...Dtor require notify_all, if mutex GLobal and if we join in ~ThreadPool which local than all
+//...Threads have finished before, if mutex local than it's lifecycle musn't end until all thread finish.
+//...(Mutex can be declared earlier than ThreadPool)  
 
 //STd::ONnce_flag/std::call_ONce - to call function ONce(DCLP like)!
 
@@ -301,11 +304,11 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //~std::thread=>std::terminate() if it not joined or detached
 
 //(5)
-//std::thread works with any callable type, so we can use function object (not temporary, it ignore new thread run!)
-//...avoid by parentheses or braces or lamda expr (C non-compatible)
+//std::thread works with any callable type, so we can use function object (not temporary, it Ignore new thread run!)
+//...avoid by parentheses or Braces or lamda expr (C non-compatible)
 
 //(6)
-//Don't use cast local params when pass to thread function arg, local can be Destroyed before cast end
+//Don't use Cast local params when pass to thread function arg, local can be Destroyed before cast end
 //(7) PASS PARAM reference to Thread Arg with STD::REF or use STD::BIND, otherwise Thread will make FULL-COPY
 //(8) USE STD::MOVE for object that can only be move
 //(9) THREAD std:move usefull for Thread Pool, when pushing in container just move temporary thread, NOT create new
@@ -392,7 +395,6 @@ int main()
 	//std::thread t1(background_task());//just return thread object, don't call new thread or associated f()
 	std::thread t1{background_task()};//with {} work correct
 	t1.join();*/
-	
 	//(5++)
 	/*try
 	{	
