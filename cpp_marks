@@ -1,3 +1,5 @@
+lvalue (named object or a function/operator returning lvalue reference)
+
 Rvalue references can be used to extend the lifetimes of Temporary! objects
 	(note, lvalue references to const can extend the lifetimes of temporary objects too,
 	but they are not modifiable through them
