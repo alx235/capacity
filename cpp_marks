@@ -184,6 +184,8 @@ in all case destructor call after main(..) except some abnormal program complete
 	!Allocate and init time are different: alloc in DATA/BSS(undefined when) but CAN init (see below) with delay (or never)
 Bound static in class can instant order of ctor, return static local guaranteed comlete init (if no throw in ctor...)
 	but they not replace dtor order probem (with relation of local dtors...)
+	
+Static namespace init followed by dynamic init (dll load, need example!)
 
 FORBIDDEN overload: ::, ., .*, ?;, sizeof, typeid.
 
