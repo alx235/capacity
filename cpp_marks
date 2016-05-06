@@ -1,3 +1,7 @@
+Source where strong gurantee external function forbid compiler reordering (e.g. mutex.lock()/unlock())???
+
+lvalue (named object or a function/operator returning lvalue reference)
+
 Rvalue references can be used to extend the lifetimes of Temporary! objects
 	(note, lvalue references to const can extend the lifetimes of temporary objects too,
 	but they are not modifiable through them
@@ -7,7 +11,7 @@ http://en.cppreference.com/w/cpp/language/reference
 		http://en.cppreference.com/w/cpp/language/lifetime
 		http://stackoverflow.com/questions/10897799/temporary-objects-when-are-they-created-how-do-you-recognise-them-in-code
 
-if destroyed murex accessed by thread=>UB
+if destroyed mutex accessed by thread=>UB
 
 Constructor convertable if at least one without default value param exist(until c++11) and without explicit function-specifier
 
@@ -176,6 +180,12 @@ nonlocal static var call constr in def order in bound of translation unit to gua
 - first flag use strategy or ...static int x = 0;...
 - local static var. init first time (control flow) cross defenition, after call main(...) counter, nonlocal init before,
 in all case destructor call after main(..) except some abnormal program complete
+	local static POD init before first time control flow cross it, otherwise in cross
+	!Allocate and init time are different: alloc in DATA/BSS(undefined when) but CAN init (see below) with delay (or never)
+Bound static in class can instant order of ctor, return static local guaranteed comlete init (if no throw in ctor...)
+	but they not replace dtor order probem (with relation of local dtors...)
+	
+Static namespace init followed by dynamic init (dll load, need example!)
 
 FORBIDDEN overload: ::, ., .*, ?;, sizeof, typeid.
 
