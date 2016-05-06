@@ -150,15 +150,14 @@ void *function2()
 //advantage is use unlock from not owned thread!
 //efficiency of pthread_cond_wait lesser mutex (POSIX)
 //Performance highly depend on platform/CPU instruction
-//...OR just use C++11 timed_mutex)
 
 class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 	pthread_mutex_t  mutex;
 	pthread_cond_t cond;
-	std::atomic_flag locked,is_clear;
+	bool locked,is_clear;
 	//int timeout;
 	public:
-		Binaphore(/*int timeout_*/):locked(ATOMIC_FLAG_INIT),is_clear(ATOMIC_FLAG_INIT)
+		Binaphore(/*int timeout_*/):locked(0),is_clear(0)
 		{
 			//is_clear = ATOMIC_FLAG_INIT;
 			mutex = PTHREAD_MUTEX_INITIALIZER;
@@ -172,12 +171,13 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 		//omit memory order because this 2 call rare and possibly from one thread
 		void set_not_clear()
 		{
-			is_clear.clear();
+			is_clear=0;
 		}
 		void clear_res()
 		{
-			if (!is_clear.test_and_set())
+			if (!is_clear)
 			{
+				is_clear=1;
 				pthread_cond_destroy(&cond);
 				pthread_mutex_destroy(&mutex);	
 			}
@@ -189,16 +189,19 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 			/*struct timespec timeToWait;
 			clock_gettime(CLOCK_REALTIME, &timeToWait);
 			timeToWait.tv_sec += timeout;*/
-			int ret = 0;//default succefull f() value
+			int ret=0;//default succefull f() value
 			//first time flag is zero, read (0) mod (1) write(1), next thread will blocked
 			//if timeout: no mutex lock, er<0
 			//if wait "lie": locked back it to wait again
-			while (locked.test_and_set(std::memory_order_acquire) && (!ret))
+			while(locked&&(!ret))
+			{
 				//atomic: release mutex when calling wait and lock cond
 				//after succesfull (rc=0) return wait, acquire mutex again
 				//ret = pthread_cond_timedwait(&cond, &mutex, &timeToWait);
-				ret = pthread_cond_wait(&cond, &mutex);
-			if ((ret<0) /*&& (ret!=ETIMEDOUT)*/)
+				ret=pthread_cond_wait(&cond, &mutex);
+			}
+			locked=1;
+			if ((ret<0)/*&& (ret!=ETIMEDOUT)*/)
 				std::cout<<"lock failled err:"<<ret<<" \n";
 			#ifdef debug_Timoutlck
 			std::cout<<"ret:"<<ret<<"\n";
@@ -212,7 +215,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 			//in wait/signal it can be chance that signal be earlier than wait, and wait thread can be wait
 			//infinitely
 			pthread_mutex_lock(&mutex);
-			locked.clear(std::memory_order_release);//set locked to false
+			locked=0;//set locked to false
 			pthread_cond_signal(&cond);
 			pthread_mutex_unlock(&mutex);
 		}
@@ -294,7 +297,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //it seems std::condition_variable equal pthread impl with except that it can throw 
 //std::condition_variable for std::unique_lock (for efficienty in some platform!?)
 //std::condition_variable_any with any lock...
-//...Dtor require notify_all, if mutex GLobal and if we join in ~ThreadPool which local than all
+//...Dtor require notify_all, if mutex GLobal(not always good choice!) and if we join in ~ThreadPool which local than all
 //...Threads have finished before, if mutex local than it's lifecycle musn't end until all thread finish.
 //...(Mutex can be declared earlier than ThreadPool)  
 
