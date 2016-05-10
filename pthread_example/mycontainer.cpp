@@ -6,6 +6,7 @@
 #include <deque>
 #include <atomic>
 #include <condition_variable>
+#include <functional>
 
 struct empty_pop: std::exception
 {
@@ -63,7 +64,7 @@ class TSStack
 			std::lock_guard<std::mutex> lk(_mutex);
 			if (_data.empty())
 				throw empty_pop();
-			//don't know why code below(*) better...if std::shared_ptr<T>(rvalue) well designed(not null source if throw)
+			//don't know why code below(*) better...if std::shared_ptr<T>(rvalue) well designed(not set null to source if throw)
 			//if data_queue<unique_ptr<T>>
 			//as i understand move ctor only copy pointer address, so didn't find any dangerous unless (null source if throw)
 			std::shared_ptr<T> res(std::move(_data.front()));
@@ -137,7 +138,7 @@ class TSQueue
 			while(_data.empty()&&(!done.load(std::memory_order_acquire)))
 				_cond_var.wait(lk);
 			value=std::move(_data.front());//efficienty if T has move ctor, otherwise copy-ctor ll'call			
-			_data.pop_back();
+			_data.pop_front();
 		}
 		std::shared_ptr<T> pop()
 		{
@@ -145,7 +146,7 @@ class TSQueue
 			while(_data.empty()&&(!done.load(std::memory_order_acquire)))
 				_cond_var.wait(lk);
 			std::shared_ptr<T> res(std::move(_data.front()));
-			_data.pop();
+			_data.pop_front();
 			return res;//implicit move ctor
 		}
 	private:
@@ -160,15 +161,72 @@ class TSQueue
 }
 #endif
 
+/*
+//std::function fun
+void print_num(int i)
+{
+    std::cout << i << '\n';
+}
+void print_num2(int i,int j)
+{
+    std::cout << i+j << '\n';
+}
+void print_num3(float i,int j,int k)
+{
+    std::cout << i+j+k << '\n';
+}
+
+template<typename FTYPE>
+void call_ftype_wrap(FTYPE f)
+{
+	f();
+}*/
+
 int main()
 {	
-	/*my_th_safe_structs::TSStack<int> a,b;
+	/*
+	my_th_safe_structs::TSStack<int> a,b;
 	int x=0;
 	a.push(1);
 	a.push(x);
 	a.pop(x);
 	a.pop(x);
-	std::cout<<(a==b)<<"\n";*/
+	std::cout<<(a==b)<<"\n";
+	*/
+	/*
+	//std::function fun
+	std::function<void()> f_display_31337 = std::bind(print_num, 31337);
+	std::function<void()> f_display_31337_2 = std::bind(print_num2, 31337,1);
+	std::function<void()> f_display_31337_3 = std::bind(print_num3, static_cast<float>(31337),1,2);
+	f_display_31337();
+	f_display_31337_2();
+	f_display_31337_3();
+	
+	call_ftype_wrap(std::bind(print_num, 31337));
+	call_ftype_wrap(std::bind(print_num2, 31337,1));
+	call_ftype_wrap(std::bind(print_num3, static_cast<float>(31337),1,2));
+	std::function<void()> ar_fwrap[3];
+
+	ar_fwrap[0]=std::bind(print_num, 31337);
+	ar_fwrap[1]=std::bind(print_num2, 31337,1);
+	ar_fwrap[2]=std::bind(print_num3, static_cast<float>(31337),1,2);
+	ar_fwrap[0]();
+	ar_fwrap[1]();
+	ar_fwrap[2]();
+
+	my_th_safe_structs::TSQueue<std::function<void()> > work_queue;
+	work_queue.push(std::bind(print_num, 31337));
+	work_queue.push(std::bind(print_num2, 31337,1));
+	work_queue.push(std::bind(print_num3, static_cast<float>(31337),1,2));
+	
+	std::function<void()> task;
+	work_queue.pop(task);
+	task();
+	work_queue.pop(task);
+	task();
+	work_queue.pop(task);
+	task();
 	std::cout<<"program finish"<<"\n";
+	*/
 	return 0;
 }
