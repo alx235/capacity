@@ -1,9 +1,10 @@
-#include <cmath>
+/*#include <cmath>
 #include <iostream>
 #include <memory>
-#include <chrono>
+#include <chrono>*/
+#include <mutex>
 
-class A{
+/*class A{
 	int a;
 	A& operator=(const A &x){return *this;}
 	A(const A &x){}
@@ -22,7 +23,7 @@ class B: public A{
 		{
 			b=1;
 		}
-};
+};*/
 
 int main()
 {
@@ -31,7 +32,7 @@ int main()
 	std::cout<<sizeof(p)<<"\n";*/
 
 	//inheritance fun
-	A a;
+	/*A a;
 	A a1;
 	B b;
 	B* ptr_b=&b;
@@ -46,13 +47,18 @@ int main()
 	const int& ref=c1;
 	const_cast<int&>(ref)=2;//SAFE because c1 non-const, otherwise-UB
 	//dynamic_cast - expensive!
+	//cast base to derived work if polymorphism exist (downcast), otherwise - compile error
 	if (dynamic_cast<B*>(ptr_a))//if ref can cause exception badcast
-		std::cout<<"ptr_a upcast true\n";//cast base to derived work if polymorphism exist (downcast)
+		std::cout<<"ptr_a upcast true\n";
 	//can cause compile error
-	B* ptr_b2=static_cast<B*>(ptr_a);//UB!!!!
+	B* ptr_b2=static_cast<B*>(ptr_a);//downcast - UB!!!!
 	A* ptr_a2=static_cast<A*>(ptr_b);//upcast work
 	void* _tmp=static_cast<void*>(&c1);
 	int* c2=static_cast<int*>(_tmp);
-	std::cout<<*c2<<"\n";
+	std::cout<<*c2<<"\n";*/
+	std::mutex lk;
+	lk.lock();
+	int i=99;
+	lk.unlock();
 	return 0;
 }
