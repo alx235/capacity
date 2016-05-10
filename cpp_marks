@@ -1,5 +1,8 @@
 Source where strong gurantee external function forbid compiler reordering (e.g. mutex.lock()/unlock())???
 
+!!!std::function<void()> reuse with another type: cause error;
+!!!std::bind need std::(c)ref to pass by ref,like std::thread 
+
 lvalue (named object or a function/operator returning lvalue reference)
 
 Rvalue references can be used to extend the lifetimes of Temporary! objects
