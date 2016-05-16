@@ -1,3 +1,5 @@
+MAIN thread finish before child=>UB
+
 Source where strong gurantee external function forbid compiler reordering (e.g. mutex.lock()/unlock())???
 
 !!!std::bind need std::(c)ref to pass by ref,like std::thread's function args
