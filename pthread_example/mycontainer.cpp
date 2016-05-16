@@ -4,6 +4,7 @@
 #include <memory>
 #include <iostream>
 #include <deque>
+#include <vector>
 #include <atomic>
 #include <condition_variable>
 #include <functional>
@@ -15,6 +16,16 @@ struct empty_pop: std::exception
 
 #ifndef my_stack_h
 	#define my_stack_h
+
+void f1()
+{
+	std::cout<<"f1\n";
+}
+
+void f2(int i,std::string j)
+{
+	std::cout<<"f2\n";
+}
 
 namespace my_th_safe_structs{
 
@@ -101,12 +112,18 @@ class TSQueue
 	public:
 		//don't need any dtor, it's only wrapper
 		//omit another ctors for simplity
-		explicit TSQueue(const TSeq& data):_data(data){};
-		explicit TSQueue(const TSeq&& data=TSeq()):_data(data){};//default
+		explicit TSQueue(const TSeq& data):_data(data)
+		{
+			done.store(0,std::memory_order_release);
+		}
+		explicit TSQueue(const TSeq&& data=TSeq()):_data(data)//default
+		{
+			done.store(0,std::memory_order_release);
+		}
 		//i don't want set atomic counter of thread's enter and incr/decr in ctor/dtor of related obj
 		//in begin of each f() and wait until zero counter and set return if done=1 before
 		//SO, this must be called before/when ~ThreadPool 		
-		void clear_before_dtor()
+		void clear_before_dtor() noexcept
 		{
 			done.store(1,std::memory_order_release);//probably low contention because of max 1 concurent thread 
 			_cond_var.notify_all();//(**)+guarantee no thread's wait before dtor
@@ -137,6 +154,8 @@ class TSQueue
 			//(**)+guarantee no thread's wait before dtor
 			while(_data.empty()&&(!done.load(std::memory_order_acquire)))
 				_cond_var.wait(lk);
+			if (done.load(std::memory_order_acquire))
+				return;
 			value=std::move(_data.front());//efficienty if T has move ctor, otherwise copy-ctor ll'call			
 			_data.pop_front();
 		}
@@ -145,6 +164,8 @@ class TSQueue
 			std::unique_lock<std::mutex> lk(_mutex);
 			while(_data.empty()&&(!done.load(std::memory_order_acquire)))
 				_cond_var.wait(lk);
+			if (done.load(std::memory_order_acquire))
+				return;
 			std::shared_ptr<T> res(std::move(_data.front()));
 			_data.pop_front();
 			return res;//implicit move ctor
@@ -158,7 +179,96 @@ class TSQueue
 			return st1._data==st2._data;
 		}
 
+//simple threadpoll
+class ThreadPool
+{
+	private:
+		std::atomic<bool> done;
+		my_th_safe_structs::TSQueue<std::function<void()> > work_queue;
+		std::vector<std::thread> _pool;
+		
+		const int _TH_Max;
+		
+		void dowork()
+		{
+			try
+			{
+				std::function<void()> task;
+				while(!done.load(std::memory_order_acquire))
+				{
+					std::cout<<"start wait task\n";
+					work_queue.pop(task);//avoid hight contention for done by wait
+					if(task)
+					{
+						std::cout<<"start do task\n";
+						task();
+					}
+				}
+			}
+			catch(const std::exception &exc)
+			{
+				std::cerr<<exc.what();
+				std::cout<<"\nthrow with id:"<<std::this_thread::get_id()<<"\n";
+			}
+			catch(...)
+			{
+				std::cout<<"throw with id:"<<std::this_thread::get_id()<<"\n";
+			}
+			std::cout<<"finish work\n";
+		}
+	public:
+		
+		ThreadPool():_TH_Max(std::thread::hardware_concurrency())
+		{
+			std::cout<<"thread max:"<<_TH_Max<<"\n";
+			done.store(false,std::memory_order_release);
+			_pool.reserve(_TH_Max);
+			for (int i=0;i<_TH_Max;++i)
+			{
+				std::cout<<"thread\n";
+				std::thread thrd(&my_th_safe_structs::ThreadPool::dowork,this);
+				try
+				{
+					_pool.push_back(std::move(thrd));
+					std::cout<<"add thread complete\n";
+				}
+				catch(...)
+				{
+					std::cout<<"THREADPOOL throw with id:"<<std::this_thread::get_id()<<"\n";
+					if (thrd.joinable())
+						thrd.join();
+					throw 1111;
+				}
+			}	
+		}
+		
+		~ThreadPool()
+		{
+			std::cout<<"~THREADPOOL\n";
+			if(!done.load(std::memory_order_acquire))
+				stop();
+		}
+		
+		ThreadPool(const ThreadPool &x)=delete;
+		ThreadPool& operator=(const ThreadPool &x)=delete;
+
+		void add_task(std::function<void()> task)
+		{
+			work_queue.push(task);
+		}
+
+		void stop()
+		{
+			done.store(true,std::memory_order_release);
+			work_queue.clear_before_dtor();
+			for (int i=0;i<_pool.size();++i)
+				if(_pool[i].joinable())
+					_pool[i].join();
+		}
+};
+
 }
+
 #endif
 
 /*
@@ -226,7 +336,12 @@ int main()
 	task();
 	work_queue.pop(task);
 	task();
-	std::cout<<"program finish"<<"\n";
 	*/
+	my_th_safe_structs::ThreadPool thrpool;
+	thrpool.add_task(f1);
+	thrpool.add_task(std::bind(f2,1,"abc"));
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	thrpool.stop();
+	std::cout<<"program finish"<<"\n";
 	return 0;
 }

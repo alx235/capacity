@@ -257,7 +257,7 @@ class Binaphore {//or pthread_mutex_timedlock but without "illegal" unlock
 //if main thread exit() - UB
 
 //(1)
-//C++11 thread MUSN'T be JOinable(not been detached or joined) before call ~THread()
+//C++11 thread MUSN'T be JOinable(not been detached or joined AND represent active state) before call ~THread()
 //...or also can be Moved(non-copyable,non-assignable), Default-Constructed
 //thread terminate normal or by thow exception (cancel is difficult)
 //to use NAtive pthread.h function call native_handle() for fast performance, but with carefull!
@@ -344,7 +344,7 @@ void thread_f1(/*std::promise<int> prom_*/)
 };*/
 
 //(5++)	
-/*class thread_guard
+class thread_guard//NOT usefull:if stack overflow you'll get memory leak 
 {
 	std::thread& t;
 	public:
@@ -361,13 +361,25 @@ void thread_f1(/*std::promise<int> prom_*/)
 		}
 		thread_guard(const thread_guard &x)=delete;
 		thread_guard& operator=(const thread_guard &x)=delete;
-};*/
+};
 
 //(8)
 void f2(std::unique_ptr<int> _data)
 {
 }
 
+//(11)if another thread trow, dtor won't be called
+void f3()
+{
+	/*try
+	{*/
+		//throw 20;
+	/*}
+	catch(...)
+	{*/
+		//std::cout<<"throw\n";
+	//}
+}
 
 int main()
 {	
@@ -427,7 +439,13 @@ int main()
 	for(int i=0;i<TH_MAX;++i)
 		th_pool[i].join();
 	std::cout<<"availiable threads count:"<<std::thread::hardware_concurrency()<<"\n";*/
-	
+
+	//(11)
+	/*
+	std::thread t1(f3);
+	thread_guard g(t1);
+	std::this_thread::sleep_for(std::chrono::seconds(5));
+	*/
 	std::cout<<"program finish"<<"\n";
 	return 0;
 }
