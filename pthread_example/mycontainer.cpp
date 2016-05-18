@@ -17,16 +17,6 @@ struct empty_pop: std::exception
 #ifndef my_stack_h
 	#define my_stack_h
 
-void f1()
-{
-	std::cout<<"f1\n";
-}
-
-void f2(int i,std::string j)
-{
-	std::cout<<"f2\n";
-}
-
 namespace my_th_safe_structs{
 
 template<typename T,typename TSeq=std::deque<T>>
@@ -187,7 +177,7 @@ class ThreadPool
 		my_th_safe_structs::TSQueue<std::function<void()> > work_queue;
 		std::vector<std::thread> _pool;
 		
-		const int _TH_Max;
+		int _TH_Max;
 		
 		void dowork()
 		{
@@ -218,8 +208,13 @@ class ThreadPool
 		}
 	public:
 		
-		ThreadPool():_TH_Max(std::thread::hardware_concurrency())
+		ThreadPool()
 		{
+			int TH_Max=std::thread::hardware_concurrency();
+			if (!TH_Max)
+				_TH_Max=1;
+			else
+				_TH_Max=TH_Max;
 			std::cout<<"thread max:"<<_TH_Max<<"\n";
 			done.store(false,std::memory_order_release);
 			_pool.reserve(_TH_Max);
@@ -230,7 +225,7 @@ class ThreadPool
 				try
 				{
 					_pool.push_back(std::move(thrd));
-					std::cout<<"add thread complete\n";
+					std::cout<<"i:"<<i<<" add thread complete\n";
 				}
 				catch(...)
 				{
@@ -292,6 +287,22 @@ void call_ftype_wrap(FTYPE f)
 	f();
 }*/
 
+
+void f1()
+{
+	std::cout<<"f1\n";
+}
+
+void f2(int i,std::string j)
+{
+	std::cout<<"f2\n";
+}
+
+void f3()
+{
+	throw 0;
+}
+
 int main()
 {	
 	/*
@@ -340,6 +351,7 @@ int main()
 	my_th_safe_structs::ThreadPool thrpool;
 	thrpool.add_task(f1);
 	thrpool.add_task(std::bind(f2,1,"abc"));
+	thrpool.add_task(f3);
 	std::this_thread::sleep_for(std::chrono::seconds(5));
 	thrpool.stop();
 	std::cout<<"program finish"<<"\n";
