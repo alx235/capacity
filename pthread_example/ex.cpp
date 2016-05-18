@@ -1,21 +1,21 @@
 //<THREAD MARKS
 //1) Launch thread give overhead: OS allocate kernel res, stack space and add thread to scheduler
-//2) Many threads run once slow down system performance.
-//3) More threds run than more context swith OS has to do this can reduce performance (oversubscription)
-//4) Use high-level threads abstraction slower than use low-level.
-//5) ONE MUTEX FOR MANY THREADS IT'S OBVIOSLY BAD IDEA!
+//.. =>many threads run once slow down system performance.
+//2) Context swith OS(kernel) Can reduce performance (oversubscription),flush cache and make full memory barrier
+//..(OS+CPU specific)
+//3) Use high-level threads abstraction slower than use low-level.
 //6) Cache lines have 32-64 (ofthen) bit size, if data lower this size it can cause false sharing
-//...threads modificate multiple item in one cache-line this can produce large cache queue
+//..threads modificate multiple item in one cache-line this can produce large cache data or invalidate queue (CPU specific)
+//..(cache alighning avoid this)
 //7) Sync-With CAN slow performance by reodering access from different core
-////7.1) High Contention core wait each other very ofthen
-////7.2) Low Contention rarely waiting situation
-//8) Effect by mutex contention DIFFERENT than atomic instructions sync
-//9) +3) Swith context CAN cause cach line reloading for thread from different core
-//10) Cache mis - chunk of data haven't store in cache, must be loaded to cache which delete another data
-//...that can be used by another thread
-//11) data proximity: data accessed by single thread is spread out in memory, it increase count of cache line
-//...which grow latency and there is chance access data for another thread, it can cause cache miss which vere slow
+////7.1) High Contention core wait each other very ofthen (ONE MUTEX FOR MANY THREADS)
+////7.2) Low Contention rarely waiting situation (chance deadlock grow)
+//8) Effect by mutex contention DIFFERENT than atomic instructions sync (low time futex wait don't call kernel - POSIX)
+//...but kernel sleep,shedule slow sync and reduce high contention
+//9) Cache mis - chunk of data haven't store in cache, must be loaded to cache which can replace another thread's data cache
+//10) data proximity: data accessed by single thread is spread out in memory, can replace another thread's data cache
 //<THREAD MARKS
+//It's only theory, result depends on OS and CPU specific offcourse
 
 
 //g++ ex.cpp -pthread -std=c++11
