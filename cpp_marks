@@ -2,6 +2,12 @@ MAIN thread finish before child=>UB
 
 Source where strong gurantee external function forbid compiler reordering (e.g. mutex.lock()/unlock())???
 
+!!!! http://stackoverflow.com/questions/12777455/why-are-floating-point-operations-considered-expensive
+
+!!!! divide expensive http://stackoverflow.com/questions/15745819/why-is-division-more-expensive-than-multiplication
+
+!!!!! FOR recalculate params each cycle, don’t trust compiler
+
 !!!std::bind need std::(c)ref to pass by ref,like std::thread's function args
 
 lvalue (named object or a function/operator returning lvalue reference)
