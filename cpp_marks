@@ -1,3 +1,24 @@
+****
+Normally, when the Linux kernel is running in an SMP configuration, any CPU may take an interrupt or run a process.
+Under realtime conditions, the operations of scheduling multiple processes or handling an interrupt may interfere
+with a particular process meeting it's realtime deadlines.
+
+It would be nice to be able to isolate a realtime process on a CPU such that it was shielded from the scheduling
+of other processes and from handling interrupts.
+****
+
+****
+
+There're also things like global pages. When you switch between applications and need to flush the current TLB, 
+you can avoid invalidating global pages from the TLB by performing Invalidate TLB entries by ASID match with
+the application's ASID. If you mark the kernel's pages as global, you don't invalidate their translations
+and the kernel itself doesn't suffer from unnecessary TLB invalidations
+
+A translation lookaside buffer (TLB) is a cache that memory management hardware uses
+to improve virtual address translation speed
+
+****
+
 MAIN thread finish before child=>UB
 
 Source where strong gurantee external function forbid compiler reordering (e.g. mutex.lock()/unlock())???
