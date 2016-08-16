@@ -7,6 +7,9 @@ It would be nice to be able to isolate a realtime process on a CPU such that it 
 of other processes and from handling interrupts.
 ****
 
+...int* x = new int(); 
+int& rx = *x; ...
+
 ****
 
 There're also things like global pages. When you switch between applications and need to flush the current TLB, 
