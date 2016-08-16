@@ -19,6 +19,10 @@ to improve virtual address translation speed
 
 ****
 
+Address of temporary it NOT allowed!
+
+Smart ptr have ONLY move semantics.
+
 MAIN thread finish before child=>UB
 
 Source where strong gurantee external function forbid compiler reordering (e.g. mutex.lock()/unlock())???
@@ -46,9 +50,9 @@ http://en.cppreference.com/w/cpp/language/reference
 		http://en.cppreference.com/w/cpp/language/lifetime
 		http://stackoverflow.com/questions/10897799/temporary-objects-when-are-they-created-how-do-you-recognise-them-in-code
 
-if destroyed mutex accessed by thread=>UB
-
 Constructor convertable if at least one without default value param exist(until c++11) and without explicit function-specifier
+
+if destroyed mutex accessed by thread=>UB
 
 Strong exception guarantee - keep container state before call that throw
 pointer increase on a <=> implicit increase pointer on a*sizeof(T) 
