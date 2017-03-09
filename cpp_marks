@@ -103,6 +103,7 @@ Requirements for Container Elements (C++98?) (http://www.ccplusplus.com/2014/01/
 - An element must be copyable by a copy constructor
 - An element must be assignable by the assignment operator
 - An element must be destroyable by a destructor
+- An element MUST have heap allocation
 
 auto_ptr:
 	The C++ Standard says that an STL element must be "copy-constructible" and "assignable."
