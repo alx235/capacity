@@ -43,6 +43,8 @@ It would be nice to be able to isolate a realtime process on a CPU such that it 
 !!!std::bind need std::(c)ref to pass by ref,like std::thread's function args
 
 lvalue (named object or a function/operator returning lvalue reference)
+lvalue it's object persists beyond the expression that defines it
+Rvalue it's value not associated with object.
 
 Rvalue references can be used to extend the lifetimes of Temporary! objects
 	(note, lvalue references to const can extend the lifetimes of temporary objects too,
@@ -303,7 +305,7 @@ dynamic_cast<T*>(D*): downcast(if inheritance), upcast and crosscast need polymo
  dynamic_cast<void*>(D*) give adress of object beginning (pol. type)
  dynamic_cast move at hierarchy to tail, to head
  static_cast - for void* to T* cast/POD type cast
-  void* pointer can be used for any standart pointer operation only static_cast?
+  void* pointer can be used for any standart pointer operation only static_cast
  const_cast full save only in case when object declare as non-const(volatile)
 typeid: return pointer to type info (std type), bad_type if for zero pol type pointer or ref, compil-time value for non-pol type
 !!! NEVER use C-style cast !!!
@@ -340,10 +342,6 @@ deref NULL pointer take no effect.
 
 +Always use const if can, for save...
 
-+Use non-member fuction for case when need cast all params?
-
-+Use init cur val instead of def constr and init...(free processor time)
-
 +VIRTUAL INHERITANCE is very expensive and low!
 
-!User type POD type not use constructor they default value insert (if static and some another condition)
+!POD type not use constructor they default value inserted (if static and some another condition)
